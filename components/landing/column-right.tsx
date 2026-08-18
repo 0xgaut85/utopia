@@ -64,7 +64,7 @@ export function ColumnRight() {
           one that meets your bar and the reward releases automatically, no
           invoice and no chasing anyone down for it.
         </p>
-        <ImagePlaceholder ratio="portrait" src="/image4.png" />
+        <ImagePlaceholder ratio="portrait" src="/image9.png" />
         <LinkRow items={[{ label: "Post a bounty", href: "/docs/contribute/bounties" }]} />
       </SectionBlock>
 

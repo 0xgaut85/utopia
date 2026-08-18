@@ -59,6 +59,13 @@ export function ImagePlaceholder({
         ) : (
           <ImageIcon className="h-4 w-4 opacity-20" strokeWidth={1.2} />
         )}
+        {hasMedia ? (
+          // Frosted veil so the artwork recedes behind the surrounding copy.
+          <div
+            aria-hidden
+            className="pointer-events-none absolute inset-0 bg-white/[0.07] backdrop-blur-[0.5px] backdrop-saturate-[0.97]"
+          />
+        ) : null}
       </div>
     </figure>
   );
