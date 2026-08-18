@@ -1,0 +1,65 @@
+---
+title: Bounties
+description: Commissioning a capture of a specific place, submitting your own clips, and the mechanics of escrow and payout.
+---
+
+When someone needs a specific place captured (a bridge, an intersection, a factory interior, a section of highway) they post a bounty: a request with money attached. Contributors submit captures against it, the requester selects a single winner, and the winning contributor receives the reward.
+
+Commissioned work is currently how all data flows through Utopia. As the network's coverage expands, a browsable catalogue of existing captures will be added alongside it.
+
+You can find bounties at [data.utopiadata.net](https://data.utopiadata.net).
+
+## Post a bounty
+
+<Steps>
+  <Step title="Describe the target">
+    Write a title and spell out precisely what needs capturing and at which location. The quality of the submissions you get back tracks the precision of this brief.
+  </Step>
+  <Step title="Fund it">
+    Make a single payment, $50 for example, then set how long the bounty remains open. That one payment also covers reconstruction of the winning capture; nothing more is owed later.
+  </Step>
+  <Step title="Reward held in escrow">
+    Before any contributor lifts a finger, the reward is locked in on-chain USDC escrow. Contributors can verify for themselves that the money exists, and it cannot move until you accept a submission.
+  </Step>
+  <Step title="Review and accept">
+    As submissions come in, judge them against your brief. The moment you accept one, the escrowed reward is released.
+  </Step>
+</Steps>
+
+Up until you accept a submission, you can cancel and get every cent back. The same applies if the deadline arrives with no accepted submission: the bounty closes and the full reward is returned.
+
+## Submit to a bounty
+
+<Steps>
+  <Step title="Get a capture">
+    Either record something fresh or reach for a clip already on your account. Both are accepted.
+  </Step>
+  <Step title="Submit">
+    Attach a brief note for the requester and send the clip in.
+  </Step>
+  <Step title="No cost to submit">
+    Submitting is free. The bounty itself pays for reconstruction.
+  </Step>
+</Steps>
+
+There is no limit on how many contributors can submit to one bounty. Acceptance is only possible while the bounty is open, which means late submissions cannot win, so get yours in before the deadline. Win, and Utopia pays you the reward. Lose, and the clip remains your property.
+
+## What happens after acceptance
+
+When the requester accepts a submission, the bounty is closed on chain and the escrow is released. Reconstruction of the winning capture then begins, and the requester ends up with a textured mesh delivered as a GLB file. Expect reconstruction to take 30 minutes at minimum.
+
+## Where the money goes
+
+The reward enters escrow at funding time and leaves it at acceptance. From that amount, Utopia deducts a platform fee (10% at present) and the reconstruction cost (roughly $5 at present); the contributor gets everything that remains.
+
+At today's defaults, $50 splits into $5 for the platform, $5 for reconstruction and $40 for the contributor. Treat those numbers as illustrative, since they are subject to change.
+
+## Privacy
+
+Both the escrow and the settlement are recorded on chain, and that is by design. A contributor should not have to spend an afternoon filming on faith that the money exists, and a requester should be able to demonstrate that a transaction occurred without relying on anyone's word.
+
+The content of the deal, however, never touches the chain. What gets written there is a hash of the delivered dataset, not the footage, not the brief, and not who the contributor was.
+
+<Callout type="info">
+  Raw video is never handed to requesters. What they get is the reconstructed 3D model; the original footage remains with the contributor.
+</Callout>

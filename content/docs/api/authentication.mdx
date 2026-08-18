@@ -1,0 +1,87 @@
+---
+title: Authentication
+description: How bearer API keys work, what region scoping means and what to do when credentials fail.
+---
+
+<Callout type="warning">
+  This API is currently in early access and has not been opened to the public. Treat the endpoint URLs, request samples and response examples throughout this page as illustrative only. To get access, email [hello@utopiadata.net](mailto:hello@utopiadata.net).
+</Callout>
+
+The Utopia API authenticates every call with an API key passed as a bearer token in the Authorization header. If a request arrives without a valid key, it is rejected with 401 Unauthorized before any processing happens.
+
+## Obtaining your API key
+
+API access starts with an email to [hello@utopiadata.net](mailto:hello@utopiadata.net). After your account has been provisioned, you can find your key in the Utopia dashboard by opening Settings then API Keys.
+
+## Passing your API key
+
+Every request must carry the key in its Authorization header:
+
+```text
+Authorization: Bearer your-api-key
+```
+
+<CodeGroup>
+
+```bash title="cURL"
+curl -X POST https://api.utopiadata.net/v1/spatial/query \
+  -H "Authorization: Bearer your-api-key" \
+  -H "Content-Type: application/json" \
+  -d '{"aoi": {"type": "Point", "coordinates": [-122.4194, 37.7749]}}'
+```
+
+```python title="Python"
+import requests
+
+response = requests.post(
+    "https://api.utopiadata.net/v1/spatial/query",
+    headers={"Authorization": "Bearer your-api-key"},
+    json={"aoi": {"type": "Point", "coordinates": [-122.4194, 37.7749]}}
+)
+```
+
+```javascript title="JavaScript"
+const response = await fetch("https://api.utopiadata.net/v1/spatial/query", {
+  method: "POST",
+  headers: {
+    "Authorization": "Bearer your-api-key",
+    "Content-Type": "application/json"
+  },
+  body: JSON.stringify({
+    aoi: { type: "Point", coordinates: [-122.4194, 37.7749] }
+  })
+});
+```
+
+</CodeGroup>
+
+## Authentication errors
+
+| HTTP status | Error code | Cause |
+| --- | --- | --- |
+| 401 | unauthorized | The key was omitted, is malformed or has been revoked |
+| 403 | region_not_authorized | The key itself is fine but does not cover the region you asked for |
+
+A 401 response looks like this:
+
+```json
+{
+  "error": "unauthorized",
+  "message": "Invalid or missing API key. Include your key as Authorization: Bearer <key>."
+}
+```
+
+## Best practices
+
+<Callout type="warning">
+  Keep your API key out of source code entirely, and never let it end up in version control.
+</Callout>
+
+- Keep the key in an environment variable called UTOPIA_API_KEY
+- Give development and production their own separate keys
+- Rotate keys on a regular schedule via the dashboard
+- If a key is compromised, revoke it right away under Settings then API Keys
+
+<Callout type="tip">
+  Think a key may have leaked? Revoke it in the dashboard and generate a replacement first, then update your application config.
+</Callout>

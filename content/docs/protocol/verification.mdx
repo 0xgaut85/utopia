@@ -1,0 +1,54 @@
+---
+title: How verification works
+description: Ingest validation, capture fingerprints, on-chain anchoring, and the verification layers still in development.
+---
+
+A buyer who cannot distinguish a genuine crowd-sourced capture from a fabricated one will pay nothing for either. That makes verification the foundation Utopia stands on, not an optional feature added on top. Without it the data has no value.
+
+Verification is layered. The layers run from the cheap and fully automatic up to the expensive and adversarial, and three of them are operating today. Everything else on this page is labelled as not live yet and described in the future tense.
+
+## Live: checks at ingest
+
+Before a capture can go anywhere near a bounty, it is validated on arrival:
+
+- Length and video quality
+- Agreement between the location signals and the camera
+- A duplicate scan against everything already in the network
+
+A failed submission is rejected, and the rejection includes the reason.
+
+## Live: the capture fingerprint
+
+A fingerprint is generated for every capture at the moment of recording. It holds three things: a hash of the content, a coarse geohash, and a timestamp.
+
+Only the derived hash goes into the fingerprint, never the footage itself. The consequence is useful: it becomes possible to prove a capture has not been tampered with, without showing anyone its contents.
+
+Whoever holds a capture can rerun the hash and check it against the record. Data that has been altered or invented fails on the spot.
+
+## Live: the fingerprint anchored on chain
+
+Rather than being anchored one by one, fingerprints collect over a short window and are committed together as a Merkle tree, whose root is published to a public blockchain as an attestation. A window closes roughly every fifteen minutes.
+
+This batching is the reason anchoring stays affordable at the volume of incoming captures: an entire window travels in a single transaction instead of each capture paying its own way. The trade is a little temporal precision, since the chain can establish that a fingerprint existed by the close of its window, but not down to the second.
+
+In exchange, every holder receives an inclusion proof. With the capture and the handful of sibling hashes attached to its record, anyone can rebuild the Merkle root and check it against the published one. Crucially, that check bottoms out at the public ledger (not at a promise from whoever is selling the data) and no part of it needs Utopia to answer.
+
+Anchoring establishes three properties: that a fingerprint existed, in what order, and that the data is intact. What it cannot establish on its own is whether the scene is genuinely what it claims to be. The remaining layers exist for that.
+
+None of this machinery is visible to contributors. No wallet prompts, no gas fees, no waiting.
+
+## Not live yet: device attestation at capture time
+
+Hardware-backed attestation will verify, before a capture is accepted, that it came from a genuine and unmodified device. For now, the fingerprint can say what was captured and when, but nothing about the hardware behind it.
+
+## Not live yet: sensor cross correlation
+
+The camera, GPS and motion sensors will be cross-checked against one another. A faked location will then fail because the physics do not add up, not because a policy says so.
+
+## Not live yet: independent verification
+
+The cheap attacks are handled by automation. What automation cannot handle is a capture that passes every technical check yet lies about the world. Routing such cases to a central review team would create both a bottleneck and a single point of trust.
+
+The plan instead is to hand these cases to independent operators. Assignment will be pseudorandom sampling, so no operator picks their captures and no contributor picks their operator. Each operator signs an attestation that becomes part of the capture's provenance record; an operator caught signing a false one is penalized and ejected from the set.
+
+Decentralization here is a means, not the goal. The goal is that when a buyer audits a provenance record, what they read is a claim with an identified, accountable operator behind it, not a reassurance from the seller of the data.

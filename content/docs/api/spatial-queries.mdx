@@ -1,0 +1,118 @@
+---
+title: Spatial queries
+description: Query verified observations on demand by sending an area of interest and time window to POST /v1/spatial/query.
+---
+
+<Callout type="warning">
+  This API is currently in early access and has not been opened to the public. Treat the endpoint URLs, request samples and response examples throughout this page as illustrative only. To get access, email [hello@utopiadata.net](mailto:hello@utopiadata.net).
+</Callout>
+
+Use the spatial query endpoint when you need verified spatial intelligence on demand. Given an area of interest, it returns the current ground truth observations that Utopia edge nodes have captured inside that area, for any geographic region your key is authorized to access.
+
+## Endpoint
+
+```text
+POST https://api.utopiadata.net/v1/spatial/query
+```
+
+## Request
+
+### Headers
+
+| Header | Value |
+| --- | --- |
+| Authorization | Bearer your-api-key |
+| Content-Type | application/json |
+
+### Body parameters
+
+<FieldGroup>
+  <ParamField name="aoi" type="GeoJSON geometry" required>
+    The area of interest to query. Accepts Point, Polygon and MultiPolygon geometries; a polygon may cover at most 100 km².
+  </ParamField>
+  <ParamField name="min_ground_truth_score" type="float">
+    A confidence floor between 0.0 and 1.0. Any observation scoring below it is left out of the results. The default is 0.5.
+  </ParamField>
+  <ParamField name="observation_types" type="array">
+    Restricts results to particular observation types. Valid entries are obstacle, occupancy, change, structure, vehicle and vegetation. Leaving this out returns every type.
+  </ParamField>
+  <ParamField name="max_age_seconds" type="integer">
+    The oldest an observation may be, in seconds. Defaults to 60. A value of 0 restricts results to observations captured within the last second.
+  </ParamField>
+  <ParamField name="limit" type="integer">
+    Caps how many observations come back. The default is 100 and the ceiling is 1000.
+  </ParamField>
+</FieldGroup>
+
+### Example request
+
+```bash
+curl -X POST https://api.utopiadata.net/v1/spatial/query \
+  -H "Authorization: Bearer your-api-key" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "aoi": {
+      "type": "Polygon",
+      "coordinates": [[
+        [-122.4194, 37.7749],
+        [-122.4094, 37.7749],
+        [-122.4094, 37.7849],
+        [-122.4194, 37.7849],
+        [-122.4194, 37.7749]
+      ]]
+    },
+    "min_ground_truth_score": 0.75,
+    "observation_types": ["obstacle", "vehicle"],
+    "max_age_seconds": 30,
+    "limit": 50
+  }'
+```
+
+## Response
+
+### Response fields
+
+<FieldGroup>
+  <ResponseField name="query_id" type="string">
+    An identifier unique to this query. Quote it when contacting support.
+  </ResponseField>
+  <ResponseField name="node_count" type="integer">
+    How many edge nodes supplied observations for this response.
+  </ResponseField>
+  <ResponseField name="observations" type="array">
+    The ground truth observations themselves. Every entry includes an observation_id, geometry, classification, confidence score, capture timestamp, provenance hash and the number of contributing nodes.
+  </ResponseField>
+</FieldGroup>
+
+### Example response
+
+```json
+{
+  "query_id": "qry_9e2f1a7c",
+  "node_count": 47,
+  "observations": [
+    {
+      "observation_id": "obs_3b8d2f1a",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [-122.4150, 37.7800]
+      },
+      "observation_type": "vehicle",
+      "ground_truth_score": 0.94,
+      "timestamp": "2026-05-22T10:14:33.412Z",
+      "provenance_hash": "sha256:a3f8e2c1b4d7f9e0a2b5c8d1e4f7a0b3c6d9e2f5",
+      "node_count": 12
+    }
+  ]
+}
+```
+
+## Error responses
+
+| Status | Error code | Description |
+| --- | --- | --- |
+| 400 | invalid_geometry | The area of interest is not well-formed GeoJSON |
+| 400 | aoi_too_large | The polygon covers more than the 100 km² maximum |
+| 401 | unauthorized | API key absent or not valid |
+| 403 | region_not_authorized | The area falls outside the regions your key covers |
+| 429 | rate_limit_exceeded | Request volume exceeded your limit |

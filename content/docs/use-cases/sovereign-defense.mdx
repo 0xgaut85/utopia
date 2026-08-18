@@ -1,0 +1,164 @@
+---
+title: Sovereign defense
+description: Ground level intelligence you can verify, backed by an auditable provenance trail.
+---
+
+<Callout type="warning">
+  The API is in early access and is not publicly available yet. Endpoint URLs, request examples and sample responses on this page are illustrative. Contact [hello@utopiadata.net](mailto:hello@utopiadata.net) to request access.
+</Callout>
+
+Accurate spatial data alone does not satisfy a defense or intelligence workload. What those applications additionally demand is provenance that can be proven, tight control over where data lives and moves, and a chain of custody that can be verified end to end, sensor to analyst. These requirements are exactly what Utopia was designed around: cryptographic signing happens at the edge before anything is transmitted, sovereignty boundaries are enforced in the infrastructure itself, and raw sensor streams stay on the node that produced them. What you get is a spatial intelligence platform fit for mission critical environments, one where you can be confident the data arriving is authentic, unintercepted and untampered.
+
+## Defense tier capabilities
+
+<CardGrid cols={2}>
+  <Card title="Cryptographic chain of custody">
+    A provenance hash rides with every data point, encoding the node's identity, the capture timestamp and the observation content. Alter anything and the hash breaks, giving tamper evident integrity proof spanning sensor to delivery.
+  </Card>
+  <Card title="Enforced sovereignty boundaries">
+    Query routing is confined to nodes inside your designated sovereignty boundary. Crossing that boundary requires you to explicitly authorize cross region access; otherwise data never transits outside infrastructure.
+  </Card>
+  <Card title="Hardware level privacy">
+    Imagery, depth data and point clouds: every raw sensor stream is processed on device and none of it is ever transmitted. Derived spatial features are the only thing that leaves a node.
+  </Card>
+  <Card title="Fine grained access controls">
+    Scope which users, systems or API keys may query particular geographic zones, data tiers or provenance verified datasets.
+  </Card>
+</CardGrid>
+
+## Defense use cases
+
+### Situational awareness
+
+Analysts and command systems get a live, corroborated spatial picture from Utopia's continuous ground truth streams over areas of operational interest, with no forward deployed sensor infrastructure required. Cross validation by multiple independent edge nodes means the ground_truth_score functions as a quantitative confidence measure for whatever area you are watching.
+
+### Border and perimeter monitoring
+
+Draw a polygon area of interest along the border or perimeter in question and subscribe to a streaming feed. Observations flow to your monitoring systems as edge nodes in the zone report them, giving real time updates instead of waiting on scheduled imagery cycles.
+
+### Critical zone surveillance
+
+Set up spatial subscriptions over sensitive zones (installation perimeters, airspace corridors, maritime exclusion areas) and attach alert thresholds keyed to ground_truth_score and observation type. Anomalies with high confidence surface at once; signals with low confidence go to analyst review rather than disappearing silently.
+
+## Data sovereignty: how residency and access controls work
+
+Provisioning a defense tier Utopia account involves specifying one or more sovereign regions. Inside those regions, three guarantees hold.
+
+<Steps>
+  <Step title="Region locked routing">
+    Only edge nodes inside your designated sovereign region ever receive your API queries. Observation data does not cross nodes or infrastructure beyond that boundary.
+  </Step>
+  <Step title="Encrypted transit with hash verification">
+    TLS 1.3 encrypts everything in motion: edge node to Utopia aggregation layer, aggregation layer to your endpoint. Since the provenance hash is computed before encryption and checked after decryption, interception or modification anywhere along the way is detectable.
+  </Step>
+  <Step title="Auditable chain of custody">
+    A provenance_hash accompanies every response and can be stored next to the response data. Re-running verification at any later time confirms nothing changed since delivery.
+  </Step>
+</Steps>
+
+<Callout type="tip">
+  Defense tier access, sovereign region configuration and advanced access controls all come through a dedicated enterprise agreement. To discuss requirements and start onboarding, contact [hello@utopiadata.net](mailto:hello@utopiadata.net).
+</Callout>
+
+## Verifying provenance on a spatial response
+
+Once a spatial query response arrives, confirm the payload is unaltered by verifying its provenance_hash.
+
+<CodeGroup>
+
+```bash title="cURL"
+curl -X POST https://api.utopiadata.net/v1/spatial/query \
+  -H "Authorization: Bearer $UTOPIA_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "aoi": {
+      "type": "Polygon",
+      "coordinates": [[
+        [34.7818, 32.0853],
+        [34.7918, 32.0853],
+        [34.7918, 32.0953],
+        [34.7818, 32.0953],
+        [34.7818, 32.0853]
+      ]]
+    },
+    "max_age_seconds": 60
+  }' \
+  -o response.json
+
+curl https://api.utopiadata.net/v1/provenance/$(jq -r .provenance_hash response.json) \
+  -H "Authorization: Bearer $UTOPIA_API_KEY"
+```
+
+```python title="Python"
+import os
+import requests
+
+api_key = os.environ["UTOPIA_API_KEY"]
+headers = {
+    "Authorization": f"Bearer {api_key}",
+    "Content-Type": "application/json",
+}
+
+query_payload = {
+    "aoi": {
+        "type": "Polygon",
+        "coordinates": [[
+            [34.7818, 32.0853],
+            [34.7918, 32.0853],
+            [34.7918, 32.0953],
+            [34.7818, 32.0953],
+            [34.7818, 32.0853],
+        ]],
+    },
+    "max_age_seconds": 60,
+}
+
+response = requests.post(
+    "https://api.utopiadata.net/v1/spatial/query",
+    headers=headers,
+    json=query_payload,
+)
+data = response.json()
+
+verification = requests.get(
+    f"https://api.utopiadata.net/v1/provenance/{data['provenance_hash']}",
+    headers=headers,
+)
+result = verification.json()
+
+if not result.get("verified"):
+    raise RuntimeError("Data integrity check failed, do not use this response.")
+```
+
+</CodeGroup>
+
+When verification succeeds, the response takes this form:
+
+```json
+{
+  "query_id": "q_5a3f1c9d2e7b4806",
+  "provenance_hash": "sha256:9e3b1c7f4a2d8605bf1e4d7c2a8f3b9e1c4d7a2f",
+  "verified": true,
+  "node_count": 214,
+  "sovereign_region": "eu-west-1",
+  "captured_at": "2026-05-22T11:47:22.304Z"
+}
+```
+
+<Callout type="warning">
+  A verified value of false means the response cannot be trusted, so keep it out of any downstream decision making. Log the failure, and if failures repeat, contact [hello@utopiadata.net](mailto:hello@utopiadata.net).
+</Callout>
+
+## Relevant concepts
+
+<CardGrid cols={3}>
+  <Card title="Cryptographic provenance" href="/docs/data/cryptographic-provenance">
+    The construction of provenance hashes and their role in audit and verification.
+  </Card>
+  <Card title="Data sovereignty" href="/docs/data/data-sovereignty">
+    Sovereign regions explained, plus configuring access boundaries on your account.
+  </Card>
+  <Card title="Privacy at capture" href="/docs/data/edge-privacy">
+    The reasons raw sensor streams stay on the node, and what that implies for sensitive environments.
+  </Card>
+</CardGrid>

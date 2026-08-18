@@ -1,0 +1,75 @@
+---
+title: How Utopia works
+description: The path an observation takes from capture on a phone to a verified result in your API response.
+---
+
+At its core, Utopia is a decentralized data rail: an ever-expanding network of edge nodes records spatial observations of the real world, strips them of private content on the very device that captured them, and hands verified results to your application over one REST API. Knowing what happens at each stage of this pipeline pays off in practice: your queries get sharper, your reading of responses gets more accurate, and the systems you build can lean on ground truth instead of estimates.
+
+## Key terminology
+
+A few terms recur across this documentation. It is worth pinning them down before looking at the pipeline itself.
+
+<CardGrid cols={2}>
+  <Card title="Ground truth">
+    Real world spatial observations recorded by physical sensors and then verified. Within Utopia, an observation earns the ground truth label when multiple independent edge nodes corroborate it, and every such observation ships with a cryptographic provenance hash attesting to where it came from and that it is intact. Ground truth stands in contrast to inferred or synthetic data: it records what was physically present at a given place and moment.
+  </Card>
+  <Card title="Edge node">
+    A phone with the Utopia capture app installed. A node records multi view video of a location, obscuring faces and vehicle number plates on the device itself, before the video is even encoded. Edge nodes are never something you buy or operate. You send queries to the network, and Utopia dispatches them to whichever nodes cover the area you asked about.
+  </Card>
+  <Card title="Provenance hash">
+    The cryptographic signature that accompanies every data response from Utopia. Baked into it are the identity of the node that made the capture, the moment of capture, and a hash of the raw observation. Together these give you tamper evident evidence that nothing changed between the sensor and your application.
+  </Card>
+  <Card title="Spatial query">
+    An API request describing a geographic area of interest, a time window, and any filters you want applied. Utopia dispatches it to the edge nodes covering that area, merges what they return, and hands back a ranked payload stamped with provenance.
+  </Card>
+</CardGrid>
+
+## How data flows through Utopia
+
+Five stages carry an observation from the physical world into your application.
+
+<Steps>
+  <Step title="Capture">
+    Spatial observations begin on edge nodes recording their surroundings. Every node works on its own, yet nodes near each other end up observing the same scene from distinct positions and at distinct moments, a form of multi view coverage that no single pass could produce. The ingestion path deliberately makes no assumptions about sensor type: as depth and lidar sensors become standard on phones, those modalities will simply flow through, with no change to the query interface.
+  </Step>
+  <Step title="Filter">
+    While recording, the node runs detection frame by frame and blurs faces and vehicle number plates before video encoding happens. Frames in their unblurred form never leave the device: nothing is uploaded, nothing is stored, and nothing can be recovered afterward. Privacy is a property of the capture itself, not a policy bolted on downstream.
+  </Step>
+  <Step title="Sign">
+    Once local processing finishes, the node uses its private key to sign the observation. The provenance hash produced this way encodes three things: which node made the capture, when it happened, and what the observation contains. Alter the data anywhere downstream and the signature breaks, which is what gives you a verifiable chain of custody running from sensor to API response.
+  </Step>
+  <Step title="Aggregate">
+    Utopia's infrastructure collects the signed observations from every node covering a given area and cross corroborates them, producing a ground_truth_score, a confidence metric that climbs as more independent nodes report the same spatial state. Where observations conflict, they are flagged for you rather than quietly dropped.
+  </Step>
+  <Step title="Deliver">
+    Structured JSON is what comes back through the Enterprise Spatial API: the aggregated, scored, signed payload. Every feature in it carries geometry, timestamps, a ground_truth_score and a provenance_hash. From there it is yours: consume it directly, forward it into downstream systems, or archive it with the provenance hash so it can be audited later.
+  </Step>
+</Steps>
+
+<Callout type="info">
+  Every query you make is routed through nodes inside your designated data sovereignty boundary. Unless you deliberately configure cross region access, your data never touches infrastructure beyond that boundary.
+</Callout>
+
+## What makes this different from cloud first alternatives
+
+The typical spatial data platform ships raw sensor output to a central cloud and does its filtering there, when it filters at all. That architecture creates two problems at once: identifiable footage ends up resting on infrastructure you do not control, and there is no per observation provenance you could ever audit.
+
+Utopia turns the model around. Because filtering runs on the device, there is no copy of any capture, anywhere off that device, in which a face or number plate can be read. Provenance gets attached where the data originates, and the API layer is nothing more than a thin delivery surface sitting over the network. The outcome is stronger privacy and a verifiable record for each observation, with zero infrastructure for you to deploy.
+
+<Callout type="tip">
+  Building something that must prove data integrity to regulators, auditors or partners? Keep the provenance_hash from every response next to your application data. At any later point, it lets you reconstruct and verify the full chain of custody.
+</Callout>
+
+## Explore the pipeline in depth
+
+<CardGrid>
+  <Card title="Edge nodes" href="/docs/concepts/edge-nodes">
+    The structure of the node network, the logic behind which nodes serve your queries, and what multi view ingestion looks like in practice.
+  </Card>
+  <Card title="Data pipeline" href="/docs/concepts/data-pipeline">
+    Each stage from capture through signing to the API response, with details on latency and response formats.
+  </Card>
+  <Card title="Ground truth" href="/docs/concepts/ground-truth">
+    Utopia's definition and calculation of ground truth, how to read the ground_truth_score, and when real time data beats historical data.
+  </Card>
+</CardGrid>

@@ -1,0 +1,56 @@
+---
+title: Data sovereignty
+description: How enterprise deployments control residency, geographic key scoping and access boundaries.
+---
+
+<Callout type="warning">
+  The API is currently in early access, with no public availability yet. Treat the endpoint URLs, request examples and sample responses shown here as illustrative. To request access, contact [hello@utopiadata.net](mailto:hello@utopiadata.net).
+</Callout>
+
+When you draw a jurisdictional or organizational boundary, the spatial intelligence Utopia delivers to you stays inside it. That is what data sovereignty means here. Sovereignty at the level a nation state would demand is a property of Utopia's architecture from the ground up, not something bolted on afterwards.
+
+## What data sovereignty means in Utopia
+
+Utopia enforces sovereignty at three distinct levels. First, on each node: faces and vehicle number plates are obscured on the capturing device before any transmission happens, which means identifiable frames never leave their jurisdiction. Second, across the network: an API key can be restricted to named geographic regions, and a query that strays outside them is rejected outright, not quietly filtered down. Third, at the API: everything returned to your application carries a tag naming its originating region and epoch, giving you an auditable record of what came into your systems and from where.
+
+## Geographic access controls
+
+During onboarding, your API key is set up with the regions it is authorized for. A region is any named geographic boundary: a country, a state, or a polygon you define yourself.
+
+```bash
+curl -X POST https://api.utopiadata.net/v1/spatial/query \
+  -H "Authorization: Bearer your-api-key" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "aoi": {
+      "type": "Polygon",
+      "coordinates": [[[ ...coordinates... ]]]
+    }
+  }'
+```
+
+Should your area of interest reach beyond what your key is authorized for, the API answers with a 403 Forbidden:
+
+```json
+{
+  "error": "region_not_authorized",
+  "message": "Your AOI intersects regions not authorized for this API key.",
+  "unauthorized_regions": ["region_us_ca_north"]
+}
+```
+
+## Data residency
+
+Enterprise and defense customers can opt into dedicated data rail configurations. Under these, all processing and aggregation happen inside a chosen country or jurisdiction, query metadata and results are never replicated beyond the authorized region, and the cryptographic provenance records live within that same jurisdictional boundary.
+
+<Callout type="tip">
+  A custom enterprise agreement is required for data residency configurations. Contact [hello@utopiadata.net](mailto:hello@utopiadata.net) to discuss your requirements.
+</Callout>
+
+## Compliance considerations
+
+Several compliance demands map directly onto Utopia's architecture: keeping data inside a defined geographic perimeter, maintaining audit trails covering every data access (available in your account dashboard), and holding cryptographic proof that nothing was tampered with in transit.
+
+<Callout type="info">
+  Operating under export controls, national data protection laws or similar regulatory regimes? Include those requirements when you contact Utopia. Sovereign deployment configurations exist for qualifying customers.
+</Callout>

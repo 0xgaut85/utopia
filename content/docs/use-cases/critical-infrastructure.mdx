@@ -1,0 +1,113 @@
+---
+title: Critical infrastructure
+description: Keeping a constant watch on physical environments and the assets inside them.
+---
+
+<Callout type="warning">
+  The API is in early access and is not publicly available yet. Endpoint URLs, request examples and sample responses on this page are illustrative. Contact [hello@utopiadata.net](mailto:hello@utopiadata.net) to request access.
+</Callout>
+
+What power grids, water systems, transportation networks and industrial facilities have in common is exposure to physical change: an intrusion, a failed piece of equipment or a shift in the environment can turn into a serious incident in a matter of minutes. Scheduled inspections and a handful of fixed cameras, the traditional monitoring toolkit, simply miss transient events. Utopia replaces that gap with continuous spatial ground truth over any geographic zone you define, so an anomaly is caught the moment it appears and your systems act before the incident grows.
+
+## Key capabilities for infrastructure monitoring
+
+<CardGrid cols={2}>
+  <Card title="Continuous coverage">
+    Observations stream from edge nodes without interruption, keeping your monitoring system on a live spatial picture instead of the snapshot left over from the last scheduled scan.
+  </Card>
+  <Card title="Baseline comparison">
+    Hold incoming observations against a known baseline and pick out the deviations: objects that appeared, infrastructure that vanished, breached access points, or environmental shifts such as flooding.
+  </Card>
+  <Card title="Real time alerting">
+    Events reach your alerting and SCADA systems over a persistent connection through the Utopia streaming API: real time spatial updates, no polling.
+  </Card>
+  <Card title="Precise zone definition">
+    A precise GeoJSON polygon defines your monitoring zone (a substation perimeter, a pipeline corridor, a port facility) and the observations you receive are scoped to exactly that footprint.
+  </Card>
+</CardGrid>
+
+## Infrastructure types supported
+
+The edge network spans a wide range of physical infrastructure environments. In power and utilities, that means watching substation perimeters, transmission corridor right of ways and generation facility boundaries for unauthorized access or vegetation encroachment. For water and treatment facilities, it means uninterrupted awareness of perimeters and intake zones. Across transportation and ports, ground truth streams over rail corridors, highway segments and port facilities catch stopped vehicles and track intrusions. And at industrial sites, where footprints are too large for physical patrol to be practical, spatial change alerts fire the instant conditions drift from a known good baseline.
+
+## Walkthrough: infrastructure perimeter monitoring
+
+The following sets up a streaming spatial subscription around a power substation perimeter and forwards anomaly events into your alert system.
+
+<Steps>
+  <Step title="Model the perimeter">
+    Express the infrastructure perimeter as a GeoJSON polygon. For a substation, that is usually the fence line with a small outer buffer added. The tighter the polygon, the better: a focused area cuts noise and concentrates node coverage, which keeps the ground_truth_score high.
+
+```json
+{
+  "type": "Polygon",
+  "coordinates": [[
+    [-87.6520, 41.8340],
+    [-87.6490, 41.8340],
+    [-87.6490, 41.8370],
+    [-87.6520, 41.8370],
+    [-87.6520, 41.8340]
+  ]]
+}
+```
+  </Step>
+  <Step title="Open the stream">
+    Establish a persistent streaming connection against /v1/spatial/stream, passing your perimeter polygon. A ground_truth_score_min threshold filters out low confidence observations before your alert logic ever sees them.
+
+```bash
+curl -N -X GET \
+  "https://api.utopiadata.net/v1/spatial/stream?geometry=POLYGON((-87.6520+41.8340,-87.6490+41.8340,-87.6490+41.8370,-87.6520+41.8370,-87.6520+41.8340))&ground_truth_score_min=0.92" \
+  -H "Authorization: Bearer $UTOPIA_API_KEY" \
+  -H "Accept: text/event-stream"
+```
+  </Step>
+  <Step title="Handle events">
+    Every streamed event carries a data_points array. Check the observation field on each point for anything diverging from the expected state, and forward those anomalous observations into your incident management or SCADA system.
+  </Step>
+  <Step title="Archive for audit">
+    For each anomaly event, keep the provenance_hash filed with the incident record. That pairing forms a tamper evident audit trail you can rely on in post incident review, regulatory reporting or legal proceedings.
+  </Step>
+  <Step title="Plan for reconnection">
+    Network conditions or a maintenance window may drop the streaming connection. When that happens, have your monitoring system poll /v1/spatial/query on a short interval until the stream is back, so the transition leaves no unmonitored gaps.
+  </Step>
+</Steps>
+
+## Example streaming event
+
+```json
+{
+  "query_id": "stream_7c4a1f9e2d3b8605",
+  "node_count": 88,
+  "ground_truth_score": 0.95,
+  "data_points": [
+    {
+      "node_id": "node_1d7c4f",
+      "observation": "clear",
+      "confidence": 0.97
+    },
+    {
+      "node_id": "node_8a2e6b",
+      "observation": "perimeter_breach",
+      "confidence": 0.93
+    }
+  ]
+}
+```
+
+<Callout type="warning">
+  When a streaming event shows a ground_truth_score under 0.80, fewer edge nodes than expected contributed observations during that interval. That is a period of reduced visibility, not a reason to quiet your alerts. Raise alert sensitivity for the duration rather than suppressing anything.
+</Callout>
+
+## Relevant concepts
+
+<CardGrid cols={3}>
+  <Card title="Ground truth" href="/docs/concepts/ground-truth">
+    The calculation behind ground_truth_score and threshold choices suited to monitoring workloads.
+  </Card>
+  <Card title="Data pipeline" href="/docs/concepts/data-pipeline">
+    The path observations take from edge capture to your streaming endpoint, latency characteristics included.
+  </Card>
+  <Card title="Cryptographic provenance" href="/docs/data/cryptographic-provenance">
+    Putting provenance_hash values to work in audit trails and post incident verification.
+  </Card>
+</CardGrid>

@@ -1,0 +1,114 @@
+---
+title: Ground truth
+description: What qualifies as a verified physical observation, how provenance is recorded, and how confidence scoring works.
+---
+
+<Callout type="warning">
+  The API is in early access and is not publicly available yet. Endpoint URLs, request examples and sample responses on this page are illustrative. Contact [hello@utopiadata.net](mailto:hello@utopiadata.net) to request access.
+</Callout>
+
+Ground truth in Utopia is a precise data quality guarantee, not a slogan. An observation carries the label only if physical sensors captured it in the real world, multiple independent nodes corroborated it, and a cryptographic hash signed at capture proves it was never altered. That is what separates Utopia's output from inferred, modeled or synthetic spatial data. Data of that kind may look statistically reasonable, but no one can independently verify it.
+
+## What ground truth means in Utopia's context
+
+Three criteria define a ground truth observation:
+
+1. **Physical capture.** A real sensor recorded it, at a real location, at a real time. Nothing in it comes from a model, and nothing is interpolated from neighboring data.
+2. **Multi node corroboration.** A consistent observation of the same feature was made by at least one other independent node inside the same window of space and time. Observations backed by a single node come back with a low ground_truth_score and an explicit unconfirmed marking.
+3. **Cryptographic provenance.** The originating node generated a provenance_hash that binds the observation to a specific device, timestamp and content, giving tamper evident proof of where it came from.
+
+Fail any of the three and the observation is not hidden. It is returned with a reduced score or a flag. Utopia's approach is to surface low confidence observations along with the metadata you need to judge them, never to suppress them.
+
+## How ground_truth_score is calculated
+
+Think of the ground_truth_score as a confidence metric on a 0.0 to 1.0 scale, driven by how strongly independent nodes corroborate an observation.
+
+Three things push the score up: additional independent nodes reporting consistent observations of the same feature; contributing nodes that use different sensor modalities, because agreement across modalities counts for more than agreement within one; and a narrower temporal spread between the contributing observations.
+
+Three things pull it down: an observation with only one contributing node; contributing nodes that disagree on position, classification or velocity beyond the configured tolerance thresholds; and any contributing node carrying a degraded hardware quality rating.
+
+<Callout type="warning">
+  Do not read a ground_truth_score of 1.0 as certainty. It means the corroboration was as strong as the responding nodes allowed and nothing more. Always read node_count next to the score: 1.0 backed by two nodes in a sparse area is worth less than 0.92 backed by fourteen nodes in a dense urban deployment.
+</Callout>
+
+The score is a normalized measure of corroboration strength, not a probability estimate. Where you set your threshold is a function of how much uncertainty your application can absorb.
+
+| Use case | Recommended minimum ground_truth_score |
+| --- | --- |
+| Archival or audit records | 0.5, include with metadata for human review |
+| Autonomous system inputs | 0.85, high corroboration required for safety critical decisions |
+| Real time situational awareness | 0.7, a balance between coverage and confidence |
+| Historical analysis | 0.6, broader inclusion for statistical work |
+
+## Ground truth versus inferred and synthetic data
+
+The clearest way to define Utopia's ground truth is by contrast.
+
+**Inferred data** comes from a model estimating a scene's state out of partial observations or historical patterns. When a system fills the gap between sensor captures by running a motion model over vehicle positions, its output is inferred, potentially very accurate but never checkable against a physical observation.
+
+**Synthetic data** never touched a sensor at all: simulation or generative models produced it. That has real value for training and testing, but what it describes is a virtual world, not the physical one.
+
+Neither kind ever gets blended into a Utopia ground truth response. Each feature the API returns either came from a physical sensor or is explicitly labeled through its data_source value: interpolated when a historical record has been gap filled, or estimated when a single node observation is still awaiting corroboration.
+
+<Callout type="info">
+  Utopia does not supply synthetic or inferred data for simulation environments, training datasets or counterfactual analysis. Physical ground truth is the product; modeled approximation is not.
+</Callout>
+
+## How cryptographic provenance proves authenticity
+
+A provenance_hash field appears on every observation in every Utopia API response. The originating edge node generates it using a hardware backed private key, and it encodes three inputs: the node's unique identifier, the time and location the device recorded at the moment of capture, and a SHA-256 hash of the observation's feature payload.
+
+Verification works by submitting the provenance_hash together with the feature payload to the Utopia Provenance API, which checks the signature against the node's public key and reports the result. A payload modified at any point after capture, whether in transit, inside Utopia's own infrastructure or inside your systems, fails that check.
+
+<Callout type="tip">
+  In defense, compliance or auditing workflows, make it a habit to archive the provenance_hash next to your application data at ingest. Months or years later you can still verify the chain of custody, without any dependence on Utopia having retained the original observation.
+</Callout>
+
+## Real time versus historical ground truth
+
+Two query modes exist, and which one you use changes how ground_truth_score and provenance_hash should be read.
+
+<CardGrid cols={2}>
+  <Card title="Real time">
+    A real time query returns observations from a short rolling window, typically the last few seconds to minutes. The short aggregation window means some nodes may not have reported by the time your response is assembled: node_count can come in lower than a historical query for the same time and place would show, and ground_truth_score can sit below where it will land once every node has reported. This mode is the right fit for autonomous navigation, live fleet tracking and live situational awareness.
+  </Card>
+  <Card title="Historical">
+    A historical query pulls from Utopia's provenance archive, where corroboration has already run to completion. For the same point in time, expect higher ground_truth_score and node_count values than the equivalent real time query would have shown. Historical responses additionally carry the complete list of contributing node identifiers with each node's individually signed payload, the material you need for audits or for forensically reconstructing a scene.
+  </Card>
+</CardGrid>
+
+## Example API response with ground truth fields
+
+Below is one feature taken from a real time spatial query. The ground_truth_score, the provenance_hash and the fields around them are what jointly constitute a verified ground truth observation.
+
+```json
+{
+  "feature_id": "feat_9b1e3c7d",
+  "type": "Feature",
+  "geometry": {
+    "type": "Point",
+    "coordinates": [-73.9857, 40.7484, 8.1]
+  },
+  "properties": {
+    "classification": "person.pedestrian",
+    "velocity_mps": 1.3,
+    "heading_deg": 45.0,
+    "captured_at": "2026-05-22T14:32:05.198Z",
+    "ground_truth_score": 0.91,
+    "provenance_hash": "sha256:c7f2a49d1e8b3056a7f2c49d1e8b3056c7f2a49d1e8b30",
+    "node_count": 4,
+    "sensor_modalities": ["camera", "depth"],
+    "data_source": "ground_truth",
+    "corroboration_window_ms": 312
+  }
+}
+```
+
+| Field | Value | What it tells you |
+| --- | --- | --- |
+| ground_truth_score | 0.91 | Strong corroboration, four independent nodes agreed within 312ms |
+| provenance_hash | sha256:c7f2... | Cryptographic origin proof, verifiable through the Provenance API |
+| node_count | 4 | This observation drew on four independent nodes |
+| sensor_modalities | ["camera", "depth"] | Camera and depth sensors both agreed, corroboration across modalities |
+| data_source | ground_truth | A physical observation, neither interpolated nor estimated |
+| corroboration_window_ms | 312 | The four nodes all reported inside a 312 millisecond span |

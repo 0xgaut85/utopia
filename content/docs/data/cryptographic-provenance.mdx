@@ -1,0 +1,71 @@
+---
+title: Cryptographic provenance
+description: What the provenance hash on every observation covers, and how to check one yourself.
+---
+
+<Callout type="warning">
+  The API is currently in early access, with no public availability yet. Treat the endpoint URLs, request examples and sample responses shown here as illustrative. To request access, contact [hello@utopiadata.net](mailto:hello@utopiadata.net).
+</Callout>
+
+Attached to every observation the Utopia API returns is a provenance_hash: a SHA-256 digest you can use to confirm, without trusting anyone, that the data originated from a legitimate Utopia edge node at the time stated, and that nothing changed it in transit or in storage. For defense, compliance and safety workloads, where integrity is non-negotiable, this is the mechanism that matters.
+
+## What the provenance hash covers
+
+Four inputs feed the provenance_hash: the observation payload itself (geometry, classification and scores), the unique identifier of the originating node, the capture timestamp in UTC at millisecond precision, and the Utopia network epoch, a rotating nonce shared across the network.
+
+Alter any one of those inputs and the resulting hash changes entirely. So if the hash you compute from a payload equals the hash that came with it, the data is genuine.
+
+## Verifying a provenance hash
+
+<Steps>
+  <Step title="Note the hash">
+    Run a spatial query or pick up a streaming event, and take the provenance_hash field from the observation.
+  </Step>
+  <Step title="Call the verification endpoint">
+    Using your API key, request `GET /v1/provenance/{provenance_hash}` to fetch the signed verification record.
+  </Step>
+  <Step title="Compare">
+    That record contains the canonical hash as computed by the issuing node. Check it against the one on your observation.
+  </Step>
+</Steps>
+
+```python
+import requests
+
+API_KEY = "your-api-key"
+BASE_URL = "https://api.utopiadata.net/v1"
+
+def verify_provenance(provenance_hash: str) -> bool:
+    response = requests.get(
+        f"{BASE_URL}/provenance/{provenance_hash}",
+        headers={"Authorization": f"Bearer {API_KEY}"}
+    )
+    if response.status_code == 200:
+        record = response.json()
+        return record["verified"] is True
+    return False
+
+is_valid = verify_provenance("sha256:a3f8e2c1b4d7f9e0a2b5c8d1e4f7a0b3c6d9e2f5")
+print(f"Provenance valid: {is_valid}")
+```
+
+## Verification response
+
+```json
+{
+  "provenance_hash": "sha256:a3f8e2c1b4d7f9e0a2b5c8d1e4f7a0b3c6d9e2f5",
+  "verified": true,
+  "node_id": "node_7f3a",
+  "captured_at": "2026-05-22T10:14:33.412Z",
+  "network_epoch": "epoch_2026_05",
+  "signature_algorithm": "ECDSA-P256"
+}
+```
+
+<Callout type="warning">
+  When the response says verified: false, the hash has no match in the Utopia ledger. An observation in that state must not feed any safety critical decision.
+</Callout>
+
+<Callout type="tip">
+  Keep provenance hashes stored next to their observations in your own systems. The verification endpoint lets you re-check them whenever you need to.
+</Callout>

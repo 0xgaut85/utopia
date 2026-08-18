@@ -1,0 +1,14 @@
+node_modules
+.next
+out
+build
+dist
+*.tsbuildinfo
+.env
+.env.local
+*.log
+.DS_Store
+public/search-index.json
+
+# Local working assets, not used by the build
+banner/

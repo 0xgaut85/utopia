@@ -1,0 +1,116 @@
+---
+title: Data ingestion
+description: Send your own footage to POST /v1/ingest and get back a provenance record for each extracted observation.
+---
+
+<Callout type="warning">
+  This API is currently in early access and has not been opened to the public. Treat the endpoint URLs, request samples and response examples throughout this page as illustrative only. To get access, email [hello@utopiadata.net](mailto:hello@utopiadata.net).
+</Callout>
+
+Raw video from your sensor systems is what the ingestion endpoint takes in. Rather than submitting observations yourself, you hand over footage and Utopia's pipeline does the extraction, pulling out spatial observations like objects, vehicles and structures on its own. Whatever the pipeline extracts passes through the identical cryptographic provenance process that native edge node data goes through.
+
+<Callout type="info">
+  Think of observations as what Utopia's pipeline produces, never as something you supply. Your job is to send video; everything after that is handled for you.
+</Callout>
+
+## How it works
+
+<Steps>
+  <Step title="You submit video">
+    Send a raw clip from any sensor you operate, be it a drone, a stationary camera or a rig mounted on a vehicle.
+  </Step>
+  <Step title="Utopia processes it">
+    Perception, georeferencing and quality checks are applied to the footage by the pipeline.
+  </Step>
+  <Step title="Observations are extracted">
+    The pipeline generates spatial observations, complete with geometry, type and confidence, and commits them to the network.
+  </Step>
+  <Step title="You receive provenance records">
+    Every observation that comes out carries a provenance_hash, which lets you verify its integrity down the line.
+  </Step>
+</Steps>
+
+## Endpoint
+
+```text
+POST https://api.utopiadata.net/v1/ingest
+```
+
+## Request
+
+### Headers
+
+| Header | Value |
+| --- | --- |
+| Authorization | Bearer your-api-key |
+| Content-Type | multipart/form-data |
+
+### Body parameters
+
+<FieldGroup>
+  <ParamField name="video" type="file" required>
+    The raw sensor video. Accepted formats: mp4, mov and avi. Files may be up to 2 GB.
+  </ParamField>
+  <ParamField name="sensor_id" type="string" required>
+    An identifier of your own choosing for the sensor. It is recorded in the provenance record of each observation extracted from the video.
+  </ParamField>
+  <ParamField name="captured_at" type="ISO 8601 timestamp" required>
+    The UTC time at which recording of the video started.
+  </ParamField>
+  <ParamField name="location_hint" type="GeoJSON Point">
+    A rough capture location, provided optionally. When the video file lacks GPS metadata, this helps the pipeline's georeferencing step.
+  </ParamField>
+</FieldGroup>
+
+### Example request
+
+```bash
+curl -X POST https://api.utopiadata.net/v1/ingest \
+  -H "Authorization: Bearer your-api-key" \
+  -F "video=@/path/to/footage.mp4" \
+  -F "sensor_id=drone-unit-07" \
+  -F "captured_at=2026-05-22T10:14:30.000Z" \
+  -F 'location_hint={"type":"Point","coordinates":[-122.4150,37.7800]}'
+```
+
+## Response
+
+When Utopia accepts the video, it hands back an ingestion_id for tracking the job. The observations themselves take a while to appear; depending on the length of the video, the pipeline usually needs 30 to 120 seconds.
+
+### Response fields
+
+<FieldGroup>
+  <ResponseField name="ingestion_id" type="string">
+    The identifier for this ingestion job. Poll with it to check processing status.
+  </ResponseField>
+  <ResponseField name="status" type="string">
+    Where the job stands in the pipeline: queued, processing, complete or failed.
+  </ResponseField>
+  <ResponseField name="estimated_completion" type="ISO 8601 timestamp">
+    When processing is expected to be done.
+  </ResponseField>
+</FieldGroup>
+
+### Example response
+
+```json
+{
+  "ingestion_id": "ing_7c4d1e8b",
+  "status": "queued",
+  "estimated_completion": "2026-05-22T10:16:00.000Z"
+}
+```
+
+<Callout type="tip">
+  After processing finishes, the extracted observations can be retrieved via the [spatial query endpoint](/docs/api/spatial-queries). Each carries a provenance_hash, and the [provenance verification endpoint](/docs/data/cryptographic-provenance) lets you check those hashes.
+</Callout>
+
+## Error responses
+
+| Status | Error code | Description |
+| --- | --- | --- |
+| 400 | unsupported_format | The video is in a format we do not accept |
+| 400 | missing_timestamp | The captured_at field must be provided |
+| 400 | file_too_large | The video is over the 2 GB cap |
+| 401 | unauthorized | API key absent or not valid |
+| 429 | rate_limit_exceeded | Request volume exceeded your limit |

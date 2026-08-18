@@ -1,0 +1,126 @@
+---
+title: Autonomous logistics
+description: Live spatial awareness that supports routing, obstacle detection and coordinating a fleet.
+---
+
+<Callout type="warning">
+  The API is in early access and is not publicly available yet. Endpoint URLs, request examples and sample responses on this page are illustrative. Contact [hello@utopiadata.net](mailto:hello@utopiadata.net) to request access.
+</Callout>
+
+Every autonomous logistics platform, whether a delivery robot, an autonomous vehicle or a drone fleet, runs on the same underlying dependency: precise, constantly refreshed knowledge of the physical environment it moves through. Utopia supplies that foundation. Verified spatial ground truth streams from a dense edge node network already active in urban environments, which lets your vehicles route safely, catch obstacles as they appear and coordinate fleet wide, all without leaning on map data that has gone stale.
+
+## Key challenges Utopia solves
+
+<CardGrid cols={3}>
+  <Card title="Dynamic obstacle detection">
+    Catch transient obstacles (parked vehicles, construction zones, pedestrian congestion) at the moment they appear, not whenever the next map update cycle rolls around.
+  </Card>
+  <Card title="Route validation">
+    Check planned routes against live spatial conditions, both before departure and mid traversal. Confirm a corridor is passable before a vehicle commits to it.
+  </Card>
+  <Card title="Fleet coordination">
+    Put the same real time spatial picture in front of every vehicle you operate, so the fleet can negotiate intersections, share lanes and avoid duplicating paths.
+  </Card>
+</CardGrid>
+
+## How Utopia fits into a logistics stack
+
+Think of Utopia as the layer between your physical fleet and your routing or decision layer. Vehicles define their area of interest with spatial queries, get back ground truth responses carrying confidence scores, and feed their onboard world models continuously. Edge nodes operating at tactical urban density mean coverage extends into narrow corridors and interior loading docks.
+
+<Callout type="info">
+  Urban density edge node coverage is available in supported metro areas. Contact [hello@utopiadata.net](mailto:hello@utopiadata.net) to confirm coverage for your deployment zone.
+</Callout>
+
+## Walkthrough: a last mile delivery corridor
+
+Here is how Utopia integrates into a last mile delivery system running through a dense urban block.
+
+<Steps>
+  <Step title="Model the corridor">
+    Represent the delivery route as a GeoJSON polygon enclosing the street corridor the vehicle will travel. Aim for a polygon tight enough that unrelated blocks stay out of your data, yet wide enough to span the full path width with a safety margin on top.
+
+```json
+{
+  "type": "Polygon",
+  "coordinates": [[
+    [-73.9865, 40.7480],
+    [-73.9845, 40.7480],
+    [-73.9845, 40.7510],
+    [-73.9865, 40.7510],
+    [-73.9865, 40.7480]
+  ]]
+}
+```
+  </Step>
+  <Step title="Query the corridor">
+    Send the corridor polygon to /v1/spatial/query in a spatial query, adding a ground_truth_score threshold to screen out low confidence observations. A max_age_seconds setting keeps the data fresh. For active navigation, 10 to 30 seconds is the usual range.
+
+```bash
+curl -X POST https://api.utopiadata.net/v1/spatial/query \
+  -H "Authorization: Bearer $UTOPIA_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "aoi": {
+      "type": "Polygon",
+      "coordinates": [[
+        [-73.9865, 40.7480],
+        [-73.9845, 40.7480],
+        [-73.9845, 40.7510],
+        [-73.9865, 40.7510],
+        [-73.9865, 40.7480]
+      ]]
+    },
+    "max_age_seconds": 15,
+    "min_ground_truth_score": 0.90
+  }'
+```
+  </Step>
+  <Step title="Interpret the response">
+    Two things come back: a top level ground_truth_score covering the whole area, and the individual observations from each contributing edge node. To spot segments that are blocked or degraded, your routing layer should look at both: the aggregate score and how the data_points are distributed spatially.
+
+```json
+{
+  "query_id": "q_2d7b9f4e1a3c8605",
+  "node_count": 312,
+  "ground_truth_score": 0.96,
+  "data_points": [
+    {
+      "node_id": "node_9c3f1a",
+      "lat": 40.7492,
+      "lon": -73.9857,
+      "observation": "clear",
+      "confidence": 0.98
+    },
+    {
+      "node_id": "node_2a8e5c",
+      "lat": 40.7501,
+      "lon": -73.9851,
+      "observation": "obstruction_detected",
+      "confidence": 0.94
+    }
+  ]
+}
+```
+  </Step>
+  <Step title="Switch to streaming once in motion">
+    After the vehicle starts moving, drop the periodic queries in favor of a streaming subscription. Your onboard system then hears about changing conditions as they happen instead of at fixed polling intervals.
+  </Step>
+</Steps>
+
+<Callout type="tip">
+  Before dispatch, scan data_points for entries whose observation reads obstruction_detected and plan around those coordinates. If the ground_truth_score for the entire area falls below 0.85, environmental uncertainty is high, so holding the vehicle until scores recover is worth considering.
+</Callout>
+
+## Relevant concepts
+
+<CardGrid cols={3}>
+  <Card title="Edge nodes" href="/docs/concepts/edge-nodes">
+    The structure behind urban density edge node coverage and the node selection logic applied to your queries.
+  </Card>
+  <Card title="Ground truth" href="/docs/concepts/ground-truth">
+    The meaning of ground_truth_score, its calculation, and when a response deserves trust or rejection.
+  </Card>
+  <Card title="Data pipeline" href="/docs/concepts/data-pipeline">
+    The journey from edge capture through multi view ingestion to the response you receive.
+  </Card>
+</CardGrid>

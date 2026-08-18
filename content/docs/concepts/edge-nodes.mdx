@@ -1,0 +1,75 @@
+---
+title: Edge nodes
+description: What an edge node is (a phone with the Utopia capture app) and how the network fits together.
+---
+
+An edge node is nothing more than someone's phone running the Utopia capture app.
+
+There is no additional hardware behind that sentence. Nothing ships, nothing needs maintenance, and installing the app is the entire setup. A contributor launches the app, records a place, and the phone signs and submits what it captured. Because the network is made of phones people carry anyway, it is the one sensor deployment that can reach street level everywhere simultaneously.
+
+The consequence is that coverage tracks people, not infrastructure: dense wherever contributors are active, thin wherever they are not. Growth comes through [bounties](/docs/contribute/bounties), a funded request for a specific place that contributors race to fulfil.
+
+## No hardware to deploy
+
+A conventional spatial data workflow means procuring sensors, planning deployments, handling maintenance, and building your own ingestion pipeline. With Utopia, that entire layer disappears. Data that has already been captured is available through the API; data that has not been captured yet can be commissioned with a bounty.
+
+Submitting a spatial query works like this: Utopia figures out which nodes cover the area you specified, forwards the request to them, merges what comes back, and returns one verified payload. From your side of the API, the network looks like a sensor grid that is always on and answers on demand.
+
+<Callout type="info">
+  Billing covers two things: the data you retrieve and the bounties you fund. No hardware cost exists to be passed on.
+</Callout>
+
+Capital expenditure on sensors is zero, since the sensors are phones that were already in the world. Your only cost is the data you pull.
+
+## Node density and coverage
+
+The network is designed around tactical urban density. Metropolitan areas hold the highest node concentrations, and that is deliberate: autonomous systems, logistics operations and infrastructure monitoring (the workloads that most need fine grained, continuous spatial data) are concentrated there too.
+
+A single location in a dense city is usually covered by several nodes simultaneously, frequently from different angles and heights. That redundancy is by design. Overlapping coverage is what makes multi view corroboration possible, and corroboration is how Utopia computes the ground_truth_score attached to each observation.
+
+<Callout type="warning">
+  Density is not uniform across regions. Before you build a production workflow that depends on a specific area, reach out to [hello@utopiadata.net](mailto:hello@utopiadata.net) and confirm node coverage there.
+</Callout>
+
+Beyond the major urban centers the network thins out. For any place that lacks coverage, the answer is to post a bounty.
+
+## Multi view ingestion
+
+Different people capture the same place at different moments, from different spots, at different heights. A query over an area of interest returns observations drawn from that pool of independent captures.
+
+What multi view ingestion means concretely is that Utopia's aggregation layer fuses observations from nodes whose physical perspectives and sensor types differ. Three benefits follow:
+
+- **Occlusion handling.** What one node cannot see past an obstruction, another node often can.
+- **Independent corroboration.** When captures made by separate contributors at separate times agree, that agreement raises confidence in the result.
+- **Redundancy.** A single poor quality capture does not matter much when other captures of the same place are still contributing.
+
+Every API response carries a sensor_modalities array naming the sensor types behind that observation, which lets you filter or weight results according to the modalities your application cares about.
+
+## How nodes are selected for your query
+
+A spatial query names an area of interest (a GeoJSON polygon or a bounding box) together with a time range. Utopia's routing layer then finds every active node whose coverage intersected that area during that window.
+
+Selection weighs several factors:
+
+- **Geographic overlap.** A node qualifies only if its coverage area intersects your area of interest.
+- **Temporal availability.** A node qualifies only if it was active and capturing within your requested time range.
+- **Data quality.** Nodes with a history of quality problems or flagged hardware rank lower.
+- **Sovereignty boundary.** Nodes outside your configured data boundary are excluded outright.
+
+<Callout type="tip">
+  A smaller area of interest means a faster response and more nodes per unit of area. When broad coverage is what you need, several targeted queries usually beat one sprawling polygon.
+</Callout>
+
+## Edge computed privacy
+
+Before a node transmits anything at all, it processes the raw sensor data locally. Raw frames, point clouds and sensor streams stay on the device, always. What actually travels is a structured feature payload (spatial geometry, object classifications, timestamps and metadata) derived from the raw capture but with no raw content that could be recovered from it.
+
+The practical consequences:
+
+- API responses never contain personally identifiable information: no faces, no license plates, no biometrics.
+- At no point does the infrastructure store or transmit sensitive scene details.
+- Compliance is enforced at the hardware boundary itself, not by a downstream filter that someone could misconfigure or bypass.
+
+<Callout type="warning">
+  Edge computed privacy is not a setting you toggle. It is a guarantee at the level of the network. Every node in Utopia is subject to it, whatever the deployment region and whatever the query type.
+</Callout>

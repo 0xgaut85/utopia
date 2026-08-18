@@ -1,0 +1,99 @@
+---
+title: Embodied AI
+description: A continuous feed of verified spatial ground truth for robots and other physical agents.
+---
+
+<Callout type="warning">
+  The API is in early access and is not publicly available yet. Endpoint URLs, request examples and sample responses on this page are illustrative. Contact [hello@utopiadata.net](mailto:hello@utopiadata.net) to request access.
+</Callout>
+
+Safe and effective operation for any embodied AI system (a humanoid robot, a drone swarm, a piece of autonomous industrial equipment) depends on holding a persistent, always current model of the physical world. That spatial cortex is what Utopia provides: a real time stream of verified ground truth observations that your system ingests to keep its world model in sync with reality.
+
+## What embodied AI needs from spatial data
+
+No world model outperforms its inputs. Utopia targets the three requirements that matter most: continuous updates, because the physical world never stops changing and your world model cannot fall behind it; verified observations, because a provenance_hash on every data point lets your system trust what it ingests; and high spatial density, because tactical urban coverage yields the node overlap needed to corroborate observations and drive out false positives.
+
+## Streaming spatial updates into your world model
+
+Subscribing to a geographic zone through the Utopia Streaming API gets you push updates whenever ground truth changes.
+
+<Steps>
+  <Step title="Define your zone">
+    Describe the geographic polygon your system works inside. A tight area keeps both update volume and latency down.
+  </Step>
+  <Step title="Open the stream">
+    Authenticate to the streaming endpoint with your API key. Events arrive as newline delimited JSON.
+  </Step>
+  <Step title="Update your world model">
+    Parse the incoming events into your spatial representation, weighting each observation by its ground_truth_score.
+  </Step>
+  <Step title="Verify before acting">
+    Where a decision is safety critical, check the provenance_hash first, then act on the observation only after it verifies.
+  </Step>
+</Steps>
+
+```python
+import requests
+import json
+
+API_KEY = "your-api-key"
+BASE_URL = "https://api.utopiadata.net/v1"
+
+aoi = {
+  "type": "Polygon",
+  "coordinates": [[
+    [-122.4194, 37.7749],
+    [-122.4094, 37.7749],
+    [-122.4094, 37.7849],
+    [-122.4194, 37.7849],
+    [-122.4194, 37.7749]
+  ]]
+}
+
+with requests.post(
+    f"{BASE_URL}/spatial/stream",
+    headers={"Authorization": f"Bearer {API_KEY}"},
+    json={"aoi": aoi, "min_ground_truth_score": 0.80},
+    stream=True
+) as response:
+    for line in response.iter_lines():
+        if line:
+            event = json.loads(line)
+            update_world_model(event)
+```
+
+## Key data fields for embodied AI
+
+| Field | Type | Description |
+| --- | --- | --- |
+| geometry | GeoJSON | Where the observed feature is and what shape it has |
+| ground_truth_score | float, 0 to 1 | Confidence derived from multi node corroboration |
+| timestamp | ISO 8601 | The moment the observation was captured |
+| provenance_hash | string | Cryptographic evidence of where the data originated |
+| node_count | integer | How many edge nodes contributed |
+| observation_type | string | The observation's category, such as obstacle, occupancy or change |
+
+<Callout type="tip">
+  A ground_truth_score floor of 0.75 suits real time navigation. Raise it to 0.90 or above for safety critical actions like grasping or human interaction.
+</Callout>
+
+## Example streaming event
+
+```json
+{
+  "event_id": "evt_8f3a2c1d",
+  "timestamp": "2026-05-22T10:14:33.412Z",
+  "geometry": {
+    "type": "Point",
+    "coordinates": [-122.4150, 37.7800]
+  },
+  "observation_type": "obstacle",
+  "ground_truth_score": 0.94,
+  "node_count": 12,
+  "provenance_hash": "sha256:a3f8e2c1b4d7f9e0a2b5c8d1e4f7a0b3c6d9e2f5"
+}
+```
+
+<Callout type="info">
+  Running embodied AI in production? Contact [hello@utopiadata.net](mailto:hello@utopiadata.net) to talk through high frequency streaming rates and dedicated node allocation.
+</Callout>

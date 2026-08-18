@@ -1,0 +1,164 @@
+---
+title: Streaming
+description: Open a push feed against POST /v1/spatial/stream to receive observations for an area as they happen.
+---
+
+<Callout type="warning">
+  This API is currently in early access and has not been opened to the public. Treat the endpoint URLs, request samples and response examples throughout this page as illustrative only. To get access, email [hello@utopiadata.net](mailto:hello@utopiadata.net).
+</Callout>
+
+For a geographic zone of your choosing, the Utopia Streaming API supplies an uninterrupted, real time feed of ground truth events. Where the spatial query endpoint requires you to poll, a stream pushes each update to you the instant the edge network produces a new observation. That immediacy is what autonomous systems, live monitoring dashboards and world model pipelines depend on.
+
+## Endpoint
+
+```text
+POST https://api.utopiadata.net/v1/spatial/stream
+```
+
+The server holds the connection open, writing newline delimited JSON events to it as they occur. On your side, read the response body as a stream.
+
+## Request
+
+### Headers
+
+| Header | Value |
+| --- | --- |
+| Authorization | Bearer your-api-key |
+| Content-Type | application/json |
+
+### Body parameters
+
+<FieldGroup>
+  <ParamField name="aoi" type="GeoJSON geometry" required>
+    The zone you want to monitor. Polygon and MultiPolygon are supported, up to a maximum of 50 km².
+  </ParamField>
+  <ParamField name="min_ground_truth_score" type="float">
+    Only events with a confidence above this threshold are delivered. The default is 0.5.
+  </ParamField>
+  <ParamField name="observation_types" type="array">
+    Restricts the stream to the observation types you list. Without it, every type comes through.
+  </ParamField>
+</FieldGroup>
+
+### Example: open a stream
+
+<CodeGroup>
+
+```bash title="cURL"
+curl -X POST https://api.utopiadata.net/v1/spatial/stream \
+  -H "Authorization: Bearer your-api-key" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "aoi": {
+      "type": "Polygon",
+      "coordinates": [[
+        [-122.4194, 37.7749],
+        [-122.4094, 37.7749],
+        [-122.4094, 37.7849],
+        [-122.4194, 37.7849],
+        [-122.4194, 37.7749]
+      ]]
+    },
+    "min_ground_truth_score": 0.75
+  }'
+```
+
+```python title="Python"
+import requests
+import json
+
+API_KEY = "your-api-key"
+
+aoi = {
+    "type": "Polygon",
+    "coordinates": [[
+        [-122.4194, 37.7749],
+        [-122.4094, 37.7749],
+        [-122.4094, 37.7849],
+        [-122.4194, 37.7849],
+        [-122.4194, 37.7749]
+    ]]
+}
+
+with requests.post(
+    "https://api.utopiadata.net/v1/spatial/stream",
+    headers={"Authorization": f"Bearer {API_KEY}"},
+    json={"aoi": aoi, "min_ground_truth_score": 0.75},
+    stream=True
+) as response:
+    for line in response.iter_lines():
+        if line:
+            event = json.loads(line)
+            print(event)
+```
+
+</CodeGroup>
+
+## Stream events
+
+One ground truth event arrives per line, encoded as a JSON object:
+
+```json
+{
+  "event_id": "evt_8f3a2c1d",
+  "timestamp": "2026-05-22T10:14:33.412Z",
+  "geometry": {
+    "type": "Point",
+    "coordinates": [-122.4150, 37.7800]
+  },
+  "observation_type": "vehicle",
+  "ground_truth_score": 0.94,
+  "node_count": 12,
+  "provenance_hash": "sha256:a3f8e2c1b4d7f9e0a2b5c8d1e4f7a0b3c6d9e2f5"
+}
+```
+
+### Event fields
+
+<FieldGroup>
+  <ResponseField name="event_id" type="string">
+    An identifier unique to this event.
+  </ResponseField>
+  <ResponseField name="timestamp" type="ISO 8601">
+    The UTC moment the observation was captured.
+  </ResponseField>
+  <ResponseField name="geometry" type="GeoJSON">
+    Where and what shape the observed feature is.
+  </ResponseField>
+  <ResponseField name="observation_type" type="string">
+    How the observation was classified.
+  </ResponseField>
+  <ResponseField name="ground_truth_score" type="float, 0 to 1">
+    Confidence derived from corroboration across multiple nodes.
+  </ResponseField>
+  <ResponseField name="node_count" type="integer">
+    How many edge nodes contributed to the observation.
+  </ResponseField>
+  <ResponseField name="provenance_hash" type="string">
+    A cryptographic proof of where the data came from. Verify it via the provenance endpoint.
+  </ResponseField>
+</FieldGroup>
+
+## Heartbeat events
+
+If 30 seconds pass without a new observation, a heartbeat is sent so the connection does not close:
+
+```json
+{"type": "heartbeat", "timestamp": "2026-05-22T10:15:03.000Z"}
+```
+
+Have your processing logic ignore these by testing whether the type field equals heartbeat.
+
+## Connection limits and reconnection
+
+- Each API key is allowed one concurrent stream by default
+- A stream ends after 24 hours; open a new connection to continue
+- Reconnect right away after a disconnect, because the server buffers nothing while you are offline
+
+<Callout type="warning">
+  Nothing is buffered for a disconnected client. Any events produced during the gap are gone and will not be replayed. Build your system to handle missing intervals, using the spatial query endpoint to backfill where necessary.
+</Callout>
+
+<Callout type="info">
+  For higher concurrent stream limits, or dedicated streaming infrastructure for a production deployment, reach out to [hello@utopiadata.net](mailto:hello@utopiadata.net).
+</Callout>

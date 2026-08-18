@@ -1,0 +1,119 @@
+---
+title: Data pipeline
+description: The five stages every observation passes through, from capture and processing to signing, aggregation and delivery.
+---
+
+Every observation Utopia delivers has traveled one governed path, from physical capture all the way to your application. Along that path, each stage enforces sovereignty controls, keeps cryptographic integrity intact and screens for quality, which is why the payload in your API response is not merely spatially accurate but provably so. A working knowledge of the pipeline lets you anticipate latency, read response fields correctly and shape your system around the guarantees Utopia actually makes.
+
+## Pipeline stages
+
+<Steps>
+  <Step title="Capture">
+    Everything starts with edge nodes recording spatial observations of their surroundings. There is no central clock and no coordinated capture event, so nodes run independently and asynchronously. At the moment of capture, each node records the time and the location its device reports, and those two values stay attached to the observation for its entire lifetime.
+  </Step>
+  <Step title="Edge compute">
+    Frame by frame, as recording happens, the node runs detection and blurs faces and vehicle number plates, all before the video is encoded. Only that filtered capture is ever transmitted, and the spatial features (object positions, geometries, classifications) are extracted from it. This stage is what makes Utopia's privacy guarantee real: since unblurred frames never leave the hardware, there is nothing in transit to intercept, subpoena or leak.
+  </Step>
+  <Step title="Sign">
+    With features extracted, the node signs the payload using its private key. The provenance_hash that results encodes the node's unique identifier, the capture timestamp and a hash of the feature payload content. Because signing happens on device with hardware backed key storage, a modification anywhere after that point, whether in transit, at rest or inside your own systems, shows up as a hash mismatch that standard cryptographic verification will catch.
+  </Step>
+  <Step title="Aggregate">
+    Utopia's aggregation layer takes in the signed payloads from every node covering the same area of interest. Its work: group observations by spatial overlap and temporal proximity, cross corroborate them into a ground_truth_score, flag conflicting observations instead of resolving them silently and, where it makes sense, merge compatible multi view observations into unified feature records.
+  </Step>
+  <Step title="Deliver">
+    What reaches your application is structured JSON over HTTPS: the aggregated, scored response. Inside the body sits a features array whose elements each carry geometry, timestamps, quality scores, provenance and whatever domain specific fields apply to your query type.
+  </Step>
+</Steps>
+
+## What sovereign means here
+
+Sovereign, in the context of this pipeline, has one concrete meaning: your data does not cross infrastructure outside your designated boundary unless you gave explicit, auditable consent.
+
+The guarantee holds at three distinct levels:
+
+- **Node level.** Identifiable frames never leave the node. Because faces and number plates are blurred before transmission, they never touch a network in the first place.
+- **Infrastructure level.** Signed feature payloads travel exclusively over Utopia infrastructure inside your configured sovereignty boundary, with no third party cloud provider and no transit network unless authorized.
+- **API level.** Responses arrive over TLS, and Utopia keeps no record of query content beyond what billing and provenance require.
+
+Deployments for defense and government can go further: Utopia offers nation state grade sovereignty controls, covering air gapped delivery modes, region locked infrastructure and custom key management integration. For these configurations, contact [hello@utopiadata.net](mailto:hello@utopiadata.net).
+
+<Callout type="info">
+  By default, a standard enterprise account operates inside a single region sovereignty boundary. Enabling cross region access takes explicit configuration, and every use of it lands in your account's provenance log.
+</Callout>
+
+## Latency characteristics
+
+<CardGrid cols={2}>
+  <Card title="Real time queries">
+    Observations from the last few seconds to minutes are what a real time query returns, with the exact window depending on node density and the size of your area. Rather than waiting for every node that could conceivably contribute, Utopia returns a fast partial result. Over a small urban area, expect a typical p50 latency under 500ms from request to first byte.
+  </Card>
+  <Card title="Historical queries">
+    A historical query reads from Utopia's provenance archive. Aggregation and storage have already happened, so node response latency is out of the picture; what remains is retrieval and decryption overhead. Typical latency runs 1 to 5 seconds, scaling with archive depth and result size.
+  </Card>
+</CardGrid>
+
+Some applications (fleet tracking, infrastructure monitoring, real time situational awareness) need updates without interruption. For those, Utopia offers streaming subscriptions over a persistent connection: as observations matching your area and filters are aggregated, they are pushed straight to you, at latencies in line with real time queries.
+
+## Response data format
+
+A Utopia API response is always a GeoJSON compatible JSON object. At the top level it contains a features array, one element per spatial observation.
+
+```json
+{
+  "query_id": "qry_01j9z3kfm8x2v4n7",
+  "timestamp": "2026-05-22T14:32:07.412Z",
+  "aoi": {
+    "type": "Polygon",
+    "coordinates": [[[-122.4194, 37.7749], [-122.4094, 37.7749], [-122.4094, 37.7849], [-122.4194, 37.7849], [-122.4194, 37.7749]]]
+  },
+  "node_count": 14,
+  "features": [
+    {
+      "feature_id": "feat_7d3a9c2e",
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [-122.4142, 37.7799, 12.4]
+      },
+      "properties": {
+        "classification": "vehicle.truck",
+        "velocity_mps": 4.2,
+        "heading_deg": 273.1,
+        "captured_at": "2026-05-22T14:32:05.198Z",
+        "ground_truth_score": 0.94,
+        "provenance_hash": "sha256:a3f8c1d9e4b27056f3a8c9d1e4b270",
+        "sensor_modalities": ["camera", "lidar"],
+        "node_count": 3
+      }
+    }
+  ]
+}
+```
+
+| Field | Type | Description |
+| --- | --- | --- |
+| query_id | string | Identifier unique to this query, referenced in audit logs and support |
+| node_count | integer | How many nodes in total contributed to the response |
+| feature_id | string | Identifier unique to this observation |
+| geometry | GeoJSON geometry | The observed feature's position and shape; coordinates are longitude, latitude, altitude in meters |
+| classification | string | Hierarchical object class, for example vehicle.truck or person.pedestrian |
+| captured_at | ISO 8601 string | When the original sensor capture happened on the node |
+| ground_truth_score | float | Corroboration based confidence, ranging 0.0 to 1.0 |
+| provenance_hash | string | The observation's cryptographic signature |
+| sensor_modalities | array | The sensor types behind this feature |
+
+## How Utopia differs from cloud only alternatives
+
+A cloud only spatial platform pipes unfiltered footage into a central processing cluster and hands you the output. Several limitations come with that design, limitations the Utopia pipeline is built to avoid.
+
+| | Cloud only platforms | Utopia |
+| --- | --- | --- |
+| Privacy | Identifiable footage transits and is stored in the cloud | Unblurred frames never leave the device |
+| Provenance | No per observation cryptographic proof | Every feature carries a provenance_hash |
+| Sovereignty | Data crosses arbitrary cloud regions | Data stays within your configured boundary |
+| Latency | Round trip to a central cluster | Aggregation happens close to the edge |
+| Infrastructure cost | You pay for cloud compute and storage | Utopia absorbs node and compute costs |
+
+<Callout type="tip">
+  A useful question to put to any cloud only vendor: can you prove that a specific observation was not altered somewhere between capture and delivery? Utopia answers it with the provenance_hash, no trusted intermediary required.
+</Callout>

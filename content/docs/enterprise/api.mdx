@@ -1,0 +1,39 @@
+---
+title: Enterprise API overview
+description: Programmatic spatial query, ingestion, streaming and provenance checks, with access issued per pilot.
+---
+
+Verified spatial observations become programmatically accessible through the Utopia Enterprise Spatial API. With it you can query an area, push your own observations in, subscribe to a live feed, or check provenance without relying on anyone.
+
+Each pilot receives its own access. Credentials arrive during onboarding, scoped to whichever regions the account is authorized for.
+
+<Callout type="warning">
+  The API remains in early access and has no public availability yet. Treat the endpoint URLs, request examples and sample responses throughout the API reference as illustrative. To request access, contact [hello@utopiadata.net](mailto:hello@utopiadata.net).
+</Callout>
+
+## The four operations
+
+<CardGrid cols={2}>
+  <Card title="Spatial query" href="/docs/api/spatial-queries">
+    Fetch verified observations for a chosen area of interest and time window.
+  </Card>
+  <Card title="Data ingestion" href="/docs/api/data-ingestion">
+    Push your own observations into the network and get a provenance record back.
+  </Card>
+  <Card title="Streaming" href="/docs/api/streaming">
+    Receive a push feed of observations covering a defined area.
+  </Card>
+  <Card title="Provenance verification" href="/docs/data/cryptographic-provenance">
+    Establish on your own that an observation is genuine and untouched.
+  </Card>
+</CardGrid>
+
+## Authentication and regions
+
+Bearer API keys control access. Every key is bound to a region and subject to per-account rate limits. Observations from outside a key's region are never returned; a request that reaches across the boundary fails outright instead of being quietly filtered down.
+
+The regions are us-east-1, eu-west-1 and apac-1. Under an enterprise agreement, dedicated residency configurations can be arranged.
+
+## Start with provenance verification
+
+Among the four operations, provenance verification deserves your attention first. The question it settles (is this observation authentic?) is one no vendor's word can settle about its own data. A customer holding the observation and its hash can answer it alone, with no need to trust any other response from Utopia.

@@ -1,0 +1,85 @@
+---
+title: API overview
+description: An introduction to the Enterprise Spatial API for querying, ingesting, streaming and verifying data.
+---
+
+<Callout type="warning">
+  This API is currently in early access and has not been opened to the public. Treat the endpoint URLs, request samples and response examples throughout this page as illustrative only. To get access, email [hello@utopiadata.net](mailto:hello@utopiadata.net).
+</Callout>
+
+Applications integrate with the Utopia edge network through the Enterprise Spatial API, a REST interface. Through it you can pull real time spatial observations for any area of interest, push data captured by your own sensors into the network, and open live subscriptions to ground truth streams.
+
+## Base URL
+
+Send every API request to:
+
+```text
+https://api.utopiadata.net/v1
+```
+
+## Authentication
+
+A bearer token must accompany each request in the Authorization header:
+
+```text
+Authorization: Bearer your-api-key
+```
+
+The [Authentication](/docs/api/authentication) page covers how to obtain a key and manage it over time.
+
+## Request and response format
+
+JSON is used for both request bodies and responses. Whenever a request carries a body, set its Content-Type to application/json.
+
+A successful call returns HTTP 200 together with a JSON payload. When something goes wrong, the response carries the matching HTTP status code and a JSON object describing the failure:
+
+```json
+{
+  "error": "error_code",
+  "message": "Human-readable description of the error."
+}
+```
+
+## Rate limits
+
+Your plan tier determines how many requests you can make. Each response carries headers that report where you stand against the current limit.
+
+| Header | Description |
+| --- | --- |
+| X-RateLimit-Limit | The per-minute request ceiling |
+| X-RateLimit-Remaining | How many requests are left in the active window |
+| X-RateLimit-Reset | Unix timestamp marking the start of the next window |
+
+Going over the limit produces a 429 Too Many Requests response.
+
+## Endpoints
+
+<CardGrid cols={2}>
+  <Card title="Spatial queries" href="/docs/api/spatial-queries">
+    Retrieve ground truth observations for a geographic area you specify.
+  </Card>
+  <Card title="Data ingestion" href="/docs/api/data-ingestion">
+    Feed observations captured by your own sensors into the Utopia network.
+  </Card>
+  <Card title="Streaming" href="/docs/api/streaming">
+    Receive live ground truth updates for a zone you define.
+  </Card>
+  <Card title="Authentication" href="/docs/api/authentication">
+    Handle API keys and learn what authentication requires.
+  </Card>
+</CardGrid>
+
+## Common error codes
+
+| Code | HTTP status | Meaning |
+| --- | --- | --- |
+| unauthorized | 401 | API key absent or not valid |
+| region_not_authorized | 403 | Requested area falls outside the regions your key covers |
+| invalid_geometry | 400 | The GeoJSON in the request is malformed |
+| aoi_too_large | 400 | The area of interest is bigger than the allowed maximum |
+| rate_limit_exceeded | 429 | Request volume exceeded your limit |
+| internal_error | 500 | Something failed on our side, reach out to support |
+
+<Callout type="tip">
+  Email [hello@utopiadata.net](mailto:hello@utopiadata.net) if you would like access or want to move to a higher plan.
+</Callout>

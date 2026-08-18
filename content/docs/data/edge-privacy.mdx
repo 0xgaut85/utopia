@@ -1,0 +1,50 @@
+---
+title: Privacy at capture
+description: On-device blurring means faces and number plates are obscured before encoding, and no unblurred frame ever exists off the phone.
+---
+
+Privacy in Utopia is built into the architecture, not written into a policy. All filtering runs on the contributor's own device, during recording itself, before a single byte is transmitted.
+
+## What happens on the device
+
+As recording proceeds, the app scans each frame for faces and vehicle number plates and obscures them. Only these obscured frames are encoded into the resulting video file.
+
+The consequence is the point: no unblurred frame ever leaves the device. Such frames are never uploaded, never stored, and cannot be recovered afterwards. There is no version of any capture in Utopia's possession where a face or a plate can be read.
+
+<Callout type="warning">
+  Automated detection has limits, and no detector catches everything. Responsibility for not filming what should not be filmed stays with the contributor. Anyone appearing in a capture may request removal or additional obscuring. See the [Privacy policy](/docs/legal/privacy-policy).
+</Callout>
+
+## What Utopia holds
+
+Two artifacts exist on Utopia's side: the uploaded blurred video, and the 3D model reconstructed from it.
+
+The footage itself stays under the contributor's control. Under no circumstance is it passed to a buyer.
+
+## What a buyer receives
+
+| | Delivered to buyers | Not delivered |
+| --- | --- | --- |
+| Reconstructed 3D model | Yes | |
+| Geometry, classification, ground truth score | Yes | |
+| Provenance record | Yes | |
+| The contributor's video | | Never |
+| Unblurred frames | | Do not exist off the device |
+
+When reviewing a bounty submission, a buyer sees enough to measure it against their brief and no more. Acceptance gets them the reconstructed model. The source video is never part of the delivery, at any stage.
+
+## Privacy zones
+
+A contributor can mark out personal privacy zones, around a home or a workplace for instance, inside which capture is disabled. Separately, the network maintains privacy zones around sensitive locations; these are enforced server-side, and any upload from inside one is rejected outright.
+
+## Where uploads are unavailable
+
+Legal restrictions block uploads in certain regions. Whether a block applies depends on where the capture was made and on the contributor's network region.
+
+## Your queries
+
+Once a request completes, its query parameters are discarded and not retained. Results are limited to the regions your API key is authorized for, and no customer's query history is ever visible to another.
+
+<Callout type="tip">
+  If your use case requires data residency guarantees, see [Data sovereignty](/docs/data/data-sovereignty) or write to [hello@utopiadata.net](mailto:hello@utopiadata.net).
+</Callout>
