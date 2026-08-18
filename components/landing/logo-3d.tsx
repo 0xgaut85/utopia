@@ -1,6 +1,15 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState, Suspense } from "react";
+import {
+  Component,
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+  Suspense,
+  type ReactNode,
+} from "react";
 import { Canvas, useFrame, useLoader, useThree } from "@react-three/fiber";
 import { Environment, Float, Lightformer, useCursor } from "@react-three/drei";
 import * as THREE from "three";
@@ -266,24 +275,65 @@ function Rig() {
   );
 }
 
+// If the SVG fetch or WebGL setup throws, swallow the error and ask the parent
+// to remount instead of leaving a permanently blank canvas.
+class LogoErrorBoundary extends Component<
+  { onError: () => void; children: ReactNode },
+  { failed: boolean }
+> {
+  state = { failed: false };
+  static getDerivedStateFromError() {
+    return { failed: true };
+  }
+  componentDidCatch() {
+    this.props.onError();
+  }
+  render() {
+    return this.state.failed ? null : this.props.children;
+  }
+}
+
+const MAX_RETRIES = 3;
+
 export function Logo3D() {
   const [hovered, setHovered] = useState(false);
+  const [attempt, setAttempt] = useState(0);
+  const retries = useRef(0);
+
+  // Self-heal: clear the cached (possibly rejected) SVG load and remount the
+  // whole canvas after a short pause. Covers failed fetches, failed WebGL
+  // context creation, and lost contexts after tab/GPU churn.
+  const retry = useCallback(() => {
+    if (retries.current >= MAX_RETRIES) return;
+    retries.current += 1;
+    useLoader.clear(SVGLoader, LOGO_SVG);
+    setTimeout(() => setAttempt((a) => a + 1), 800);
+  }, []);
 
   return (
     <>
-      <Canvas
-        className="!absolute inset-0"
-        dpr={[1, 2]}
-        gl={{ antialias: true, alpha: true, powerPreference: "high-performance" }}
-        camera={{ position: [0, 0, 5], fov: 32 }}
-      >
-        <ambientLight intensity={0.5} />
-        <directionalLight position={[3, 4, 5]} intensity={1.2} />
-        <Suspense fallback={null}>
-          <LogoMesh onHoverChange={setHovered} />
-          <Rig />
-        </Suspense>
-      </Canvas>
+      <LogoErrorBoundary key={attempt} onError={retry}>
+        <Canvas
+          className="!absolute inset-0"
+          dpr={[1, 2]}
+          gl={{ antialias: true, alpha: true, powerPreference: "high-performance" }}
+          camera={{ position: [0, 0, 5], fov: 32 }}
+          onCreated={({ gl }) => {
+            retries.current = 0;
+            gl.domElement.addEventListener("webglcontextlost", (event) => {
+              event.preventDefault();
+              retry();
+            });
+          }}
+        >
+          <ambientLight intensity={0.5} />
+          <directionalLight position={[3, 4, 5]} intensity={1.2} />
+          <Suspense fallback={null}>
+            <LogoMesh onHoverChange={setHovered} />
+            <Rig />
+          </Suspense>
+        </Canvas>
+      </LogoErrorBoundary>
       {/* Tagline revealed in the centre hole of the mark while it spins. */}
       <div
         aria-hidden={!hovered}
