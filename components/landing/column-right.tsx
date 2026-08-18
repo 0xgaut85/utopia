@@ -21,21 +21,10 @@ export function ColumnRight() {
           inspection allows, and the robots learning to move safely through
           spaces that satellite imagery cannot describe.
         </p>
-        <ImagePlaceholder
-          ratio="landscape"
-          caption="Hardened site, surveyed"
-          duration={1150}
-          videoSrc="/landing/perimeter.mp4"
-        />
+        <ImagePlaceholder ratio="portrait" src="/image1.png" />
       </SectionBlock>
 
       <SectionBlock label="Where it already runs" delay={0.05}>
-        <ImagePlaceholder
-          ratio="wide"
-          caption="Cross domain deployment"
-          duration={1400}
-          videoSrc="/landing/port-dusk.mp4"
-        />
         <p className={bodyText}>
           * In{" "}
           <Link href="/docs/use-cases/sovereign-defense" className={inlineLink}>
@@ -64,15 +53,10 @@ export function ColumnRight() {
           , this is the ground truth a robot needs before it can be trusted
           to move through a space on its own.
         </p>
+        <ImagePlaceholder ratio="square" src="/image5.webp" />
       </SectionBlock>
 
       <SectionBlock label="For organizations">
-        <ImagePlaceholder
-          ratio="portrait"
-          caption="Commissioned capture, framed"
-          duration={1050}
-          videoSrc="/landing/arches.mp4"
-        />
         <p className={bodyText}>
           * <strong className="font-semibold">Commission a capture of a
           specific place.</strong> Post a bounty describing what you need and
@@ -80,6 +64,7 @@ export function ColumnRight() {
           one that meets your bar and the reward releases automatically, no
           invoice and no chasing anyone down for it.
         </p>
+        <ImagePlaceholder ratio="portrait" src="/image4.png" />
         <LinkRow items={[{ label: "Post a bounty", href: "/docs/contribute/bounties" }]} />
       </SectionBlock>
 

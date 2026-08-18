@@ -1,19 +1,15 @@
 import Image from "next/image";
 import { ImageIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { ScrambleText } from "@/components/ui/scramble-text";
 import { AutoVideo } from "@/components/landing/auto-video";
 
 type Ratio = "landscape" | "wide" | "square" | "portrait";
 
 type ImagePlaceholderProps = {
-  caption: string;
   ratio?: Ratio;
-  duration?: number;
   className?: string;
   src?: string;
   videoSrc?: string;
-  alt?: string;
 };
 
 const ratioClass: Record<Ratio, string> = {
@@ -24,43 +20,46 @@ const ratioClass: Record<Ratio, string> = {
 };
 
 export function ImagePlaceholder({
-  caption,
   ratio = "landscape",
-  duration = 1100,
   className,
   src,
   videoSrc,
-  alt,
 }: ImagePlaceholderProps) {
+  const hasMedia = Boolean(src || videoSrc);
+
   return (
-    <figure className={cn(className)}>
+    <figure
+      className={cn(
+        hasMedia && "-mx-3 first:-mt-2.5 last:-mb-2.5",
+        className
+      )}
+    >
       <div
         className={cn(
-          "relative flex items-center justify-center overflow-hidden border border-line/70 bg-black/[0.03]",
-          ratioClass[ratio]
+          hasMedia
+            ? "relative w-full bg-black/[0.03]"
+            : cn(
+                "relative flex items-center justify-center overflow-hidden border border-line/70 bg-black/[0.03]",
+                ratioClass[ratio]
+              )
         )}
       >
         {videoSrc ? (
-          <AutoVideo
-            src={videoSrc}
-            label={alt ?? caption}
-            className="absolute inset-0 h-full w-full object-cover"
-          />
+          <AutoVideo src={videoSrc} className="block h-auto w-full" />
         ) : src ? (
+          // Decorative: the surrounding copy carries the meaning.
           <Image
             src={src}
-            alt={alt ?? caption}
-            fill
+            alt=""
+            width={0}
+            height={0}
             sizes="(max-width: 1024px) 100vw, 33vw"
-            className="object-cover"
+            className="block h-auto w-full"
           />
         ) : (
           <ImageIcon className="h-4 w-4 opacity-20" strokeWidth={1.2} />
         )}
       </div>
-      <figcaption className="mt-1 font-mono text-[11px] italic text-ink/45">
-        <ScrambleText text={caption} duration={duration} />
-      </figcaption>
     </figure>
   );
 }

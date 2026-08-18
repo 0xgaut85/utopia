@@ -5,10 +5,9 @@ import { useEffect, useRef } from "react";
 type AutoVideoProps = {
   src: string;
   className?: string;
-  label?: string;
 };
 
-export function AutoVideo({ src, className, label }: AutoVideoProps) {
+export function AutoVideo({ src, className }: AutoVideoProps) {
   const ref = useRef<HTMLVideoElement>(null);
 
   // React does not render the muted attribute into SSR HTML, which makes
@@ -30,7 +29,7 @@ export function AutoVideo({ src, className, label }: AutoVideoProps) {
       loop
       playsInline
       preload="metadata"
-      aria-label={label}
+      aria-hidden
     />
   );
 }

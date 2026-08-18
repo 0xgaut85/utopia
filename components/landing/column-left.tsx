@@ -24,12 +24,7 @@ export function ColumnLeft() {
           capable of joining the network, nothing to install and nothing to
           ship.
         </p>
-        <ImagePlaceholder
-          ratio="landscape"
-          caption="Street level capture, unedited"
-          duration={1000}
-          videoSrc="/landing/street-night.mp4"
-        />
+        <ImagePlaceholder ratio="landscape" src="/imageface.png" />
         <p className={bodyText}>
           * Stairwells, loading bays, market streets and building interiors
           get covered at a resolution that satellites and mapping cars miss
@@ -53,12 +48,7 @@ export function ColumnLeft() {
       </SectionBlock>
 
       <SectionBlock label="How a capture becomes verified data">
-        <ImagePlaceholder
-          ratio="wide"
-          caption="Ground truth, unretouched"
-          duration={1300}
-          videoSrc="/landing/ground-truth.mp4"
-        />
+        <ImagePlaceholder ratio="portrait" src="/image3.webp" />
         <p className={bodyText}>
           * Every clip is fingerprinted and signed the moment it is recorded,
           producing a hash of the content, a coarse location and a timestamp
@@ -76,12 +66,7 @@ export function ColumnLeft() {
       </SectionBlock>
 
       <SectionBlock label="For contributors">
-        <ImagePlaceholder
-          ratio="portrait"
-          caption="Contributor, mid-capture"
-          duration={1050}
-          videoSrc="/landing/contributor.mp4"
-        />
+        <ImagePlaceholder ratio="portrait" src="/image2.avif" />
         <p className={bodyText}>
           * <strong className="font-semibold">Record what is around you and
           get paid for it.</strong> Connect a wallet, open the capture app in
