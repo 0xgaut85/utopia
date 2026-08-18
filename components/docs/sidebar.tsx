@@ -6,7 +6,11 @@ import { motion } from "motion/react";
 import { navTree } from "@/lib/nav";
 import { cn } from "@/lib/utils";
 
-export function Sidebar() {
+type SidebarProps = {
+  onNavigate?: () => void;
+};
+
+export function Sidebar({ onNavigate }: SidebarProps) {
   const pathname = usePathname();
 
   return (
@@ -30,6 +34,7 @@ export function Sidebar() {
                   ) : null}
                   <Link
                     href={item.href}
+                    onClick={onNavigate}
                     className={cn(
                       "relative z-10 block rounded-lg px-3 py-1.5 text-sm transition-colors",
                       isActive

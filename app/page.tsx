@@ -6,7 +6,7 @@ export default function Home() {
   return (
     <>
       <SiteHeader />
-      <main className="flex flex-col pt-20 sm:pt-24 lg:h-[100svh] lg:overflow-hidden">
+      <main className="flex flex-col pb-20 pt-[4.25rem] sm:pb-24 sm:pt-24 lg:h-[100svh] lg:overflow-hidden lg:pb-0">
         <Newspaper />
       </main>
       <FooterReveal />

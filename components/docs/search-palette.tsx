@@ -63,11 +63,11 @@ export function SearchPalette() {
       <button
         type="button"
         onClick={() => setOpen(true)}
-        className="glass flex w-full items-center gap-2.5 rounded-full px-4 py-2 text-sm text-ink-soft transition-colors hover:text-ink sm:w-64"
+        className="glass flex min-w-0 flex-1 items-center gap-2.5 rounded-full px-3 py-2 text-sm text-ink-soft transition-colors hover:text-ink sm:w-64 sm:px-4"
       >
-        <Search className="h-4 w-4" />
-        <span className="flex-1 text-left">Search docs</span>
-        <kbd className="rounded border border-line bg-white/60 px-1.5 py-0.5 font-mono text-[10px] text-ink-soft">
+        <Search className="h-4 w-4 shrink-0" />
+        <span className="min-w-0 flex-1 truncate text-left">Search docs</span>
+        <kbd className="hidden rounded border border-line bg-white/60 px-1.5 py-0.5 font-mono text-[10px] text-ink-soft sm:inline">
           Ctrl K
         </kbd>
       </button>

@@ -100,6 +100,7 @@ body {
   font-family: var(--font-body);
   -webkit-font-smoothing: antialiased;
   text-rendering: optimizeLegibility;
+  overflow-x: clip;
 }
 
 ::selection {
@@ -145,9 +146,9 @@ body {
 [cmdk-dialog] {
   position: fixed;
   left: 50%;
-  top: 18svh;
+  top: max(12svh, env(safe-area-inset-top));
   z-index: 61;
-  width: min(90vw, 34rem);
+  width: min(calc(100vw - 2rem), 34rem);
   transform: translateX(-50%);
 }
 

@@ -32,7 +32,7 @@ export function SectionBlock({
           <ScrambleText text={`${label}:`} />
         </span>
       </div>
-      <div className={cn("space-y-2.5 px-3 py-2.5", className)}>{children}</div>
+      <div className={cn("space-y-2.5 px-3 py-2.5 sm:space-y-3 sm:px-3 sm:py-3", className)}>{children}</div>
     </motion.div>
   );
 
