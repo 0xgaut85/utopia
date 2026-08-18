@@ -24,7 +24,7 @@ export function ColumnLeft() {
           capable of joining the network, nothing to install and nothing to
           ship.
         </p>
-        <ImagePlaceholder ratio="landscape" src="/image6.png" />
+        <ImagePlaceholder ratio="landscape" src="/image6b.png" />
         <p className={bodyText}>
           * Stairwells, loading bays, market streets and building interiors
           get covered at a resolution that satellites and mapping cars miss

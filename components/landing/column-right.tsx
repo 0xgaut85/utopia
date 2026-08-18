@@ -21,7 +21,7 @@ export function ColumnRight() {
           inspection allows, and the robots learning to move safely through
           spaces that satellite imagery cannot describe.
         </p>
-        <ImagePlaceholder ratio="landscape" src="/image7.png" />
+        <ImagePlaceholder ratio="landscape" src="/image8.png" />
       </SectionBlock>
 
       <SectionBlock label="Where it already runs" delay={0.05}>
