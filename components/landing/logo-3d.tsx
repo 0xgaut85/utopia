@@ -9,6 +9,7 @@ import {
   useState,
   type ReactNode,
 } from "react";
+import Image from "next/image";
 import { Canvas, useFrame, useThree } from "@react-three/fiber";
 import { Environment, Float, Lightformer, useCursor } from "@react-three/drei";
 import * as THREE from "three";
@@ -301,16 +302,35 @@ const MAX_RETRIES = 3;
 export function Logo3D() {
   const [hovered, setHovered] = useState(false);
   const [attempt, setAttempt] = useState(0);
+  const [fallback, setFallback] = useState(false);
   const retries = useRef(0);
 
-  // Self-heal: remount the whole canvas after a short pause. Covers failed
-  // WebGL context creation and lost contexts after tab/GPU churn.
+  // Last-resort self-heal: remount the canvas after a short pause; if WebGL
+  // keeps failing, give up and show the flat mark instead of an empty section.
   const retry = useCallback(() => {
-    if (retries.current >= MAX_RETRIES) return;
+    if (retries.current >= MAX_RETRIES) {
+      console.warn("[logo-3d] giving up on WebGL, showing static fallback");
+      setFallback(true);
+      return;
+    }
     retries.current += 1;
     console.warn(`[logo-3d] canvas failed, remounting (attempt ${retries.current})`);
     setTimeout(() => setAttempt((a) => a + 1), 800);
   }, []);
+
+  if (fallback) {
+    return (
+      <div className="absolute inset-0 flex items-center justify-center">
+        <Image
+          src="/logo-utopia-mark.png"
+          alt="Utopia logo"
+          width={220}
+          height={227}
+          className="h-auto w-1/3 max-w-[200px] opacity-90"
+        />
+      </div>
+    );
+  }
 
   return (
     <>
@@ -318,13 +338,24 @@ export function Logo3D() {
         <Canvas
           className="!absolute inset-0"
           dpr={[1, 1.5]}
-          gl={{ antialias: true, alpha: true, powerPreference: "high-performance" }}
+          gl={{ antialias: true, alpha: true, powerPreference: "default" }}
           camera={{ position: [0, 0, 5], fov: 32 }}
           onCreated={({ gl }) => {
             retries.current = 0;
-            gl.domElement.addEventListener("webglcontextlost", (event) => {
+            const canvas = gl.domElement;
+            let restoreTimer: number | undefined;
+            // A lost context is often restored by the browser a moment later
+            // (three.js resumes rendering by itself on restore). Remounting
+            // immediately would burn another context while the GPU is already
+            // under pressure, so only rebuild if the restore never comes.
+            canvas.addEventListener("webglcontextlost", (event) => {
               event.preventDefault();
-              retry();
+              console.warn("[logo-3d] WebGL context lost, waiting for restore");
+              restoreTimer = window.setTimeout(() => retry(), 2500);
+            });
+            canvas.addEventListener("webglcontextrestored", () => {
+              console.warn("[logo-3d] WebGL context restored");
+              window.clearTimeout(restoreTimer);
             });
           }}
         >
