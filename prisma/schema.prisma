@@ -1,0 +1,56 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id          String       @id @default(cuid())
+  privyId     String       @unique
+  username    String       @unique
+  email       String?
+  wallet      String?
+  avatarUrl   String?
+  points      Int          @default(0)
+  isSeed      Boolean      @default(false)
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+  submissions Submission[]
+}
+
+model Task {
+  id             String       @id @default(cuid())
+  slug           String       @unique
+  title          String
+  brief          String
+  category       String
+  locationName   String?
+  lat            Float?
+  lng            Float?
+  radiusM        Int?
+  reward         Int
+  maxSubmissions Int          @default(25)
+  status         String       @default("open")
+  expiresAt      DateTime?
+  createdAt      DateTime     @default(now())
+  submissions    Submission[]
+}
+
+model Submission {
+  id        String   @id @default(cuid())
+  taskId    String
+  userId    String
+  photo     String
+  note      String?
+  lat       Float?
+  lng       Float?
+  status    String   @default("approved")
+  createdAt DateTime @default(now())
+  task      Task     @relation(fields: [taskId], references: [id], onDelete: Cascade)
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([taskId, userId])
+}
