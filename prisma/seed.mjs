@@ -28,7 +28,7 @@ const seedTasks = [
     lat: 35.6595,
     lng: 139.7005,
     radiusM: 150,
-    reward: 220,
+    priceUsdc: 25,
     maxSubmissions: 20,
   },
   {
@@ -37,7 +37,7 @@ const seedTasks = [
     brief:
       "Photograph a public EV charging station with at least one vehicle actively connected. Frame the full unit including the connector, screen state and any queue behind it. Any city worldwide.",
     category: "object",
-    reward: 120,
+    priceUsdc: 12,
     maxSubmissions: 40,
   },
   {
@@ -50,7 +50,7 @@ const seedTasks = [
     lat: 51.9496,
     lng: 4.1453,
     radiusM: 5000,
-    reward: 180,
+    priceUsdc: 18,
     maxSubmissions: 15,
   },
   {
@@ -59,7 +59,7 @@ const seedTasks = [
     brief:
       "A tower crane on an active construction site, photographed from street level with the surrounding block visible. We track construction activity as a leading indicator. Include the site hoarding if possible.",
     category: "object",
-    reward: 90,
+    priceUsdc: 9,
     maxSubmissions: 60,
   },
   {
@@ -68,7 +68,7 @@ const seedTasks = [
     brief:
       "Photograph a supermarket produce section showing shelf stock levels as they are. Empty shelves are as valuable as full ones. Frame at least three meters of shelving straight on.",
     category: "object",
-    reward: 70,
+    priceUsdc: 7,
     maxSubmissions: 80,
   },
   {
@@ -81,7 +81,7 @@ const seedTasks = [
     lat: 40.7061,
     lng: -73.9969,
     radiusM: 400,
-    reward: 160,
+    priceUsdc: 16,
     maxSubmissions: 25,
   },
   {
@@ -90,7 +90,7 @@ const seedTasks = [
     brief:
       "From public roads only, capture a distribution warehouse loading dock showing how many bays are occupied by trailers. We are building a ground level index of logistics utilization.",
     category: "object",
-    reward: 140,
+    priceUsdc: 14,
     maxSubmissions: 30,
   },
   {
@@ -99,7 +99,7 @@ const seedTasks = [
     brief:
       "The coverage task. Stand at a street corner anywhere on Earth and capture the intersection with visible street signage. Every submission extends the map. One per contributor.",
     category: "coverage",
-    reward: 40,
+    priceUsdc: 4,
     maxSubmissions: 500,
   },
   {
@@ -108,7 +108,7 @@ const seedTasks = [
     brief:
       "Photograph a utility scale solar installation from its public perimeter. Panel angle, row spacing and vegetation state should be readable. Drone shots not accepted, this is a ground truth network.",
     category: "object",
-    reward: 150,
+    priceUsdc: 15,
     maxSubmissions: 20,
   },
   {
@@ -121,7 +121,7 @@ const seedTasks = [
     lat: 48.8898,
     lng: 2.2419,
     radiusM: 600,
-    reward: 170,
+    priceUsdc: 17,
     maxSubmissions: 20,
   },
 ];
@@ -140,16 +140,39 @@ async function main() {
     });
   }
 
+  // The official buyer account that posted the launch bounties.
+  const official = await prisma.user.upsert({
+    where: { privyId: "seed:utopia_official" },
+    update: {},
+    create: {
+      privyId: "seed:utopia_official",
+      username: "utopia_official",
+      points: 0,
+      isSeed: true,
+      isAdmin: true,
+    },
+  });
+
   for (const task of seedTasks) {
+    const { priceUsdc, ...rest } = task;
     await prisma.task.upsert({
       where: { slug: task.slug },
-      update: {},
-      create: task,
+      update: {
+        priceUsdc,
+        creatorId: official.id,
+        fundedAt: new Date(),
+      },
+      create: {
+        ...rest,
+        priceUsdc,
+        creatorId: official.id,
+        fundedAt: new Date(),
+      },
     });
   }
 
   console.log(
-    `Seeded ${seedUsers.length} contributors and ${seedTasks.length} tasks.`
+    `Seeded ${seedUsers.length} contributors, the official buyer and ${seedTasks.length} tasks.`
   );
 }
 

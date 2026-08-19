@@ -2,6 +2,8 @@ import Link from "next/link";
 import { MapPin, Crosshair, Globe2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { ScrambleText } from "@/components/ui/scramble-text";
+import { UsdcAmount } from "@/components/app/usdc-amount";
+import { taskPoints } from "@/lib/app/points";
 
 export type TaskCardData = {
   id: string;
@@ -9,7 +11,7 @@ export type TaskCardData = {
   brief: string;
   category: string;
   locationName: string | null;
-  reward: number;
+  priceUsdc: number;
   maxSubmissions: number;
   status: string;
   submissionCount: number;
@@ -62,8 +64,14 @@ export function TaskCard({
       </div>
 
       <div className="mt-auto flex items-center justify-between gap-3 border-t border-line/40 px-4 py-2.5">
-        <span className="bg-ink px-2 py-0.5 font-mono text-[11px] text-mist">
-          +{task.reward} pts
+        <span className="flex items-center gap-2">
+          <UsdcAmount
+            amount={task.priceUsdc}
+            className="bg-ink px-2 py-0.5 font-mono text-[11px] text-mist"
+          />
+          <span className="font-mono text-[10px] text-ink/45">
+            +{taskPoints(task.priceUsdc).toLocaleString("en-US")} pts
+          </span>
         </span>
         <span className="font-mono text-[10px] uppercase tracking-[0.1em] text-ink/45">
           {closed

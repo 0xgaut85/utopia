@@ -4,6 +4,9 @@ import { ArrowLeft, MapPin, Crosshair, Globe2 } from "lucide-react";
 import { prisma } from "@/lib/app/db";
 import { ScrambleText } from "@/components/ui/scramble-text";
 import { SubmitPanel } from "@/components/app/submit-panel";
+import { ReviewPanel } from "@/components/app/review-panel";
+import { UsdcAmount } from "@/components/app/usdc-amount";
+import { taskPoints } from "@/lib/app/points";
 
 const categoryIcon = {
   location: MapPin,
@@ -19,7 +22,10 @@ export default async function TaskPage({
   const { id } = await params;
   const task = await prisma.task.findUnique({
     where: { id },
-    include: { _count: { select: { submissions: true } } },
+    include: {
+      _count: { select: { submissions: true } },
+      creator: { select: { id: true, username: true } },
+    },
   });
 
   if (!task) notFound();
@@ -54,15 +60,24 @@ export default async function TaskPage({
             <p className="mt-5 max-w-xl text-sm leading-relaxed text-ink-soft">
               {task.brief}
             </p>
+            {task.creator ? (
+              <p className="mt-4 font-mono text-[10px] uppercase tracking-[0.1em] text-ink/45">
+                Posted by {task.creator.username}
+              </p>
+            ) : null}
           </div>
 
           <dl className="grid grid-cols-2 border-t border-line/70 sm:grid-cols-4">
             <div className="border-b border-r border-line/40 px-4 py-3 sm:border-b-0">
               <dt className="font-mono text-[10px] uppercase tracking-[0.1em] text-ink/45">
-                Reward
+                Bounty
               </dt>
               <dd className="mt-1 font-mono text-lg text-ink">
-                +{task.reward} pts
+                <UsdcAmount amount={task.priceUsdc} />
+              </dd>
+              <dd className="font-mono text-[10px] text-ink/45">
+                +{taskPoints(task.priceUsdc).toLocaleString("en-US")} pts if
+                accepted
               </dd>
             </div>
             <div className="border-b border-line/40 px-4 py-3 sm:border-b-0 sm:border-r">
@@ -111,11 +126,17 @@ export default async function TaskPage({
 
         <SubmitPanel
           taskId={task.id}
-          reward={task.reward}
+          priceUsdc={task.priceUsdc}
           open={open}
           requiresLocation={task.lat !== null && task.lng !== null}
         />
       </div>
+
+      <ReviewPanel
+        taskId={task.id}
+        creatorId={task.creator?.id ?? null}
+        priceUsdc={task.priceUsdc}
+      />
     </div>
   );
 }

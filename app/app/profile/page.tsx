@@ -1,11 +1,13 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { Pencil, Wallet, Check } from "lucide-react";
+import Link from "next/link";
+import { Pencil, Wallet, Check, ShieldCheck } from "lucide-react";
 import { usePrivy } from "@privy-io/react-auth";
 import { useAppAuth } from "@/components/app/auth-context";
 import { Avatar } from "@/components/app/avatar";
 import { compressAvatar } from "@/lib/app/image";
+import { taskPoints } from "@/lib/app/points";
 
 const label = "font-mono text-[10px] uppercase tracking-[0.1em] text-ink/45";
 
@@ -38,6 +40,83 @@ function WalletRow() {
   );
 }
 
+function TeamAccessRow() {
+  const { profile, getToken, setProfile, refreshProfile } = useAppAuth();
+  const [code, setCode] = useState("");
+  const [checking, setChecking] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  if (profile?.isAdmin) {
+    return (
+      <div className="flex items-center gap-2 border-b border-line/40 px-4 py-3 sm:px-6">
+        <ShieldCheck className="h-3.5 w-3.5 text-ink" strokeWidth={1.6} />
+        <span className="font-mono text-[10px] uppercase tracking-[0.1em] text-ink">
+          Team reviewer access active
+        </span>
+      </div>
+    );
+  }
+
+  async function claim() {
+    if (!code.trim()) return;
+    setError(null);
+    setChecking(true);
+
+    const token = await getToken();
+    const response = token
+      ? await fetch("/api/app/admin/claim", {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ code: code.trim() }),
+        })
+      : null;
+
+    setChecking(false);
+
+    if (!response?.ok) {
+      setError("Invalid team code.");
+      return;
+    }
+
+    const data = (await response.json()) as {
+      user: NonNullable<typeof profile>;
+    };
+    setProfile(data.user);
+    void refreshProfile();
+  }
+
+  return (
+    <div className="border-b border-line/40 px-4 py-3 sm:px-6">
+      <p className="font-mono text-[10px] uppercase tracking-[0.1em] text-ink/45">
+        Team access
+      </p>
+      <div className="mt-1.5 flex items-center gap-2">
+        <input
+          value={code}
+          onChange={(event) => setCode(event.target.value)}
+          type="password"
+          placeholder="Team code"
+          className="w-40 border border-line/70 bg-transparent px-2 py-1 font-mono text-sm text-ink outline-none placeholder:text-ink/30 focus:border-ink/40"
+        />
+        <button
+          type="button"
+          onClick={claim}
+          disabled={checking}
+          className="cursor-pointer border border-line/70 px-3 py-1.5 font-mono text-[10px] uppercase tracking-[0.1em] text-ink-soft transition-colors hover:border-ink/30 hover:text-ink disabled:opacity-40"
+        >
+          {checking ? "Checking..." : "Unlock"}
+        </button>
+        {error ? (
+          <span className="font-mono text-[10px] text-ink/60">{error}</span>
+        ) : null}
+      </div>
+    </div>
+  );
+}
+
 export default function ProfilePage() {
   const {
     configured,
@@ -45,6 +124,7 @@ export default function ProfilePage() {
     authenticated,
     profile,
     submissions,
+    myTasks,
     login,
     getToken,
     refreshProfile,
@@ -262,6 +342,7 @@ export default function ProfilePage() {
           </div>
 
           <WalletRow />
+          <TeamAccessRow />
         </section>
 
         <section>
@@ -294,9 +375,62 @@ export default function ProfilePage() {
                       / {submission.status}
                     </p>
                   </div>
-                  <span className="shrink-0 bg-ink px-2 py-0.5 font-mono text-[11px] text-mist">
-                    +{submission.task.reward} pts
+                  <span
+                    className={
+                      submission.status === "accepted"
+                        ? "shrink-0 bg-ink px-2 py-0.5 font-mono text-[11px] text-mist"
+                        : "shrink-0 border border-line/70 px-2 py-0.5 font-mono text-[11px] text-ink/50"
+                    }
+                  >
+                    {submission.status === "accepted" ? "+" : ""}
+                    {taskPoints(submission.task.priceUsdc).toLocaleString(
+                      "en-US"
+                    )}{" "}
+                    pts
                   </span>
+                </li>
+              ))}
+            </ul>
+          )}
+
+          <div className="border-t border-line/70 bg-black/[0.035] px-4 py-1.5 sm:px-6">
+            <span className={label}>My bounties:</span>
+          </div>
+          {myTasks.length === 0 ? (
+            <div className="px-4 py-8 text-center sm:px-6">
+              <p className="text-sm leading-relaxed text-ink-soft">
+                No bounties posted.{" "}
+                <Link
+                  href="/app/tasks/new"
+                  className="text-ink underline underline-offset-4 hover:text-ink/70"
+                >
+                  Post one
+                </Link>{" "}
+                to buy captures from the network.
+              </p>
+            </div>
+          ) : (
+            <ul>
+              {myTasks.map((task) => (
+                <li key={task.id}>
+                  <Link
+                    href={`/app/tasks/${task.id}`}
+                    className="flex items-center justify-between gap-3 border-b border-line/40 px-4 py-3 transition-colors hover:bg-black/[0.02] sm:px-6"
+                  >
+                    <div className="min-w-0">
+                      <p className="truncate font-mono text-sm text-ink">
+                        {task.title}
+                      </p>
+                      <p className="mt-0.5 font-mono text-[10px] uppercase tracking-[0.1em] text-ink/40">
+                        {task.status === "open"
+                          ? `${task.pendingCount} pending review`
+                          : "Settled"}
+                      </p>
+                    </div>
+                    <span className="shrink-0 bg-ink px-2 py-0.5 font-mono text-[11px] text-mist">
+                      {task.priceUsdc.toLocaleString("en-US")} USDC
+                    </span>
+                  </Link>
                 </li>
               ))}
             </ul>

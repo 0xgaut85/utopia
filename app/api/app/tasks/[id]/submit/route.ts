@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/app/db";
 import { getAuthUser } from "@/lib/app/auth";
+import { taskPoints } from "@/lib/app/points";
 
 const PHOTO_PATTERN = /^data:image\/(png|jpeg|webp);base64,/;
 const PHOTO_MAX_LENGTH = 6_000_000;
@@ -54,23 +55,17 @@ export async function POST(
   const lng = typeof body.lng === "number" ? body.lng : undefined;
 
   try {
-    const [submission] = await prisma.$transaction([
-      prisma.submission.create({
-        data: {
-          taskId: task.id,
-          userId: user.id,
-          photo,
-          note,
-          lat,
-          lng,
-          status: "approved",
-        },
-      }),
-      prisma.user.update({
-        where: { id: user.id },
-        data: { points: { increment: task.reward } },
-      }),
-    ]);
+    const submission = await prisma.submission.create({
+      data: {
+        taskId: task.id,
+        userId: user.id,
+        photo,
+        note,
+        lat,
+        lng,
+        status: "pending",
+      },
+    });
 
     return NextResponse.json({
       submission: {
@@ -78,7 +73,7 @@ export async function POST(
         status: submission.status,
         createdAt: submission.createdAt.toISOString(),
       },
-      pointsAwarded: task.reward,
+      pointsIfAccepted: taskPoints(task.priceUsdc),
     });
   } catch {
     return NextResponse.json(

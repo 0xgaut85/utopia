@@ -13,16 +13,29 @@ export async function GET(request: Request) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  const submissions = await prisma.submission.findMany({
-    where: { userId: user.id },
-    orderBy: { createdAt: "desc" },
-    select: {
-      id: true,
-      status: true,
-      createdAt: true,
-      task: { select: { id: true, title: true, reward: true } },
-    },
-  });
+  const [submissions, createdTasks] = await Promise.all([
+    prisma.submission.findMany({
+      where: { userId: user.id },
+      orderBy: { createdAt: "desc" },
+      select: {
+        id: true,
+        status: true,
+        createdAt: true,
+        task: { select: { id: true, title: true, priceUsdc: true } },
+      },
+    }),
+    prisma.task.findMany({
+      where: { creatorId: user.id },
+      orderBy: { createdAt: "desc" },
+      select: {
+        id: true,
+        title: true,
+        priceUsdc: true,
+        status: true,
+        _count: { select: { submissions: { where: { status: "pending" } } } },
+      },
+    }),
+  ]);
 
   return NextResponse.json({
     user: publicUser(user, true),
@@ -31,6 +44,13 @@ export async function GET(request: Request) {
       status: submission.status,
       createdAt: submission.createdAt.toISOString(),
       task: submission.task,
+    })),
+    myTasks: createdTasks.map((task) => ({
+      id: task.id,
+      title: task.title,
+      priceUsdc: task.priceUsdc,
+      status: task.status,
+      pendingCount: task._count.submissions,
     })),
   });
 }

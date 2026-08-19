@@ -8,17 +8,19 @@ datasource db {
 }
 
 model User {
-  id          String       @id @default(cuid())
-  privyId     String       @unique
-  username    String       @unique
-  email       String?
-  wallet      String?
-  avatarUrl   String?
-  points      Int          @default(0)
-  isSeed      Boolean      @default(false)
-  createdAt   DateTime     @default(now())
-  updatedAt   DateTime     @updatedAt
-  submissions Submission[]
+  id           String       @id @default(cuid())
+  privyId      String       @unique
+  username     String       @unique
+  email        String?
+  wallet       String?
+  avatarUrl    String?
+  points       Int          @default(0)
+  isAdmin      Boolean      @default(false)
+  isSeed       Boolean      @default(false)
+  createdAt    DateTime     @default(now())
+  updatedAt    DateTime     @updatedAt
+  submissions  Submission[]
+  createdTasks Task[]       @relation("TaskCreator")
 }
 
 model Task {
@@ -31,9 +33,13 @@ model Task {
   lat            Float?
   lng            Float?
   radiusM        Int?
-  reward         Int
+  priceUsdc      Float
   maxSubmissions Int          @default(25)
   status         String       @default("open")
+  depositNetwork String?
+  fundedAt       DateTime?
+  creatorId      String?
+  creator        User?        @relation("TaskCreator", fields: [creatorId], references: [id], onDelete: SetNull)
   expiresAt      DateTime?
   createdAt      DateTime     @default(now())
   submissions    Submission[]
@@ -47,7 +53,7 @@ model Submission {
   note      String?
   lat       Float?
   lng       Float?
-  status    String   @default("approved")
+  status    String   @default("pending")
   createdAt DateTime @default(now())
   task      Task     @relation(fields: [taskId], references: [id], onDelete: Cascade)
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)

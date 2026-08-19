@@ -7,6 +7,7 @@ export type PublicUser = {
   points: number;
   wallet: string | null;
   email?: string | null;
+  isAdmin?: boolean;
   createdAt: string;
 };
 
@@ -17,7 +18,7 @@ export function publicUser(user: User, includePrivate = false): PublicUser {
     avatarUrl: user.avatarUrl,
     points: user.points,
     wallet: user.wallet,
-    ...(includePrivate ? { email: user.email } : {}),
+    ...(includePrivate ? { email: user.email, isAdmin: user.isAdmin } : {}),
     createdAt: user.createdAt.toISOString(),
   };
 }

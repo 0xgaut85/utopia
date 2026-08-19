@@ -16,7 +16,15 @@ export type SubmissionSummary = {
   id: string;
   status: string;
   createdAt: string;
-  task: { id: string; title: string; reward: number };
+  task: { id: string; title: string; priceUsdc: number };
+};
+
+export type MyTaskSummary = {
+  id: string;
+  title: string;
+  priceUsdc: number;
+  status: string;
+  pendingCount: number;
 };
 
 type AppAuth = {
@@ -25,6 +33,7 @@ type AppAuth = {
   authenticated: boolean;
   profile: PublicUser | null;
   submissions: SubmissionSummary[];
+  myTasks: MyTaskSummary[];
   login: () => void;
   logout: () => Promise<void> | void;
   linkWallet: () => void;
@@ -41,6 +50,7 @@ const AuthContext = createContext<AppAuth>({
   authenticated: false,
   profile: null,
   submissions: [],
+  myTasks: [],
   login: noop,
   logout: noop,
   linkWallet: noop,
@@ -59,6 +69,7 @@ function PrivyBridge({ children }: { children: ReactNode }) {
   const { login } = useLogin();
   const [profile, setProfile] = useState<PublicUser | null>(null);
   const [submissions, setSubmissions] = useState<SubmissionSummary[]>([]);
+  const [myTasks, setMyTasks] = useState<MyTaskSummary[]>([]);
   const syncedFor = useRef<string | null>(null);
 
   const getToken = useCallback(async () => {
@@ -79,9 +90,11 @@ function PrivyBridge({ children }: { children: ReactNode }) {
     const data = (await response.json()) as {
       user: PublicUser;
       submissions: SubmissionSummary[];
+      myTasks: MyTaskSummary[];
     };
     setProfile(data.user);
     setSubmissions(data.submissions);
+    setMyTasks(data.myTasks ?? []);
   }, [getToken]);
 
   const handleLogout = useCallback(async () => {
@@ -89,6 +102,7 @@ function PrivyBridge({ children }: { children: ReactNode }) {
     syncedFor.current = null;
     setProfile(null);
     setSubmissions([]);
+    setMyTasks([]);
   }, [logout]);
 
   // Upsert the database account per Privy session, re-syncing when the
@@ -134,6 +148,7 @@ function PrivyBridge({ children }: { children: ReactNode }) {
         authenticated,
         profile,
         submissions,
+        myTasks,
         login: () => login(),
         logout: handleLogout,
         linkWallet,

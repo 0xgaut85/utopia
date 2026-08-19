@@ -5,10 +5,11 @@ import { Camera, LocateFixed, Check } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useAppAuth } from "@/components/app/auth-context";
 import { compressImage } from "@/lib/app/image";
+import { taskPoints } from "@/lib/app/points";
 
 type SubmitPanelProps = {
   taskId: string;
-  reward: number;
+  priceUsdc: number;
   open: boolean;
   requiresLocation: boolean;
 };
@@ -17,10 +18,11 @@ type Phase = "idle" | "submitting" | "done";
 
 export function SubmitPanel({
   taskId,
-  reward,
+  priceUsdc,
   open,
   requiresLocation,
 }: SubmitPanelProps) {
+  const points = taskPoints(priceUsdc).toLocaleString("en-US");
   const { configured, ready, authenticated, login, getToken, refreshProfile } =
     useAppAuth();
   const fileInput = useRef<HTMLInputElement>(null);
@@ -127,10 +129,11 @@ export function SubmitPanel({
             <Check className="h-5 w-5" strokeWidth={1.6} />
           </span>
           <p className="font-display text-2xl font-medium tracking-tight text-ink">
-            Capture accepted
+            Capture submitted
           </p>
-          <p className="font-mono text-sm text-ink-soft">
-            +{reward} points added to your account.
+          <p className="max-w-xs font-mono text-sm text-ink-soft">
+            The buyer is reviewing submissions. You earn +{points} points if
+            yours is accepted.
           </p>
         </div>
       ) : !configured ? (
@@ -143,7 +146,8 @@ export function SubmitPanel({
       ) : !authenticated ? (
         <div className="flex flex-1 flex-col items-center justify-center gap-4 px-6 py-16 text-center">
           <p className="max-w-xs text-sm leading-relaxed text-ink-soft">
-            Sign in to submit a capture and earn +{reward} points.
+            Sign in to submit a capture. Earn +{points} points if the buyer
+            accepts it.
           </p>
           <button
             type="button"
@@ -226,7 +230,9 @@ export function SubmitPanel({
             disabled={phase === "submitting"}
             className="cursor-pointer bg-ink px-5 py-2.5 font-mono text-[11px] uppercase tracking-[0.1em] text-mist transition-opacity hover:opacity-80 disabled:opacity-40"
           >
-            {phase === "submitting" ? "Submitting..." : `Submit for +${reward} pts`}
+            {phase === "submitting"
+              ? "Submitting..."
+              : `Submit for review / +${points} pts`}
           </button>
         </div>
       )}
