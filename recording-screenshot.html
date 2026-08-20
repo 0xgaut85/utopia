@@ -1,0 +1,474 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=430, initial-scale=1" />
+    <title>Utopia App / recording</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Inter:wght@400;500&family=JetBrains+Mono:wght@400;500;600&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      :root {
+        --font-body: "Inter", ui-sans-serif, system-ui, sans-serif;
+        --font-mono: "JetBrains Mono", ui-monospace, "SFMono-Regular", monospace;
+        --font-accent: "Instrument Serif", ui-serif, Georgia, serif;
+        --color-ink: oklch(0.16 0 0);
+        --color-ink-soft: oklch(0.32 0 0);
+        --color-mist: oklch(0.975 0 0);
+        --color-line: oklch(0.88 0 0);
+      }
+
+      * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+
+      html,
+      body {
+        width: 430px;
+        height: 932px;
+        overflow: hidden;
+        background: #fff;
+        color: var(--color-ink);
+        font-family: var(--font-body);
+        -webkit-font-smoothing: antialiased;
+      }
+
+      .app {
+        display: flex;
+        flex-direction: column;
+        width: 430px;
+        height: 932px;
+        background: #fff;
+      }
+
+      /* header */
+      .header {
+        flex: none;
+        height: 56px;
+        border-bottom: 1px solid color-mix(in oklab, var(--color-line) 70%, transparent);
+        background: color-mix(in oklab, var(--color-mist) 80%, transparent);
+        backdrop-filter: blur(18px);
+      }
+      .header-inner {
+        display: flex;
+        height: 56px;
+        align-items: center;
+        justify-content: space-between;
+        gap: 16px;
+        padding: 0 16px;
+      }
+      .brand {
+        display: flex;
+        min-width: 0;
+        align-items: center;
+        gap: 10px;
+      }
+      .brand img {
+        height: 20px;
+        width: 20px;
+        flex: none;
+      }
+      .brand span {
+        font-family: var(--font-mono);
+        font-size: 12px;
+        text-transform: uppercase;
+        letter-spacing: 0.18em;
+        color: var(--color-ink);
+        white-space: nowrap;
+      }
+      .brand .muted {
+        color: color-mix(in oklab, var(--color-ink) 40%, transparent);
+      }
+      .header-right {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+      .avatar {
+        display: flex;
+        height: 24px;
+        width: 24px;
+        flex: none;
+        align-items: center;
+        justify-content: center;
+        border: 1px solid color-mix(in oklab, var(--color-line) 70%, transparent);
+        background: var(--color-ink);
+        font-family: var(--font-mono);
+        font-size: 10px;
+        text-transform: uppercase;
+        color: var(--color-mist);
+      }
+      .glass-btn {
+        position: relative;
+        overflow: hidden;
+        border-radius: 0.85rem;
+        background: color-mix(in oklab, white 60%, transparent);
+        backdrop-filter: blur(16px) saturate(180%);
+        border: 1px solid color-mix(in oklab, white 74%, transparent);
+        color: var(--color-ink);
+        box-shadow:
+          inset 0 1px 0 rgb(255 255 255 / 0.9),
+          inset 0 -1px 0 rgb(0 0 0 / 0.04),
+          0 10px 30px -14px rgb(0 0 0 / 0.28);
+        font-family: var(--font-mono);
+        font-size: 10px;
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+        color: var(--color-ink-soft);
+        padding: 6px 12px;
+      }
+      .hamburger {
+        display: inline-flex;
+        height: 32px;
+        width: 32px;
+        align-items: center;
+        justify-content: center;
+        border: 1px solid color-mix(in oklab, var(--color-line) 70%, transparent);
+        color: var(--color-ink-soft);
+      }
+      .hamburger svg {
+        height: 16px;
+        width: 16px;
+      }
+
+      /* panel bar */
+      .panel-bar {
+        flex: none;
+        padding: 6px 16px;
+        border-bottom: 1px solid color-mix(in oklab, var(--color-line) 70%, transparent);
+        background: rgba(0, 0, 0, 0.035);
+      }
+      .panel-bar span {
+        font-family: var(--font-mono);
+        font-size: 10px;
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+        color: color-mix(in oklab, var(--color-ink) 55%, transparent);
+      }
+
+      /* content */
+      .content {
+        flex: 1;
+        min-height: 0;
+        overflow: hidden;
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+        padding: 20px 16px;
+      }
+      .lead {
+        flex: none;
+        font-size: 13px;
+        line-height: 1.625;
+        color: var(--color-ink-soft);
+      }
+
+      .recorder {
+        flex: none;
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+      }
+
+      .camera {
+        position: relative;
+        overflow: hidden;
+        border: 1px solid color-mix(in oklab, var(--color-line) 70%, transparent);
+        background: var(--color-ink);
+      }
+      .viewport {
+        position: relative;
+        width: 100%;
+        aspect-ratio: 9 / 16;
+        container-type: inline-size;
+      }
+      .footage {
+        position: absolute;
+        inset: 0;
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        background: #0c0c0e;
+      }
+
+      /* burned-in overlay (drawOverlay geometry) */
+      .overlay {
+        position: absolute;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        font-family: var(--font-mono);
+        font-size: 2.3cqw;
+        padding: 1.1em;
+        background: rgba(12, 12, 14, 0.55);
+        border-top: 1px solid rgba(255, 255, 255, 0.18);
+      }
+      .overlay-row {
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        gap: 16px;
+      }
+      .overlay-brand {
+        display: flex;
+        align-items: flex-start;
+        gap: 0.6em;
+      }
+      .overlay-brand img {
+        width: 2.4em;
+        height: 2.4em;
+        flex: none;
+        filter: brightness(0) invert(1);
+      }
+      .overlay-brand .name {
+        font-family: var(--font-accent);
+        font-style: italic;
+        font-weight: 400;
+        font-size: 1.5em;
+        line-height: 1;
+        color: #fff;
+      }
+      .overlay-brand .sub {
+        margin-top: 0.4em;
+        font-size: 0.72em;
+        color: rgba(255, 255, 255, 0.7);
+      }
+      .readout {
+        text-align: right;
+        line-height: 1.4;
+        font-variant-numeric: tabular-nums;
+        color: #fff;
+        font-size: 1em;
+      }
+      .readout .geo {
+        color: rgba(255, 255, 255, 0.85);
+      }
+
+      .rec {
+        position: absolute;
+        left: 12px;
+        top: 12px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        padding: 4px 10px;
+        background: rgba(0, 0, 0, 0.55);
+        backdrop-filter: blur(4px);
+      }
+      .rec .dot {
+        height: 8px;
+        width: 8px;
+        border-radius: 999px;
+        background: #ef4444;
+      }
+      .rec span {
+        font-family: var(--font-mono);
+        font-size: 11px;
+        font-variant-numeric: tabular-nums;
+        color: var(--color-mist);
+      }
+
+      .flip {
+        position: absolute;
+        right: 12px;
+        top: 12px;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        padding: 6px 10px;
+        background: rgba(0, 0, 0, 0.55);
+        backdrop-filter: blur(4px);
+        font-family: var(--font-mono);
+        font-size: 10px;
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+        color: var(--color-mist);
+      }
+      .flip svg {
+        height: 14px;
+        width: 14px;
+      }
+
+      .meta {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 8px;
+      }
+      .meta .gps,
+      .meta .shield {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        font-family: var(--font-mono);
+        font-size: 10px;
+      }
+      .meta .gps {
+        color: color-mix(in oklab, var(--color-ink) 55%, transparent);
+        min-width: 0;
+      }
+      .meta .gps span {
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+      .meta .shield {
+        flex: none;
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+        color: color-mix(in oklab, var(--color-ink) 45%, transparent);
+      }
+      .meta svg {
+        height: 12px;
+        width: 12px;
+        flex: none;
+      }
+
+      .glass-btn-dark {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        padding: 10px 20px;
+        border-radius: 0.85rem;
+        background: color-mix(in oklab, var(--color-ink) 90%, transparent);
+        border: 1px solid color-mix(in oklab, white 14%, transparent);
+        color: var(--color-mist);
+        box-shadow:
+          inset 0 1px 0 rgb(255 255 255 / 0.12),
+          0 12px 34px -14px rgb(0 0 0 / 0.5);
+        font-family: var(--font-mono);
+        font-size: 11px;
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+      }
+      .glass-btn-dark svg {
+        height: 14px;
+        width: 14px;
+      }
+      .glass-btn-dark.disabled {
+        opacity: 0.4;
+      }
+
+      .note {
+        flex: none;
+        width: 100%;
+        resize: none;
+        border: 1px solid color-mix(in oklab, var(--color-line) 70%, transparent);
+        background: transparent;
+        padding: 8px 12px;
+        font-family: var(--font-body);
+        font-size: 14px;
+        color: var(--color-ink);
+        outline: none;
+      }
+      .note::placeholder {
+        color: color-mix(in oklab, var(--color-ink) 30%, transparent);
+      }
+    </style>
+  </head>
+  <body>
+    <div class="app">
+      <header class="header">
+        <div class="header-inner">
+          <div class="brand">
+            <img src="public/logo-utopia.png" alt="" />
+            <span>Utopia <span class="muted">/ App</span></span>
+          </div>
+          <div class="header-right">
+            <div class="avatar">c</div>
+            <div class="glass-btn">Exit</div>
+            <div class="hamburger">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round">
+                <path d="M4 6h16M4 12h16M4 18h16" />
+              </svg>
+            </div>
+          </div>
+        </div>
+      </header>
+
+      <div class="panel-bar"><span>Record a clip:</span></div>
+
+      <div class="content">
+        <p class="lead">
+          Record a live clip from your camera. A verified Utopia overlay with
+          your GPS, location and UTC time is burned into every frame.
+        </p>
+
+        <div class="recorder">
+          <div class="camera">
+            <div class="viewport">
+              <img class="footage" src="imageDC.png" alt="" />
+
+              <div class="overlay">
+                <div class="overlay-row">
+                  <div class="overlay-brand">
+                    <img src="public/logo-utopia.png" alt="" />
+                    <div>
+                      <div class="name">Utopia</div>
+                      <div class="sub">VERIFIED CAPTURE</div>
+                    </div>
+                  </div>
+                  <div class="readout">
+                    <div>2026-08-20 13:24:08 UTC</div>
+                    <div>38.89547, -77.03196</div>
+                    <div class="geo">United States / District of Columbia / Washington</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="rec">
+              <span class="dot"></span>
+              <span>07 / 20s</span>
+            </div>
+
+            <div class="flip">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M11 19H4a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2h5" />
+                <path d="M13 5h7a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2h-5" />
+                <circle cx="12" cy="12" r="3" />
+                <path d="m18 22-3-3 3-3" />
+                <path d="m6 2 3 3-3 3" />
+              </svg>
+              Flip
+            </div>
+          </div>
+
+          <div class="meta">
+            <span class="gps">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z" />
+                <circle cx="12" cy="10" r="3" />
+              </svg>
+              <span>United States / District of Columbia / Washington</span>
+            </span>
+            <span class="shield">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1Z" />
+                <path d="m9 12 2 2 4-4" />
+              </svg>
+              Overlay burned in
+            </span>
+          </div>
+
+          <div class="glass-btn-dark">
+            <svg viewBox="0 0 24 24" fill="currentColor">
+              <rect x="6" y="6" width="12" height="12" rx="1.5" />
+            </svg>
+            Stop recording
+          </div>
+        </div>
+
+        <textarea class="note" rows="3" placeholder="Optional note about the clip" readonly></textarea>
+
+        <div class="glass-btn-dark disabled">Submit for review / +1,200 pts</div>
+      </div>
+    </div>
+  </body>
+</html>

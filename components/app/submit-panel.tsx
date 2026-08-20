@@ -118,8 +118,8 @@ export function SubmitPanel({ taskId, priceUsdc, open }: SubmitPanelProps) {
       ) : (
         <div className="flex flex-1 flex-col gap-4 px-4 py-5 sm:px-6">
           <p className="text-[13px] leading-relaxed text-ink-soft">
-            Clips are recorded live in the app with a verified Utopia overlay
-            burned into every frame. Uploads of saved video are not accepted.
+            Record a live clip from your camera. A verified Utopia overlay
+            with your GPS, location and UTC time is burned into every frame.
           </p>
 
           <VideoRecorder onChange={setClip} />
