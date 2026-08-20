@@ -3,7 +3,6 @@
 import { useState } from "react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
-import { ScrambleText } from "@/components/ui/scramble-text";
 
 export function AppComingSoon() {
   const router = useRouter();
@@ -55,7 +54,7 @@ export function AppComingSoon() {
           />
 
           <h1 className="font-display text-4xl font-medium tracking-tight text-ink">
-            <ScrambleText text="Private beta" duration={1600} />
+            Private beta
           </h1>
 
           <p className="mx-auto max-w-xs text-sm leading-relaxed text-ink-soft">

@@ -1,7 +1,6 @@
 import Link from "next/link";
 import { MapPin, Crosshair, Globe2 } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { ScrambleText } from "@/components/ui/scramble-text";
 import { UsdcAmount } from "@/components/app/usdc-amount";
 import { taskPoints } from "@/lib/app/points";
 
@@ -56,7 +55,7 @@ export function TaskCard({
 
       <div className="flex flex-1 flex-col gap-2.5 px-4 py-4">
         <h3 className="font-display text-xl font-medium leading-snug tracking-tight text-ink">
-          <ScrambleText text={task.title} duration={900} />
+          {task.title}
         </h3>
         <p className="line-clamp-3 text-[13px] leading-relaxed text-ink-soft">
           {task.brief}

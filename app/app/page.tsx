@@ -2,7 +2,6 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { prisma } from "@/lib/app/db";
 import { TaskCard } from "@/components/app/task-card";
-import { ScrambleText } from "@/components/ui/scramble-text";
 
 export const metadata: Metadata = {
   title: "Data Marketplace",
@@ -33,7 +32,7 @@ export default async function MarketplacePage() {
         <div className="grid sm:grid-cols-[1fr_auto]">
           <div className="px-4 py-8 sm:px-6 sm:py-10">
             <h1 className="max-w-2xl font-display text-3xl font-medium leading-tight tracking-tight text-ink sm:text-4xl">
-              <ScrambleText text="Capture the physical world. Get paid in points." duration={1400} />
+              Capture the physical world. Get paid in points.
             </h1>
             <p className="mt-4 max-w-xl text-sm leading-relaxed text-ink-soft">
               Buyers post bounties priced in USDC for ground level photos: a

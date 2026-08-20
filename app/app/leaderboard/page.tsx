@@ -2,7 +2,6 @@ import type { Metadata } from "next";
 import { prisma } from "@/lib/app/db";
 import { cn } from "@/lib/utils";
 import { Avatar } from "@/components/app/avatar";
-import { ScrambleText } from "@/components/ui/scramble-text";
 
 export const metadata: Metadata = {
   title: "Leaderboard",
@@ -31,7 +30,7 @@ export default async function LeaderboardPage() {
 
       <div className="border-b border-line/70 px-4 py-8 sm:px-6 sm:py-10">
         <h1 className="font-display text-3xl font-medium tracking-tight text-ink sm:text-4xl">
-          <ScrambleText text="The ground truth rankings" duration={1300} />
+          The ground truth rankings
         </h1>
         <p className="mt-3 max-w-xl text-sm leading-relaxed text-ink-soft">
           Every accepted capture earns points. The contributors below are

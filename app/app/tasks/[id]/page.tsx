@@ -2,7 +2,6 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ArrowLeft, MapPin, Crosshair, Globe2 } from "lucide-react";
 import { prisma } from "@/lib/app/db";
-import { ScrambleText } from "@/components/ui/scramble-text";
 import { SubmitPanel } from "@/components/app/submit-panel";
 import { ReviewPanel } from "@/components/app/review-panel";
 import { UsdcAmount } from "@/components/app/usdc-amount";
@@ -55,7 +54,7 @@ export default async function TaskPage({
         <div className="border-b border-line/70 lg:border-b-0 lg:border-r">
           <div className="px-4 py-8 sm:px-6 sm:py-10">
             <h1 className="font-display text-3xl font-medium leading-tight tracking-tight text-ink sm:text-4xl">
-              <ScrambleText text={task.title} duration={1200} />
+              {task.title}
             </h1>
             <p className="mt-5 max-w-xl text-sm leading-relaxed text-ink-soft">
               {task.brief}
