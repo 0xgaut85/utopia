@@ -1,10 +1,9 @@
 "use client";
 
-import { useRef, useState } from "react";
-import { Camera, LocateFixed, Check } from "lucide-react";
-import { cn } from "@/lib/utils";
+import { useState } from "react";
+import { Check } from "lucide-react";
 import { useAppAuth } from "@/components/app/auth-context";
-import { compressImage } from "@/lib/app/image";
+import { VideoRecorder, type RecordedClip } from "@/components/app/video-recorder";
 import { taskPoints } from "@/lib/app/points";
 
 type SubmitPanelProps = {
@@ -16,60 +15,18 @@ type SubmitPanelProps = {
 
 type Phase = "idle" | "submitting" | "done";
 
-export function SubmitPanel({
-  taskId,
-  priceUsdc,
-  open,
-  requiresLocation,
-}: SubmitPanelProps) {
+export function SubmitPanel({ taskId, priceUsdc, open }: SubmitPanelProps) {
   const points = taskPoints(priceUsdc).toLocaleString("en-US");
   const { configured, ready, authenticated, login, getToken, refreshProfile } =
     useAppAuth();
-  const fileInput = useRef<HTMLInputElement>(null);
-  const [photo, setPhoto] = useState<string | null>(null);
+  const [clip, setClip] = useState<RecordedClip | null>(null);
   const [note, setNote] = useState("");
-  const [coords, setCoords] = useState<{ lat: number; lng: number } | null>(
-    null
-  );
-  const [locating, setLocating] = useState(false);
   const [phase, setPhase] = useState<Phase>("idle");
   const [error, setError] = useState<string | null>(null);
 
-  async function handleFile(file: File | undefined) {
-    if (!file) return;
-    setError(null);
-    try {
-      setPhoto(await compressImage(file, 1600));
-    } catch {
-      setError("Could not read that image. Try another file.");
-    }
-  }
-
-  function captureLocation() {
-    if (!("geolocation" in navigator)) {
-      setError("Geolocation is not available in this browser.");
-      return;
-    }
-    setLocating(true);
-    navigator.geolocation.getCurrentPosition(
-      (position) => {
-        setCoords({
-          lat: position.coords.latitude,
-          lng: position.coords.longitude,
-        });
-        setLocating(false);
-      },
-      () => {
-        setError("Could not read your location. Check browser permissions.");
-        setLocating(false);
-      },
-      { enableHighAccuracy: true, timeout: 10000 }
-    );
-  }
-
   async function submit() {
-    if (!photo) {
-      setError("Attach a photo first.");
+    if (!clip) {
+      setError("Record a clip first.");
       return;
     }
     setError(null);
@@ -89,10 +46,10 @@ export function SubmitPanel({
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        photo,
+        photo: clip.dataUrl,
         note: note || undefined,
-        lat: coords?.lat,
-        lng: coords?.lng,
+        lat: clip.lat,
+        lng: clip.lng,
       }),
     });
 
@@ -109,12 +66,12 @@ export function SubmitPanel({
     void refreshProfile();
   }
 
-  const label = "font-mono text-[10px] uppercase tracking-[0.1em] text-ink/45";
+  const label = "font-mono text-[10px] uppercase tracking-[0.1em] text-ink/55";
 
   return (
     <aside className="flex flex-col">
       <div className="border-b border-line/70 bg-black/[0.035] px-4 py-1.5">
-        <span className={label}>Submit a capture:</span>
+        <span className={label}>Record a clip:</span>
       </div>
 
       {!open ? (
@@ -129,7 +86,7 @@ export function SubmitPanel({
             <Check className="h-5 w-5" strokeWidth={1.6} />
           </span>
           <p className="font-display text-2xl font-medium tracking-tight text-ink">
-            Capture submitted
+            Clip submitted
           </p>
           <p className="max-w-xs font-mono text-sm text-ink-soft">
             The buyer is reviewing submissions. You earn +{points} points if
@@ -146,8 +103,8 @@ export function SubmitPanel({
       ) : !authenticated ? (
         <div className="flex flex-1 flex-col items-center justify-center gap-4 px-6 py-16 text-center">
           <p className="max-w-xs text-sm leading-relaxed text-ink-soft">
-            Sign in to submit a capture. Earn +{points} points if the buyer
-            accepts it.
+            Sign in to record a clip. Earn +{points} points if the buyer accepts
+            it.
           </p>
           <button
             type="button"
@@ -160,63 +117,19 @@ export function SubmitPanel({
         </div>
       ) : (
         <div className="flex flex-1 flex-col gap-4 px-4 py-5 sm:px-6">
-          <input
-            ref={fileInput}
-            type="file"
-            accept="image/*"
-            capture="environment"
-            className="hidden"
-            onChange={(event) => handleFile(event.target.files?.[0])}
-          />
+          <p className="text-[13px] leading-relaxed text-ink-soft">
+            Clips are recorded live in the app with a verified Utopia overlay
+            burned into every frame. Uploads of saved video are not accepted.
+          </p>
 
-          <button
-            type="button"
-            onClick={() => fileInput.current?.click()}
-            className={cn(
-              "flex min-h-40 cursor-pointer flex-col items-center justify-center gap-2 border border-dashed border-ink/25 transition-colors hover:border-ink/50",
-              photo && "border-solid border-line/70 p-0"
-            )}
-          >
-            {photo ? (
-              // eslint-disable-next-line @next/next/no-img-element -- local preview of a data URL
-              <img
-                src={photo}
-                alt="Capture preview"
-                className="max-h-72 w-full object-contain"
-              />
-            ) : (
-              <>
-                <Camera className="h-5 w-5 text-ink/40" strokeWidth={1.4} />
-                <span className={label}>Attach photo</span>
-              </>
-            )}
-          </button>
-
-          <div className="flex items-center justify-between gap-3">
-            <button
-              type="button"
-              onClick={captureLocation}
-              disabled={locating}
-              className="flex cursor-pointer items-center gap-1.5 border border-line/70 px-3 py-1.5 font-mono text-[10px] uppercase tracking-[0.1em] text-ink-soft transition-colors hover:border-ink/30 hover:text-ink disabled:opacity-40"
-            >
-              <LocateFixed className="h-3.5 w-3.5" strokeWidth={1.6} />
-              {locating ? "Locating..." : "Attach GPS"}
-            </button>
-            <span className="font-mono text-[10px] text-ink/45">
-              {coords
-                ? `${coords.lat.toFixed(4)}, ${coords.lng.toFixed(4)}`
-                : requiresLocation
-                  ? "GPS recommended"
-                  : "GPS optional"}
-            </span>
-          </div>
+          <VideoRecorder onChange={setClip} />
 
           <textarea
             value={note}
             onChange={(event) => setNote(event.target.value)}
             rows={3}
             maxLength={500}
-            placeholder="Optional note about the capture"
+            placeholder="Optional note about the clip"
             className="w-full resize-none border border-line/70 bg-transparent px-3 py-2 text-sm text-ink outline-none placeholder:text-ink/30 focus:border-ink/40"
           />
 
@@ -227,8 +140,8 @@ export function SubmitPanel({
           <button
             type="button"
             onClick={submit}
-            disabled={phase === "submitting"}
-            className="glass-btn glass-btn-dark cursor-pointer px-5 py-2.5 font-mono text-[11px] uppercase tracking-[0.1em]"
+            disabled={phase === "submitting" || !clip}
+            className="glass-btn glass-btn-dark cursor-pointer px-5 py-2.5 font-mono text-[11px] uppercase tracking-[0.1em] disabled:cursor-not-allowed disabled:opacity-40"
           >
             {phase === "submitting"
               ? "Submitting..."

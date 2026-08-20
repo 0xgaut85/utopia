@@ -20,9 +20,9 @@ const seedUsers = [
 const seedTasks = [
   {
     slug: "shibuya-crossing-street-level",
-    title: "Shibuya crossing at street level",
+    title: "Shibuya crossing, walking clip",
     brief:
-      "Capture the scramble crossing from pedestrian height during a green light cycle. We need the density of foot traffic, signage state and storefront condition visible in a single frame. Daylight or night both accepted.",
+      "Record a short clip crossing the scramble at pedestrian height during a green light cycle. We need foot traffic density, signage state and storefront condition captured in motion. Daylight or night both accepted. Keep it under 20 seconds.",
     category: "location",
     locationName: "Shibuya, Tokyo",
     lat: 35.6595,
@@ -35,7 +35,7 @@ const seedTasks = [
     slug: "ev-charging-station-in-use",
     title: "EV charging station in use",
     brief:
-      "Photograph a public EV charging station with at least one vehicle actively connected. Frame the full unit including the connector, screen state and any queue behind it. Any city worldwide.",
+      "Record a short clip of a public EV charging station with at least one vehicle actively connected. Pan across the full unit including the connector, screen state and any queue behind it. Any city worldwide.",
     category: "object",
     priceUsdc: 12,
     maxSubmissions: 40,
@@ -44,7 +44,7 @@ const seedTasks = [
     slug: "port-container-stack",
     title: "Container stacks at a working port",
     brief:
-      "Ground level photo of stacked shipping containers from publicly accessible areas around a commercial port. We are mapping stack heights and yard utilization. Do not enter restricted zones.",
+      "Ground level clip of stacked shipping containers from publicly accessible areas around a commercial port. We are mapping stack heights and yard utilization. Do not enter restricted zones.",
     category: "location",
     locationName: "Port of Rotterdam",
     lat: 51.9496,
@@ -57,7 +57,7 @@ const seedTasks = [
     slug: "construction-crane-skyline",
     title: "Active construction crane",
     brief:
-      "A tower crane on an active construction site, photographed from street level with the surrounding block visible. We track construction activity as a leading indicator. Include the site hoarding if possible.",
+      "Record a tower crane on an active construction site from street level with the surrounding block in frame. We track construction activity as a leading indicator. Include the site hoarding if possible.",
     category: "object",
     priceUsdc: 9,
     maxSubmissions: 60,
@@ -66,7 +66,7 @@ const seedTasks = [
     slug: "grocery-shelf-produce",
     title: "Produce aisle, fully stocked or not",
     brief:
-      "Photograph a supermarket produce section showing shelf stock levels as they are. Empty shelves are as valuable as full ones. Frame at least three meters of shelving straight on.",
+      "Film a supermarket produce section showing shelf stock levels as they are. Empty shelves are as valuable as full ones. Pan slowly across at least three meters of shelving.",
     category: "object",
     priceUsdc: 7,
     maxSubmissions: 80,
@@ -75,7 +75,7 @@ const seedTasks = [
     slug: "brooklyn-bridge-pedestrian-deck",
     title: "Brooklyn Bridge pedestrian deck",
     brief:
-      "Walkway level capture of the Brooklyn Bridge deck showing pedestrian and cyclist volume plus the current state of the dividing lane markings. Weekday and weekend samples both wanted.",
+      "Walkway level clip of the Brooklyn Bridge deck showing pedestrian and cyclist volume plus the current state of the dividing lane markings. Weekday and weekend samples both wanted.",
     category: "location",
     locationName: "Brooklyn Bridge, New York",
     lat: 40.7061,
@@ -88,7 +88,7 @@ const seedTasks = [
     slug: "warehouse-loading-dock",
     title: "Warehouse loading dock activity",
     brief:
-      "From public roads only, capture a distribution warehouse loading dock showing how many bays are occupied by trailers. We are building a ground level index of logistics utilization.",
+      "From public roads only, record a distribution warehouse loading dock showing how many bays are occupied by trailers. We are building a ground level index of logistics utilization.",
     category: "object",
     priceUsdc: 14,
     maxSubmissions: 30,
@@ -97,7 +97,7 @@ const seedTasks = [
     slug: "street-corner-anywhere",
     title: "Any street corner, your city",
     brief:
-      "The coverage task. Stand at a street corner anywhere on Earth and capture the intersection with visible street signage. Every submission extends the map. One per contributor.",
+      "The coverage task. Stand at a street corner anywhere on Earth and record the intersection with visible street signage. Every clip extends the map. One per contributor.",
     category: "coverage",
     priceUsdc: 4,
     maxSubmissions: 500,
@@ -106,7 +106,7 @@ const seedTasks = [
     slug: "solar-farm-perimeter",
     title: "Solar farm from the perimeter",
     brief:
-      "Photograph a utility scale solar installation from its public perimeter. Panel angle, row spacing and vegetation state should be readable. Drone shots not accepted, this is a ground truth network.",
+      "Record a utility scale solar installation from its public perimeter. Panel angle, row spacing and vegetation state should be readable. Drone footage not accepted, this is a ground truth network.",
     category: "object",
     priceUsdc: 15,
     maxSubmissions: 20,
@@ -115,7 +115,7 @@ const seedTasks = [
     slug: "la-defense-esplanade",
     title: "La Defense esplanade, midday",
     brief:
-      "Street level capture of the Esplanade de La Defense between 11:00 and 14:00 local time showing foot traffic in the business district. We compare weekday presence against office occupancy estimates.",
+      "Street level clip of the Esplanade de La Defense between 11:00 and 14:00 local time showing foot traffic in the business district. We compare weekday presence against office occupancy estimates.",
     category: "location",
     locationName: "La Defense, Paris",
     lat: 48.8898,
@@ -154,17 +154,17 @@ async function main() {
   });
 
   for (const task of seedTasks) {
-    const { priceUsdc, ...rest } = task;
+    const { slug, ...rest } = task;
     await prisma.task.upsert({
-      where: { slug: task.slug },
+      where: { slug },
       update: {
-        priceUsdc,
+        ...rest,
         creatorId: official.id,
         fundedAt: new Date(),
       },
       create: {
+        slug,
         ...rest,
-        priceUsdc,
         creatorId: official.id,
         fundedAt: new Date(),
       },

@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ArrowLeft, MapPin, Crosshair, Globe2 } from "lucide-react";
+import { cn } from "@/lib/utils";
 import { prisma } from "@/lib/app/db";
 import { SubmitPanel } from "@/components/app/submit-panel";
 import { ReviewPanel } from "@/components/app/review-panel";
@@ -11,6 +12,12 @@ const categoryIcon = {
   location: MapPin,
   object: Crosshair,
   coverage: Globe2,
+} as const;
+
+const categoryTint = {
+  location: "tint-blue-bar",
+  object: "tint-amber-bar",
+  coverage: "tint-green-bar",
 } as const;
 
 export default async function TaskPage({
@@ -31,20 +38,27 @@ export default async function TaskPage({
 
   const Icon =
     categoryIcon[task.category as keyof typeof categoryIcon] ?? Crosshair;
+  const tint =
+    categoryTint[task.category as keyof typeof categoryTint] ?? "tint-amber-bar";
   const full = task._count.submissions >= task.maxSubmissions;
   const open = task.status === "open" && !full;
 
   return (
     <div>
-      <div className="flex items-center justify-between gap-3 border-b border-line/70 bg-black/[0.035] px-4 py-1.5 sm:px-6">
+      <div
+        className={cn(
+          "flex items-center justify-between gap-3 border-b border-line/70 px-4 py-1.5 sm:px-6",
+          tint
+        )}
+      >
         <Link
           href="/app"
-          className="flex items-center gap-1.5 font-mono text-[10px] uppercase tracking-[0.1em] text-ink/45 transition-colors hover:text-ink"
+          className="flex items-center gap-1.5 font-mono text-[10px] uppercase tracking-[0.1em] text-ink/60 transition-colors hover:text-ink"
         >
           <ArrowLeft className="h-3 w-3" strokeWidth={1.6} />
           Marketplace
         </Link>
-        <span className="flex items-center gap-1.5 font-mono text-[10px] uppercase tracking-[0.1em] text-ink/45">
+        <span className="flex items-center gap-1.5 font-mono text-[10px] uppercase tracking-[0.1em] text-ink/60">
           <Icon className="h-3 w-3" strokeWidth={1.6} />
           {task.category}
         </span>

@@ -23,18 +23,18 @@ export default async function MarketplacePage() {
 
   return (
     <div>
-      <section className="flex flex-col gap-6 border-b border-line/70 px-4 py-8 sm:px-6 sm:py-10 lg:flex-row lg:items-end lg:justify-between lg:px-8">
+      <section className="tint-blue-bar flex flex-col gap-6 border-b border-line/70 px-4 py-8 sm:px-6 sm:py-10 lg:flex-row lg:items-end lg:justify-between lg:px-8">
         <div>
-          <span className="font-mono text-[10px] uppercase tracking-[0.1em] text-ink/45">
+          <span className="font-mono text-[10px] uppercase tracking-[0.1em] text-ink/55">
             Data marketplace / {openCount} open
           </span>
           <h1 className="mt-3 max-w-2xl font-display text-3xl font-medium leading-tight tracking-tight text-ink sm:text-4xl">
-            Capture the physical world. Get paid in points.
+            Film the physical world. Get paid in points.
           </h1>
           <p className="mt-4 max-w-xl text-sm leading-relaxed text-ink-soft">
-            Buyers post bounties priced in USDC for ground level photos: a
-            specific place, a specific object or pure coverage. Take the shot
-            with your phone and submit it. When the buyer accepts your capture
+            Buyers post bounties priced in USDC for ground level video: a
+            specific place, a specific object or pure coverage. Record a short
+            clip with your phone and submit it. When the buyer accepts your clip
             you earn 100 points per USDC of the bounty.
           </p>
         </div>

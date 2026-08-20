@@ -14,7 +14,7 @@ export const metadata: Metadata = {
     template: "%s | Utopia App",
   },
   description:
-    "Earn from the ground truth network. Browse capture bounties, submit photos and climb the contributor leaderboard.",
+    "Earn from the ground truth network. Browse bounties, record verified clips and climb the contributor leaderboard.",
 };
 
 export default async function AppLayout({ children }: { children: ReactNode }) {

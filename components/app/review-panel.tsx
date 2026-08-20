@@ -18,7 +18,7 @@ type ReviewSubmission = {
   user: { username: string; avatarUrl: string | null };
 };
 
-const label = "font-mono text-[10px] uppercase tracking-[0.1em] text-ink/45";
+const label = "font-mono text-[10px] uppercase tracking-[0.1em] text-ink/55";
 
 /**
  * Buyer review area. Renders only for the bounty's creator or a team admin.
@@ -119,7 +119,7 @@ export function ReviewPanel({
       {submissions.length === 0 ? (
         <div className="px-4 py-10 text-center sm:px-6">
           <p className="text-sm leading-relaxed text-ink-soft">
-            No submissions yet. You will review captures here as they arrive.
+            No submissions yet. You will review clips here as they arrive.
           </p>
         </div>
       ) : (
@@ -132,11 +132,12 @@ export function ReviewPanel({
                 submission.status === "rejected" && "opacity-45"
               )}
             >
-              {/* eslint-disable-next-line @next/next/no-img-element -- submissions are stored as data URLs */}
-              <img
+              <video
                 src={submission.photo}
-                alt={`Capture by ${submission.user.username}`}
-                className="aspect-[4/3] w-full border-b border-line/40 object-cover"
+                controls
+                playsInline
+                preload="metadata"
+                className="aspect-[4/3] w-full border-b border-line/40 bg-ink object-contain"
               />
               <div className="flex flex-1 flex-col gap-1.5 px-4 py-3">
                 <div className="flex items-center justify-between gap-3">

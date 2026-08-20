@@ -9,7 +9,7 @@ import { Avatar } from "@/components/app/avatar";
 import { compressAvatar } from "@/lib/app/image";
 import { taskPoints } from "@/lib/app/points";
 
-const label = "font-mono text-[10px] uppercase tracking-[0.1em] text-ink/45";
+const label = "font-mono text-[10px] uppercase tracking-[0.1em] text-ink/55";
 
 function shortAddress(address: string) {
   return `${address.slice(0, 6)}...${address.slice(-4)}`;
@@ -336,7 +336,7 @@ export default function ProfilePage() {
             <div className="px-4 py-5 sm:px-6">
               <p className="font-mono text-3xl">{submissions.length}</p>
               <p className="mt-1 font-mono text-[10px] uppercase tracking-[0.1em] text-mist/50">
-                Captures
+                Clips
               </p>
             </div>
           </div>
@@ -346,14 +346,14 @@ export default function ProfilePage() {
         </section>
 
         <section>
-          <div className="border-b border-line/70 bg-black/[0.035] px-4 py-1.5 sm:px-6">
+          <div className="tint-blue-bar border-b border-line/70 px-4 py-1.5 sm:px-6">
             <span className={label}>My submissions:</span>
           </div>
           {submissions.length === 0 ? (
             <div className="px-4 py-12 text-center sm:px-6">
               <p className="text-sm leading-relaxed text-ink-soft">
-                No captures yet. Pick a bounty in the marketplace and submit
-                your first photo.
+                No clips yet. Pick a bounty in the marketplace and record your
+                first clip.
               </p>
             </div>
           ) : (
@@ -393,7 +393,7 @@ export default function ProfilePage() {
             </ul>
           )}
 
-          <div className="border-t border-line/70 bg-black/[0.035] px-4 py-1.5 sm:px-6">
+          <div className="tint-green-bar border-t border-line/70 px-4 py-1.5 sm:px-6">
             <span className={label}>My bounties:</span>
           </div>
           {myTasks.length === 0 ? (
@@ -406,7 +406,7 @@ export default function ProfilePage() {
                 >
                   Post one
                 </Link>{" "}
-                to buy captures from the network.
+                to buy clips from the network.
               </p>
             </div>
           ) : (

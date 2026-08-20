@@ -22,6 +22,12 @@ const categoryIcon = {
   coverage: Globe2,
 } as const;
 
+const categoryTint = {
+  location: "tint-blue-bar",
+  object: "tint-amber-bar",
+  coverage: "tint-green-bar",
+} as const;
+
 export function TaskCard({
   task,
   index,
@@ -31,6 +37,8 @@ export function TaskCard({
 }) {
   const Icon =
     categoryIcon[task.category as keyof typeof categoryIcon] ?? Crosshair;
+  const tint =
+    categoryTint[task.category as keyof typeof categoryTint] ?? "tint-amber-bar";
   const full = task.submissionCount >= task.maxSubmissions;
   const closed = task.status !== "open" || full;
 
@@ -42,13 +50,18 @@ export function TaskCard({
         closed ? "opacity-50" : "hover:bg-black/[0.02]"
       )}
     >
-      <div className="flex items-center justify-between gap-3 border-b border-line/70 bg-black/[0.035] px-4 py-1.5">
-        <span className="flex items-center gap-1.5 font-mono text-[10px] uppercase tracking-[0.1em] text-ink/45">
+      <div
+        className={cn(
+          "flex items-center justify-between gap-3 border-b border-line/70 px-4 py-1.5",
+          tint
+        )}
+      >
+        <span className="flex items-center gap-1.5 font-mono text-[10px] uppercase tracking-[0.1em] text-ink/60">
           <Icon className="h-3 w-3" strokeWidth={1.6} />
           {task.category}
           {task.locationName ? ` / ${task.locationName}` : ""}
         </span>
-        <span className="font-mono text-[10px] uppercase tracking-[0.1em] text-ink/45">
+        <span className="font-mono text-[10px] uppercase tracking-[0.1em] text-ink/55">
           {String(index + 1).padStart(3, "0")}
         </span>
       </div>
@@ -68,11 +81,11 @@ export function TaskCard({
             amount={task.priceUsdc}
             className="bg-ink px-2 py-0.5 font-mono text-[11px] text-mist"
           />
-          <span className="font-mono text-[10px] text-ink/45">
+          <span className="font-mono text-[10px] text-ink/55">
             +{taskPoints(task.priceUsdc).toLocaleString("en-US")} pts
           </span>
         </span>
-        <span className="font-mono text-[10px] uppercase tracking-[0.1em] text-ink/45">
+        <span className="font-mono text-[10px] uppercase tracking-[0.1em] text-ink/55">
           {closed
             ? "Closed"
             : `${task.submissionCount}/${task.maxSubmissions} filled`}

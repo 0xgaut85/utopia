@@ -3,8 +3,10 @@ import { prisma } from "@/lib/app/db";
 import { getAuthUser } from "@/lib/app/auth";
 import { taskPoints } from "@/lib/app/points";
 
-const PHOTO_PATTERN = /^data:image\/(png|jpeg|webp);base64,/;
-const PHOTO_MAX_LENGTH = 6_000_000;
+// Clips are recorded in-app and stored as base64 video data URLs in the reused
+// `photo` column. Allow ~20s of webm/mp4 at up to roughly 60MB of raw bytes.
+const VIDEO_PATTERN = /^data:video\/(webm|mp4|quicktime)(;codecs=[^;]+)?;base64,/;
+const VIDEO_MAX_LENGTH = 85_000_000;
 
 export async function POST(
   request: Request,
@@ -42,9 +44,9 @@ export async function POST(
   };
 
   const photo = typeof body.photo === "string" ? body.photo : "";
-  if (!PHOTO_PATTERN.test(photo) || photo.length > PHOTO_MAX_LENGTH) {
+  if (!VIDEO_PATTERN.test(photo) || photo.length > VIDEO_MAX_LENGTH) {
     return NextResponse.json(
-      { error: "Photo must be a png, jpeg or webp under 4MB." },
+      { error: "Clip must be a webm or mp4 recorded in the app." },
       { status: 400 }
     );
   }
@@ -77,7 +79,7 @@ export async function POST(
     });
   } catch {
     return NextResponse.json(
-      { error: "You already submitted a capture for this task." },
+      { error: "You already submitted a clip for this task." },
       { status: 409 }
     );
   }

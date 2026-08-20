@@ -23,18 +23,18 @@ export default async function LeaderboardPage() {
   return (
     <div>
       <div className="border-b border-line/70 bg-black/[0.035] px-4 py-1.5 sm:px-6">
-        <span className="font-mono text-[10px] uppercase tracking-[0.1em] text-ink/45">
+        <span className="font-mono text-[10px] uppercase tracking-[0.1em] text-ink/55">
           Leaderboard / top contributors:
         </span>
       </div>
 
-      <div className="border-b border-line/70 px-4 py-8 sm:px-6 sm:py-10">
+      <div className="tint-amber-bar border-b border-line/70 px-4 py-8 sm:px-6 sm:py-10">
         <h1 className="font-display text-3xl font-medium tracking-tight text-ink sm:text-4xl">
           The ground truth rankings
         </h1>
         <p className="mt-3 max-w-xl text-sm leading-relaxed text-ink-soft">
-          Every accepted capture earns points. The contributors below are
-          building the map, one street level photo at a time.
+          Every accepted clip earns points. The contributors below are building
+          the map, one street level clip at a time.
         </p>
       </div>
 
@@ -74,7 +74,7 @@ export default async function LeaderboardPage() {
                     podium ? "text-mist/50" : "text-ink/40"
                   )}
                 >
-                  {user._count.submissions} captures
+                  {user._count.submissions} clips
                 </span>
               ) : null}
               <span className="shrink-0 font-mono text-sm">

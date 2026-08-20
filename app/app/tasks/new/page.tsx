@@ -153,9 +153,9 @@ export default function NewBountyPage() {
               Post a bounty
             </h1>
             <p className="mt-3 text-sm leading-relaxed text-ink-soft">
-              Describe the photo you need and set a price in USDC. Contributors
-              submit captures, you accept the one you prefer and payment
-              releases to them as points at 1 USDC = 100 points.
+              Describe the clip you need and set a price in USDC. Contributors
+              record footage in the app, you accept the one you prefer and
+              payment releases to them as points at 1 USDC = 100 points.
             </p>
           </div>
 
@@ -177,7 +177,7 @@ export default function NewBountyPage() {
               onChange={(event) => setBrief(event.target.value)}
               rows={5}
               maxLength={1200}
-              placeholder="What exactly should the capture show? Framing, time of day, what must be readable in the shot."
+              placeholder="What exactly should the clip show? Framing, time of day, what must be readable in the footage."
               className={cn(field, "resize-none")}
             />
           </div>
