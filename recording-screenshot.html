@@ -294,39 +294,10 @@
         width: 14px;
       }
 
-      .meta {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        gap: 8px;
-      }
-      .meta .gps,
-      .meta .shield {
-        display: flex;
-        align-items: center;
-        gap: 6px;
-        font-family: var(--font-mono);
-        font-size: 10px;
-      }
-      .meta .gps {
-        color: color-mix(in oklab, var(--color-ink) 55%, transparent);
-        min-width: 0;
-      }
-      .meta .gps span {
-        overflow: hidden;
-        text-overflow: ellipsis;
-        white-space: nowrap;
-      }
-      .meta .shield {
-        flex: none;
-        text-transform: uppercase;
-        letter-spacing: 0.1em;
-        color: color-mix(in oklab, var(--color-ink) 45%, transparent);
-      }
-      .meta svg {
-        height: 12px;
-        width: 12px;
-        flex: none;
+      .pipeline-note {
+        font-size: 11px;
+        line-height: 1.625;
+        color: var(--color-ink-soft);
       }
 
       .glass-btn-dark {
@@ -440,22 +411,10 @@
             </div>
           </div>
 
-          <div class="meta">
-            <span class="gps">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z" />
-                <circle cx="12" cy="10" r="3" />
-              </svg>
-              <span>United States / District of Columbia / Washington</span>
-            </span>
-            <span class="shield">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1Z" />
-                <path d="m9 12 2 2 4-4" />
-              </svg>
-              Overlay burned in
-            </span>
-          </div>
+          <p class="pipeline-note">
+            After submission, your clip is processed and reconstructed into a 3D
+            model.
+          </p>
 
           <div class="glass-btn-dark">
             <svg viewBox="0 0 24 24" fill="currentColor">

@@ -12,9 +12,7 @@ import {
   Square,
   RotateCcw,
   SwitchCamera,
-  MapPin,
   Loader2,
-  ShieldCheck,
 } from "lucide-react";
 
 export type RecordedClip = {
@@ -521,19 +519,10 @@ export function VideoRecorder({
         ) : null}
       </div>
 
-      <div className="flex items-center justify-between gap-2">
-        <span className="flex items-center gap-1.5 font-mono text-[10px] text-ink/55">
-          <MapPin className="h-3 w-3" strokeWidth={1.6} />
-          {coords
-            ? placeLine(place) ||
-              `${coords.lat.toFixed(4)}, ${coords.lng.toFixed(4)}`
-            : "Waiting for GPS"}
-        </span>
-        <span className="flex items-center gap-1 font-mono text-[10px] uppercase tracking-[0.1em] text-ink/45">
-          <ShieldCheck className="h-3 w-3" strokeWidth={1.6} />
-          Overlay burned in
-        </span>
-      </div>
+      <p className="text-[11px] leading-relaxed text-ink-soft">
+        After submission, your clip is processed and reconstructed into a 3D
+        model.
+      </p>
 
       {locationError ? (
         <p className={`${label} normal-case text-ink`}>! {locationError}</p>
