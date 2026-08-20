@@ -77,6 +77,129 @@
   pointer-events: none;
 }
 
+.glass-btn {
+  position: relative;
+  overflow: hidden;
+  border-radius: 0.85rem;
+  background: color-mix(in oklab, white 60%, transparent);
+  backdrop-filter: blur(16px) saturate(180%);
+  -webkit-backdrop-filter: blur(16px) saturate(180%);
+  border: 1px solid color-mix(in oklab, white 74%, transparent);
+  color: var(--color-ink);
+  box-shadow:
+    inset 0 1px 0 rgb(255 255 255 / 0.9),
+    inset 0 -1px 0 rgb(0 0 0 / 0.04),
+    0 10px 30px -14px rgb(0 0 0 / 0.28);
+  transition:
+    transform 0.25s var(--ease-experience),
+    box-shadow 0.25s var(--ease-experience);
+}
+
+.glass-btn:hover {
+  transform: translateY(-1px);
+  box-shadow:
+    inset 0 1px 0 rgb(255 255 255 / 0.95),
+    0 16px 42px -14px rgb(0 0 0 / 0.34);
+}
+
+.glass-btn:active {
+  transform: translateY(0);
+}
+
+.glass-btn:disabled {
+  opacity: 0.45;
+  transform: none;
+  cursor: default;
+}
+
+.glass-btn::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    115deg,
+    transparent 30%,
+    rgb(255 255 255 / 0.5) 48%,
+    transparent 66%
+  );
+  transform: translateX(-130%);
+  transition: transform 0.7s var(--ease-experience);
+  pointer-events: none;
+}
+
+.glass-btn:hover::after {
+  transform: translateX(130%);
+}
+
+.glass-btn-dark {
+  background: color-mix(in oklab, var(--color-ink) 90%, transparent);
+  border: 1px solid color-mix(in oklab, white 14%, transparent);
+  color: var(--color-mist);
+  box-shadow:
+    inset 0 1px 0 rgb(255 255 255 / 0.12),
+    0 12px 34px -14px rgb(0 0 0 / 0.5);
+}
+
+.glass-btn-dark:hover {
+  box-shadow:
+    inset 0 1px 0 rgb(255 255 255 / 0.16),
+    0 18px 46px -14px rgb(0 0 0 / 0.6);
+}
+
+.glass-btn-dark::after {
+  background: linear-gradient(
+    115deg,
+    transparent 30%,
+    rgb(255 255 255 / 0.22) 48%,
+    transparent 66%
+  );
+}
+
+.glass-card {
+  position: relative;
+  overflow: hidden;
+  border-radius: var(--radius-glass-sm);
+  background: color-mix(in oklab, white 66%, transparent);
+  backdrop-filter: blur(24px) saturate(170%);
+  -webkit-backdrop-filter: blur(24px) saturate(170%);
+  border: 1px solid color-mix(in oklab, white 80%, transparent);
+  box-shadow:
+    inset 0 1px 0 rgb(255 255 255 / 0.85),
+    0 20px 55px -30px rgb(0 0 0 / 0.28);
+}
+
+.glass-card-dark {
+  background: color-mix(in oklab, var(--color-ink) 92%, transparent);
+  border: 1px solid color-mix(in oklab, white 12%, transparent);
+  color: var(--color-mist);
+  box-shadow:
+    inset 0 1px 0 rgb(255 255 255 / 0.1),
+    0 24px 60px -30px rgb(0 0 0 / 0.55);
+}
+
+.analytics-aurora {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(
+      42rem 42rem at 12% -10%,
+      color-mix(in oklab, var(--color-accent) 22%, transparent),
+      transparent 60%
+    ),
+    radial-gradient(
+      38rem 38rem at 92% 0%,
+      color-mix(in oklab, oklch(0.7 0.17 330) 20%, transparent),
+      transparent 62%
+    ),
+    radial-gradient(
+      44rem 44rem at 70% 120%,
+      color-mix(in oklab, oklch(0.75 0.15 150) 18%, transparent),
+      transparent 60%
+    );
+}
+
 @utility text-balance {
   text-wrap: balance;
 }

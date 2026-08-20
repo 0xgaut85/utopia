@@ -141,7 +141,7 @@ export default function NewBountyPage() {
             type="button"
             onClick={login}
             disabled={!ready}
-            className="cursor-pointer bg-ink px-6 py-2.5 font-mono text-[11px] uppercase tracking-[0.1em] text-mist transition-opacity hover:opacity-80 disabled:opacity-40"
+            className="glass-btn glass-btn-dark cursor-pointer px-6 py-2.5 font-mono text-[11px] uppercase tracking-[0.1em]"
           >
             Sign in
           </button>
@@ -267,7 +267,7 @@ export default function NewBountyPage() {
           <button
             type="button"
             onClick={continueToFunding}
-            className="cursor-pointer bg-ink px-5 py-2.5 font-mono text-[11px] uppercase tracking-[0.1em] text-mist transition-opacity hover:opacity-80"
+            className="glass-btn glass-btn-dark cursor-pointer px-5 py-2.5 font-mono text-[11px] uppercase tracking-[0.1em]"
           >
             Continue to funding
           </button>
@@ -360,7 +360,7 @@ export default function NewBountyPage() {
             <button
               type="button"
               onClick={() => setStep("details")}
-              className="cursor-pointer border border-line/70 px-5 py-2.5 font-mono text-[11px] uppercase tracking-[0.1em] text-ink-soft transition-colors hover:border-ink/30 hover:text-ink"
+              className="glass-btn cursor-pointer px-5 py-2.5 font-mono text-[11px] uppercase tracking-[0.1em] text-ink-soft"
             >
               Back to details
             </button>
@@ -368,7 +368,7 @@ export default function NewBountyPage() {
               type="button"
               onClick={publish}
               disabled={publishing}
-              className="flex-1 cursor-pointer bg-ink px-5 py-2.5 font-mono text-[11px] uppercase tracking-[0.1em] text-mist transition-opacity hover:opacity-80 disabled:opacity-40"
+              className="glass-btn glass-btn-dark flex-1 cursor-pointer px-5 py-2.5 font-mono text-[11px] uppercase tracking-[0.1em]"
             >
               {publishing
                 ? "Publishing..."

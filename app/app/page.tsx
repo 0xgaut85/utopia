@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { ArrowUpRight } from "lucide-react";
 import { prisma } from "@/lib/app/db";
 import { TaskCard } from "@/components/app/task-card";
 
@@ -7,66 +8,47 @@ export const metadata: Metadata = {
   title: "Data Marketplace",
 };
 
-export default async function MarketplacePage() {
-  const [tasks, contributorCount] = await Promise.all([
-    prisma.task.findMany({
-      orderBy: [{ status: "asc" }, { priceUsdc: "desc" }],
-      include: { _count: { select: { submissions: true } } },
-    }),
-    prisma.user.count(),
-  ]);
+export const dynamic = "force-dynamic";
 
-  const openTasks = tasks.filter(
-    (task) => task.status === "open" && task._count.submissions < task.maxSubmissions
-  );
-  const usdcOnOffer = openTasks.reduce((sum, task) => sum + task.priceUsdc, 0);
+export default async function MarketplacePage() {
+  const tasks = await prisma.task.findMany({
+    orderBy: [{ status: "asc" }, { priceUsdc: "desc" }],
+    include: { _count: { select: { submissions: true } } },
+  });
+
+  const openCount = tasks.filter(
+    (task) =>
+      task.status === "open" && task._count.submissions < task.maxSubmissions
+  ).length;
 
   return (
     <div>
-      <section className="border-b border-line/70">
-        <div className="border-b border-line/70 bg-black/[0.035] px-4 py-1.5 sm:px-6">
+      <section className="flex flex-col gap-6 border-b border-line/70 px-4 py-8 sm:px-6 sm:py-10 lg:flex-row lg:items-end lg:justify-between lg:px-8">
+        <div>
           <span className="font-mono text-[10px] uppercase tracking-[0.1em] text-ink/45">
-            Data marketplace:
+            Data marketplace / {openCount} open
           </span>
+          <h1 className="mt-3 max-w-2xl font-display text-3xl font-medium leading-tight tracking-tight text-ink sm:text-4xl">
+            Capture the physical world. Get paid in points.
+          </h1>
+          <p className="mt-4 max-w-xl text-sm leading-relaxed text-ink-soft">
+            Buyers post bounties priced in USDC for ground level photos: a
+            specific place, a specific object or pure coverage. Take the shot
+            with your phone and submit it. When the buyer accepts your capture
+            you earn 100 points per USDC of the bounty.
+          </p>
         </div>
-        <div className="grid sm:grid-cols-[1fr_auto]">
-          <div className="px-4 py-8 sm:px-6 sm:py-10">
-            <h1 className="max-w-2xl font-display text-3xl font-medium leading-tight tracking-tight text-ink sm:text-4xl">
-              Capture the physical world. Get paid in points.
-            </h1>
-            <p className="mt-4 max-w-xl text-sm leading-relaxed text-ink-soft">
-              Buyers post bounties priced in USDC for ground level photos: a
-              specific place, a specific object or pure coverage. Take the
-              shot with your phone and submit it. When the buyer accepts your
-              capture you earn 100 points per USDC of the bounty.
-            </p>
-          </div>
-          <div className="grid grid-cols-3 divide-x divide-mist/20 bg-ink text-mist sm:w-auto sm:grid-cols-1 sm:divide-x-0 sm:divide-y">
-            <div className="px-5 py-4 sm:px-8">
-              <p className="font-mono text-2xl">{openTasks.length}</p>
-              <p className="font-mono text-[10px] uppercase tracking-[0.1em] text-mist/50">
-                Open bounties
-              </p>
-            </div>
-            <div className="px-5 py-4 sm:px-8">
-              <p className="font-mono text-2xl">
-                {usdcOnOffer.toLocaleString("en-US")}
-              </p>
-              <p className="font-mono text-[10px] uppercase tracking-[0.1em] text-mist/50">
-                USDC on offer
-              </p>
-            </div>
-            <div className="px-5 py-4 sm:px-8">
-              <p className="font-mono text-2xl">{contributorCount}</p>
-              <p className="font-mono text-[10px] uppercase tracking-[0.1em] text-mist/50">
-                Contributors
-              </p>
-            </div>
-          </div>
-        </div>
+
+        <Link
+          href="/app/tasks/new"
+          className="glass-btn glass-btn-dark inline-flex shrink-0 items-center gap-2 px-5 py-3 font-mono text-[11px] uppercase tracking-[0.14em]"
+        >
+          Post a bounty in USDC
+          <ArrowUpRight className="h-3.5 w-3.5" strokeWidth={1.8} />
+        </Link>
       </section>
 
-      <section className="grid gap-px sm:grid-cols-2 lg:grid-cols-3">
+      <section className="grid gap-px sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5">
         {tasks.map((task, index) => (
           <TaskCard
             key={task.id}
@@ -84,20 +66,6 @@ export default async function MarketplacePage() {
             }}
           />
         ))}
-        <Link
-          href="/app/tasks/new"
-          className="flex min-h-44 flex-col justify-between bg-ink px-4 py-4 text-mist shadow-[1px_1px_0_0_var(--color-line)] transition-opacity hover:opacity-90"
-        >
-          <span className="font-mono text-[10px] uppercase tracking-[0.1em] text-mist/50">
-            For buyers:
-          </span>
-          <span className="font-display text-xl font-medium leading-snug tracking-tight">
-            Need eyes somewhere on Earth? Post a bounty in USDC.
-          </span>
-          <span className="font-mono text-[10px] uppercase tracking-[0.1em] text-mist/50 underline underline-offset-4">
-            Post a bounty
-          </span>
-        </Link>
       </section>
     </div>
   );

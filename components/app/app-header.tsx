@@ -11,6 +11,7 @@ import { Avatar } from "@/components/app/avatar";
 
 const navLinks = [
   { href: "/app", label: "Marketplace", match: /^\/(app)?\/?$|^\/(app\/)?tasks/ },
+  { href: "/app/analytics", label: "Analytics", match: /analytics/ },
   { href: "/app/leaderboard", label: "Leaderboard", match: /leaderboard/ },
   { href: "/app/profile", label: "Profile", match: /profile/ },
 ];
@@ -40,7 +41,7 @@ function AuthControls() {
       <button
         type="button"
         onClick={login}
-        className="cursor-pointer bg-ink px-4 py-1.5 font-mono text-[11px] uppercase tracking-[0.1em] text-mist transition-opacity hover:opacity-80"
+        className="glass-btn glass-btn-dark cursor-pointer px-4 py-1.5 font-mono text-[11px] uppercase tracking-[0.1em]"
       >
         Sign in
       </button>
@@ -62,7 +63,7 @@ function AuthControls() {
       <button
         type="button"
         onClick={() => logout()}
-        className="cursor-pointer border border-line/70 px-3 py-1.5 font-mono text-[10px] uppercase tracking-[0.1em] text-ink-soft transition-colors hover:border-ink/30 hover:text-ink"
+        className="glass-btn cursor-pointer px-3 py-1.5 font-mono text-[10px] uppercase tracking-[0.1em] text-ink-soft"
       >
         Exit
       </button>
@@ -75,8 +76,8 @@ export function AppHeader() {
   const [menuOpen, setMenuOpen] = useState(false);
 
   return (
-    <header className="sticky top-0 z-40 border-b border-line/70 bg-mist/95 backdrop-blur-sm">
-      <div className="mx-auto flex h-14 max-w-6xl items-center justify-between gap-4 px-4 sm:px-6">
+    <header className="sticky top-0 z-40 border-b border-line/70 bg-mist/80 backdrop-blur-xl">
+      <div className="flex h-14 items-center justify-between gap-4 px-4 sm:px-6 lg:px-8">
         <Link href="/app" className="flex min-w-0 items-center gap-2.5">
           <Image
             src="/logo-utopia.png"

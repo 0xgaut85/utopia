@@ -77,7 +77,7 @@ export function AppComingSoon() {
             <button
               type="submit"
               disabled={submitting}
-              className="w-full cursor-pointer bg-ink px-5 py-2.5 font-mono text-[11px] uppercase tracking-[0.14em] text-mist transition-opacity hover:opacity-80 disabled:opacity-40"
+              className="glass-btn glass-btn-dark w-full cursor-pointer px-5 py-2.5 font-mono text-[11px] uppercase tracking-[0.14em]"
             >
               {submitting ? "Checking..." : "Enter beta"}
             </button>

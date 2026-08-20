@@ -34,11 +34,9 @@ export default async function AppLayout({ children }: { children: ReactNode }) {
     <AppAuthProvider>
       <div className="flex min-h-svh flex-col bg-mist">
         <AppHeader />
-        <main className="mx-auto w-full max-w-6xl flex-1 border-x border-line/70 bg-white">
-          {children}
-        </main>
-        <footer className="border-t border-line/70">
-          <div className="mx-auto flex max-w-6xl items-center justify-between gap-4 border-x border-line/70 bg-white px-4 py-3 sm:px-6">
+        <main className="w-full flex-1 bg-white">{children}</main>
+        <footer className="border-t border-line/70 bg-white">
+          <div className="flex items-center justify-between gap-4 px-4 py-3 sm:px-6 lg:px-8">
             <span className="font-mono text-[10px] uppercase tracking-[0.1em] text-ink/40">
               Utopia Data / ground truth network
             </span>

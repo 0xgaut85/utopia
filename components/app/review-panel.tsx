@@ -167,7 +167,7 @@ export function ReviewPanel({
                     type="button"
                     onClick={() => accept(submission.id)}
                     disabled={accepting !== null}
-                    className="w-full cursor-pointer bg-ink px-4 py-2 font-mono text-[10px] uppercase tracking-[0.1em] text-mist transition-opacity hover:opacity-80 disabled:opacity-40"
+                    className="glass-btn glass-btn-dark w-full cursor-pointer px-4 py-2 font-mono text-[10px] uppercase tracking-[0.1em]"
                   >
                     {accepting === submission.id
                       ? "Accepting..."

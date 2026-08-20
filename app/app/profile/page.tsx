@@ -234,7 +234,7 @@ export default function ProfilePage() {
         <button
           type="button"
           onClick={login}
-          className="cursor-pointer bg-ink px-6 py-2.5 font-mono text-[11px] uppercase tracking-[0.1em] text-mist transition-opacity hover:opacity-80"
+          className="glass-btn glass-btn-dark cursor-pointer px-6 py-2.5 font-mono text-[11px] uppercase tracking-[0.1em]"
         >
           Sign in
         </button>

@@ -153,7 +153,7 @@ export function SubmitPanel({
             type="button"
             onClick={login}
             disabled={!ready}
-            className="cursor-pointer bg-ink px-5 py-2 font-mono text-[11px] uppercase tracking-[0.1em] text-mist transition-opacity hover:opacity-80 disabled:opacity-40"
+            className="glass-btn glass-btn-dark cursor-pointer px-5 py-2.5 font-mono text-[11px] uppercase tracking-[0.1em]"
           >
             Sign in
           </button>
@@ -228,7 +228,7 @@ export function SubmitPanel({
             type="button"
             onClick={submit}
             disabled={phase === "submitting"}
-            className="cursor-pointer bg-ink px-5 py-2.5 font-mono text-[11px] uppercase tracking-[0.1em] text-mist transition-opacity hover:opacity-80 disabled:opacity-40"
+            className="glass-btn glass-btn-dark cursor-pointer px-5 py-2.5 font-mono text-[11px] uppercase tracking-[0.1em]"
           >
             {phase === "submitting"
               ? "Submitting..."
