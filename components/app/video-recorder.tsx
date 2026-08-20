@@ -31,6 +31,20 @@ const MAX_SECONDS = 20;
 const MAX_BYTES = 80 * 1024 * 1024;
 const MONO = "ui-monospace, SFMono-Regular, Menlo, Consolas, monospace";
 
+// The landing wordmark font (Instrument Serif italic) is loaded by next/font
+// under a hashed family name exposed through this CSS variable. Resolved once,
+// lazily, so the canvas overlay can use the exact same face.
+let accentFontFamily: string | null = null;
+function accentFamily() {
+  if (accentFontFamily === null && typeof window !== "undefined") {
+    accentFontFamily =
+      getComputedStyle(document.documentElement)
+        .getPropertyValue("--font-instrument-serif")
+        .trim() || "Georgia, serif";
+  }
+  return accentFontFamily ?? "Georgia, serif";
+}
+
 function pickMimeType() {
   if (typeof MediaRecorder === "undefined") return "";
   const candidates = [
@@ -71,7 +85,7 @@ function drawOverlay(
   ctx: CanvasRenderingContext2D,
   w: number,
   h: number,
-  data: { coords: Coords | null; place: Place | null; logo: HTMLImageElement | null }
+  data: { coords: Coords | null; place: Place | null; logo: HTMLCanvasElement | null }
 ) {
   const fs = Math.max(13, Math.round(w * 0.023));
   const pad = Math.round(fs * 1.1);
@@ -89,7 +103,7 @@ function drawOverlay(
   const { logo } = data;
   const logoSize = Math.round(fs * 2.4);
   let brandX = pad;
-  if (logo && logo.naturalWidth > 0) {
+  if (logo && logo.width > 0) {
     ctx.drawImage(logo, pad, textTop, logoSize, logoSize);
     brandX = pad + logoSize + Math.round(fs * 0.6);
   }
@@ -97,11 +111,11 @@ function drawOverlay(
   ctx.textBaseline = "top";
   ctx.textAlign = "left";
   ctx.fillStyle = "#ffffff";
-  ctx.font = `600 ${Math.round(fs * 1.25)}px ${MONO}`;
-  ctx.fillText("UTOPIA", brandX, textTop);
+  ctx.font = `italic 400 ${Math.round(fs * 1.5)}px ${accentFamily()}`;
+  ctx.fillText("Utopia", brandX, textTop);
   ctx.font = `${Math.round(fs * 0.72)}px ${MONO}`;
   ctx.fillStyle = "rgba(255,255,255,0.7)";
-  ctx.fillText("VERIFIED CAPTURE", brandX, textTop + Math.round(fs * 1.4));
+  ctx.fillText("VERIFIED CAPTURE", brandX, textTop + Math.round(fs * 1.6));
 
   const iso = new Date().toISOString();
   const timeLine = `${iso.slice(0, 10)} ${iso.slice(11, 19)} UTC`;
@@ -139,7 +153,7 @@ export function VideoRecorder({
   const chunksRef = useRef<BlobPart[]>([]);
   const rafRef = useRef<number | null>(null);
   const timerRef = useRef<number | null>(null);
-  const logoRef = useRef<HTMLImageElement | null>(null);
+  const logoRef = useRef<HTMLCanvasElement | null>(null);
   const coordsRef = useRef<Coords | null>(null);
   const placeRef = useRef<Place | null>(null);
   const lastGeocodeRef = useRef<number>(0);
@@ -171,13 +185,25 @@ export function VideoRecorder({
     placeRef.current = place;
   }, [place]);
 
-  // Preload the logo mark once for the burned-in overlay.
+  // Preload the logo mark once for the burned-in overlay, recolored to white
+  // via an offscreen canvas. Also warm up the wordmark font so the overlay
+  // never renders with a fallback face.
   useEffect(() => {
     const image = new window.Image();
     image.src = "/logo-utopia.png";
     image.onload = () => {
-      logoRef.current = image;
+      const offscreen = document.createElement("canvas");
+      offscreen.width = image.naturalWidth;
+      offscreen.height = image.naturalHeight;
+      const offscreenCtx = offscreen.getContext("2d");
+      if (!offscreenCtx) return;
+      offscreenCtx.drawImage(image, 0, 0);
+      offscreenCtx.globalCompositeOperation = "source-in";
+      offscreenCtx.fillStyle = "#ffffff";
+      offscreenCtx.fillRect(0, 0, offscreen.width, offscreen.height);
+      logoRef.current = offscreen;
     };
+    void document.fonts?.load(`italic 400 24px ${accentFamily()}`);
   }, []);
 
   // Continuously composite the camera frame plus overlay onto the canvas. This
