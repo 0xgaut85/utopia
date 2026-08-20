@@ -1,7 +1,37 @@
+"use client";
+
+import { useState } from "react";
 import Image from "next/image";
+import { useRouter } from "next/navigation";
 import { ScrambleText } from "@/components/ui/scramble-text";
 
 export function AppComingSoon() {
+  const router = useRouter();
+  const [code, setCode] = useState("");
+  const [submitting, setSubmitting] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  async function submit(event: React.FormEvent) {
+    event.preventDefault();
+    if (!code.trim()) return;
+    setError(null);
+    setSubmitting(true);
+
+    const response = await fetch("/api/app/beta", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ code: code.trim() }),
+    });
+
+    if (!response.ok) {
+      setError("That code is not valid. DM us for a fresh one.");
+      setSubmitting(false);
+      return;
+    }
+
+    router.refresh();
+  }
+
   return (
     <div className="flex min-h-svh items-center justify-center bg-mist px-4">
       <div className="w-full max-w-md border border-line/70 bg-white">
@@ -25,17 +55,38 @@ export function AppComingSoon() {
           />
 
           <h1 className="font-display text-4xl font-medium tracking-tight text-ink">
-            <ScrambleText text="Coming soon" duration={1600} />
+            <ScrambleText text="Private beta" duration={1600} />
           </h1>
 
           <p className="mx-auto max-w-xs text-sm leading-relaxed text-ink-soft">
-            The Utopia data marketplace is not live yet. Bounties, the
-            leaderboard and contributor profiles will open here.
+            The Utopia data marketplace is in private beta. Enter your access
+            code to continue, or DM us on X to request one.
           </p>
+
+          <form onSubmit={submit} className="space-y-3">
+            <input
+              value={code}
+              onChange={(event) => setCode(event.target.value)}
+              placeholder="Access code"
+              autoComplete="off"
+              spellCheck={false}
+              className="w-full border border-line/70 bg-transparent px-3 py-2.5 text-center font-mono text-sm tracking-[0.2em] text-ink outline-none placeholder:tracking-normal placeholder:text-ink/30 focus:border-ink/40"
+            />
+            {error ? (
+              <p className="font-mono text-[11px] text-ink">! {error}</p>
+            ) : null}
+            <button
+              type="submit"
+              disabled={submitting}
+              className="w-full cursor-pointer bg-ink px-5 py-2.5 font-mono text-[11px] uppercase tracking-[0.14em] text-mist transition-opacity hover:opacity-80 disabled:opacity-40"
+            >
+              {submitting ? "Checking..." : "Enter beta"}
+            </button>
+          </form>
 
           <div className="bg-ink px-4 py-6">
             <p className="font-mono text-[11px] uppercase tracking-[0.14em] text-mist/60">
-              Follow for launch updates
+              DM us for a private beta code
             </p>
             <a
               href="https://x.com/utopiadata"

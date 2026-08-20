@@ -1,8 +1,10 @@
 import type { Metadata } from "next";
 import type { ReactNode } from "react";
+import { cookies } from "next/headers";
 import { AppAuthProvider } from "@/components/app/auth-context";
 import { AppHeader } from "@/components/app/app-header";
 import { AppComingSoon } from "@/components/app/coming-soon-page";
+import { BETA_COOKIE } from "@/lib/app/beta";
 
 export const dynamic = "force-dynamic";
 
@@ -15,9 +17,17 @@ export const metadata: Metadata = {
     "Earn from the ground truth network. Browse capture bounties, submit photos and climb the contributor leaderboard.",
 };
 
-export default function AppLayout({ children }: { children: ReactNode }) {
-  if (process.env.APP_LIVE !== "1") {
-    return <AppComingSoon />;
+export default async function AppLayout({ children }: { children: ReactNode }) {
+  const code = process.env.APP_BETA_CODE;
+
+  // When a beta code is configured, gate the app behind it. Access is granted
+  // by a cookie set once the correct code is entered. With no code set (local
+  // dev), the app is open.
+  if (code) {
+    const store = await cookies();
+    if (store.get(BETA_COOKIE)?.value !== code) {
+      return <AppComingSoon />;
+    }
   }
 
   return (
