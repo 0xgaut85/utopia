@@ -76,14 +76,14 @@ export default async function TaskPage({
 
           <dl className="panel mt-6 grid grid-cols-2 divide-x divide-y divide-app-line overflow-hidden sm:grid-cols-4 sm:divide-y-0">
             <Fact label="Reward">
-              <UsdcAmount amount={task.priceUsdc} className="font-mono" />
+              <UsdcAmount amount={task.priceUsdc} />
               <span className="mt-0.5 block text-xs text-app-faint">
                 +{taskPoints(task.priceUsdc).toLocaleString("en-US")} pts if
                 accepted
               </span>
             </Fact>
             <Fact label="Submissions">
-              <span className="font-mono tabular-nums">
+              <span className="tabular-nums">
                 {task._count.submissions}/{task.maxSubmissions}
               </span>
             </Fact>

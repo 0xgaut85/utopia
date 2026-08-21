@@ -323,13 +323,13 @@ export default function ProfilePage() {
 
           <div className="grid grid-cols-2 divide-x divide-app-line border-t border-app-line">
             <div className="px-5 py-4">
-              <p className="font-mono text-3xl tabular-nums text-app-text">
+              <p className="text-3xl tabular-nums text-app-text">
                 {(profile?.points ?? 0).toLocaleString("en-US")}
               </p>
               <p className="mt-1 text-xs text-app-faint">Points</p>
             </div>
             <div className="px-5 py-4">
-              <p className="font-mono text-3xl tabular-nums text-app-text">
+              <p className="text-3xl tabular-nums text-app-text">
                 {submissions.length}
               </p>
               <p className="mt-1 text-xs text-app-faint">Clips</p>
@@ -374,7 +374,7 @@ export default function ProfilePage() {
                     </div>
                     <span
                       className={cn(
-                        "shrink-0 rounded-md px-2 py-1 font-mono text-xs tabular-nums",
+                        "shrink-0 rounded-md px-2 py-1 text-xs tabular-nums",
                         submission.status === "accepted"
                           ? "bg-app-text text-app-bg"
                           : "bg-app-bg text-app-faint"
@@ -428,7 +428,7 @@ export default function ProfilePage() {
                             : "Settled"}
                         </p>
                       </div>
-                      <span className="shrink-0 rounded-md bg-app-bg px-2 py-1 font-mono text-xs tabular-nums text-app-text">
+                      <span className="shrink-0 rounded-md bg-app-bg px-2 py-1 text-xs tabular-nums text-app-text">
                         {task.priceUsdc.toLocaleString("en-US")} USDC
                       </span>
                     </Link>

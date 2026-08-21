@@ -94,12 +94,12 @@ export function TaskCard({ task }: { task: TaskCardData }) {
             height={16}
             className="h-4 w-4 shrink-0 translate-y-0.5"
           />
-          <span className="font-mono text-lg tabular-nums leading-none text-app-text">
+          <span className="text-lg tabular-nums leading-none text-app-text">
             {formatUsdc(task.priceUsdc)}
           </span>
           <span className="text-[11px] text-app-faint">USDC</span>
         </span>
-        <span className="shrink-0 font-mono text-[11px] tabular-nums text-app-faint">
+        <span className="shrink-0 text-[11px] tabular-nums text-app-faint">
           {task.submissionCount}/{task.maxSubmissions}
         </span>
       </div>

@@ -80,7 +80,7 @@ function UsdcValue({ amount }: { amount: number }) {
         height={24}
         className="h-6 w-6 shrink-0 translate-y-1"
       />
-      <span className="font-mono text-3xl tabular-nums text-app-text sm:text-4xl">
+      <span className="text-3xl tabular-nums text-app-text sm:text-4xl">
         {formatUsdc(amount)}
       </span>
       <span className="text-sm text-app-faint">USDC</span>
@@ -100,7 +100,7 @@ function StatCard({
   return (
     <div className="panel px-5 py-4">
       <p className="text-xs text-app-faint">{label}</p>
-      <p className="mt-1.5 font-mono text-2xl tabular-nums text-app-text">
+      <p className="mt-1.5 text-2xl tabular-nums text-app-text">
         {value}
       </p>
       {hint ? <p className="mt-1 text-xs text-app-faint">{hint}</p> : null}

@@ -243,7 +243,7 @@ export default function NewBountyPage() {
                     setPrice(event.target.value.replace(/[^0-9.]/g, ""))
                   }
                   inputMode="decimal"
-                  className={cn(field, "pl-9 font-mono")}
+                  className={cn(field, "pl-9")}
                 />
               </div>
               <span className="text-xs text-app-faint">
@@ -258,7 +258,7 @@ export default function NewBountyPage() {
                   setMaxSubmissions(event.target.value.replace(/[^0-9]/g, ""))
                 }
                 inputMode="numeric"
-                className={cn(field, "font-mono")}
+                className={field}
               />
             </div>
           </div>
@@ -289,7 +289,7 @@ export default function NewBountyPage() {
           <div className="panel overflow-hidden">
             <div className="flex items-center justify-between gap-3 border-b border-app-line px-4 py-3">
               <span className={label}>Amount due</span>
-              <span className="flex items-center gap-1.5 font-mono text-lg tabular-nums text-app-text">
+              <span className="flex items-center gap-1.5 text-lg tabular-nums text-app-text">
                 <Image
                   src="/usdc.svg"
                   alt=""

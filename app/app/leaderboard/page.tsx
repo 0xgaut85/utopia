@@ -76,7 +76,7 @@ export default async function LeaderboardPage() {
               </p>
               <p
                 className={cn(
-                  "mt-1 font-mono text-xl tabular-nums",
+                  "mt-1 text-xl tabular-nums",
                   index === 0 ? "text-app-bg" : "text-app-text"
                 )}
               >
@@ -98,19 +98,19 @@ export default async function LeaderboardPage() {
       <div className="mt-3 grid grid-cols-3 gap-3 sm:gap-4">
         <div className="panel px-4 py-3">
           <p className="text-xs text-app-faint">Contributors</p>
-          <p className="mt-1 font-mono text-xl tabular-nums text-app-text">
+          <p className="mt-1 text-xl tabular-nums text-app-text">
             {n(totals._count._all)}
           </p>
         </div>
         <div className="panel px-4 py-3">
           <p className="text-xs text-app-faint">Points distributed</p>
-          <p className="mt-1 font-mono text-xl tabular-nums text-app-text">
+          <p className="mt-1 text-xl tabular-nums text-app-text">
             {n(pointsPool)}
           </p>
         </div>
         <div className="panel px-4 py-3">
           <p className="text-xs text-app-faint">Clips submitted</p>
-          <p className="mt-1 font-mono text-xl tabular-nums text-app-text">
+          <p className="mt-1 text-xl tabular-nums text-app-text">
             {n(networkClips)}
           </p>
         </div>
@@ -132,7 +132,7 @@ export default async function LeaderboardPage() {
                 key={user.id}
                 className="flex items-center gap-4 border-b border-app-line/60 px-4 py-3 last:border-b-0"
               >
-                <span className="w-6 shrink-0 font-mono text-sm tabular-nums text-app-faint">
+                <span className="w-6 shrink-0 text-sm tabular-nums text-app-faint">
                   {index + 4}
                 </span>
                 <Avatar
@@ -146,7 +146,7 @@ export default async function LeaderboardPage() {
                 <span className="hidden shrink-0 text-xs text-app-faint sm:inline">
                   {user._count.submissions} clips
                 </span>
-                <span className="shrink-0 font-mono text-sm tabular-nums text-app-text">
+                <span className="shrink-0 text-sm tabular-nums text-app-text">
                   {n(user.points)}
                   <span className="ml-1 font-sans text-xs text-app-faint">
                     pts

@@ -5,6 +5,7 @@ import { Search, SlidersHorizontal, X } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { TaskCard, type TaskCardData } from "@/components/app/task-card";
 import { CONTINENTS, normalize, resolvePlace } from "@/lib/app/geo";
+import { CountryMenu } from "@/components/app/country-menu";
 
 export type BrowsableTask = TaskCardData & {
   createdAt: string;
@@ -73,7 +74,11 @@ export function BountyBrowser({ tasks }: { tasks: BrowsableTask[] }) {
   const entries = useMemo(
     () =>
       tasks.map((task) => {
-        const { country: taskCountry, continent } = resolvePlace(task);
+        const {
+          country: taskCountry,
+          code,
+          continent,
+        } = resolvePlace(task);
         const open =
           task.status === "open" &&
           task.submissionCount < task.maxSubmissions;
@@ -81,6 +86,7 @@ export function BountyBrowser({ tasks }: { tasks: BrowsableTask[] }) {
         return {
           task,
           country: taskCountry,
+          code,
           continent,
           open,
           haystack: normalize(
@@ -98,42 +104,11 @@ export function BountyBrowser({ tasks }: { tasks: BrowsableTask[] }) {
     [tasks]
   );
 
-  const regionOptions = useMemo(() => {
-    const present = new Set(
-      entries.map((entry) => entry.continent).filter(Boolean)
-    );
-    const hasGlobal = entries.some((entry) => !entry.continent);
-
-    return [
-      { id: "all", label: "Every region" },
-      ...CONTINENTS.filter((continent) => present.has(continent)).map(
-        (continent) => ({ id: continent, label: continent })
-      ),
-      ...(hasGlobal ? [{ id: ANYWHERE, label: "Anywhere on Earth" }] : []),
-    ];
-  }, [entries]);
-
-  // Countries cascade off the region so the list never offers a dead end.
-  const countryOptions = useMemo(() => {
-    const inRegion = entries.filter((entry) => {
-      if (region === "all") return true;
-      if (region === ANYWHERE) return entry.continent === null;
-      return entry.continent === region;
-    });
-
-    const present = [
-      ...new Set(
-        inRegion
-          .map((entry) => entry.country)
-          .filter((value): value is string => value !== null)
-      ),
-    ].sort((a, b) => a.localeCompare(b));
-
-    return [
-      { id: "all", label: "Every country" },
-      ...present.map((name) => ({ id: name, label: name })),
-    ];
-  }, [entries, region]);
+  const regionOptions = [
+    { id: "all", label: "Every region" },
+    ...CONTINENTS.map((continent) => ({ id: continent, label: continent })),
+    { id: ANYWHERE, label: "Anywhere on Earth" },
+  ];
 
   const terms = useMemo(
     () => normalize(query).split(/\s+/).filter(Boolean),
@@ -145,13 +120,13 @@ export function BountyBrowser({ tasks }: { tasks: BrowsableTask[] }) {
       if (category !== "all" && entry.task.category !== category) return false;
       if (availability === "open" && !entry.open) return false;
 
-      if (region === ANYWHERE) {
+      if (country !== "all") {
+        if (entry.code !== country) return false;
+      } else if (region === ANYWHERE) {
         if (entry.continent !== null) return false;
       } else if (region !== "all" && entry.continent !== region) {
         return false;
       }
-
-      if (country !== "all" && entry.country !== country) return false;
       if (!terms.every((term) => entry.haystack.includes(term))) return false;
 
       return true;
@@ -187,7 +162,7 @@ export function BountyBrowser({ tasks }: { tasks: BrowsableTask[] }) {
 
   return (
     <div>
-      <div className="panel mt-8 p-3 sm:p-4">
+      <div className="panel relative z-20 mt-8 overflow-visible p-3 sm:p-4">
         <div className="relative">
           <Search
             className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-app-faint"
@@ -241,12 +216,7 @@ export function BountyBrowser({ tasks }: { tasks: BrowsableTask[] }) {
             options={regionOptions}
           />
 
-          <Select
-            label="Country"
-            value={country}
-            onChange={setCountry}
-            options={countryOptions}
-          />
+          <CountryMenu value={country} onChange={setCountry} />
 
           <Select
             label="Availability"

@@ -24,7 +24,7 @@ function Stat({ label, value }: { label: string; value: string }) {
   return (
     <div className="panel px-4 py-3">
       <p className="text-xs text-app-faint">{label}</p>
-      <p className="mt-1 font-mono text-xl tabular-nums text-app-text">
+      <p className="mt-1 text-xl tabular-nums text-app-text">
         {value}
       </p>
     </div>
@@ -76,7 +76,7 @@ export default async function MarketplacePage() {
               height={16}
               className="h-4 w-4 shrink-0"
             />
-            <span className="font-mono text-xl tabular-nums text-app-text">
+            <span className="text-xl tabular-nums text-app-text">
               {formatUsdc(onOffer)}
             </span>
             <span className="text-xs text-app-faint">USDC</span>
