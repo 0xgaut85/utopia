@@ -244,7 +244,7 @@ export default function ProfilePage() {
 
   return (
     <div>
-      <div className="border-b border-line/70 bg-black/[0.035] px-4 py-1.5 sm:px-6">
+      <div className="bar px-4 py-2 sm:px-6 lg:px-8">
         <span className={label}>Contributor profile:</span>
       </div>
 
@@ -301,7 +301,7 @@ export default function ProfilePage() {
                   onClick={() => setEditingUsername(true)}
                   className="group flex cursor-pointer items-center gap-2"
                 >
-                  <span className="truncate font-display text-2xl font-medium tracking-tight text-ink">
+                  <span className="truncate text-2xl font-medium tracking-tight text-ink">
                     {profile?.username ?? "syncing..."}
                   </span>
                   <Pencil
@@ -324,18 +324,20 @@ export default function ProfilePage() {
             </div>
           </div>
 
-          <div className="grid grid-cols-2 border-t border-line/70 bg-ink text-mist">
-            <div className="border-r border-mist/15 px-4 py-5 sm:px-6">
-              <p className="font-mono text-3xl">
+          <div className="panel-dark grain grid grid-cols-2 border-x-0 border-b-0">
+            <div className="relative z-[2] border-r border-mist/15 px-4 py-6 sm:px-6">
+              <p className="text-4xl tabular-nums tracking-tight">
                 {(profile?.points ?? 0).toLocaleString("en-US")}
               </p>
-              <p className="mt-1 font-mono text-[10px] uppercase tracking-[0.1em] text-mist/50">
+              <p className="mt-1.5 text-[10px] uppercase tracking-[0.16em] text-mist/45">
                 Points
               </p>
             </div>
-            <div className="px-4 py-5 sm:px-6">
-              <p className="font-mono text-3xl">{submissions.length}</p>
-              <p className="mt-1 font-mono text-[10px] uppercase tracking-[0.1em] text-mist/50">
+            <div className="relative z-[2] px-4 py-6 sm:px-6">
+              <p className="text-4xl tabular-nums tracking-tight">
+                {submissions.length}
+              </p>
+              <p className="mt-1.5 text-[10px] uppercase tracking-[0.16em] text-mist/45">
                 Clips
               </p>
             </div>
@@ -346,7 +348,7 @@ export default function ProfilePage() {
         </section>
 
         <section>
-          <div className="tint-blue-bar border-b border-line/70 px-4 py-1.5 sm:px-6">
+          <div className="bar px-4 py-2 sm:px-6">
             <span className={label}>My submissions:</span>
           </div>
           {submissions.length === 0 ? (
@@ -393,7 +395,7 @@ export default function ProfilePage() {
             </ul>
           )}
 
-          <div className="tint-green-bar border-t border-line/70 px-4 py-1.5 sm:px-6">
+          <div className="bar border-t border-line/70 px-4 py-2 sm:px-6">
             <span className={label}>My bounties:</span>
           </div>
           {myTasks.length === 0 ? (

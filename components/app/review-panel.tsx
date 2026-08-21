@@ -18,7 +18,7 @@ type ReviewSubmission = {
   user: { username: string; avatarUrl: string | null };
 };
 
-const label = "font-mono text-[10px] uppercase tracking-[0.1em] text-ink/55";
+const label = "text-[10px] uppercase tracking-[0.16em] text-ink/50";
 
 /**
  * Buyer review area. Renders only for the bounty's creator or a team admin.
@@ -108,10 +108,10 @@ export function ReviewPanel({
   const points = taskPoints(priceUsdc).toLocaleString("en-US");
 
   return (
-    <section className="border-t border-line/70">
-      <div className="flex items-center justify-between gap-3 border-b border-line/70 bg-black/[0.035] px-4 py-1.5 sm:px-6">
+    <section className="border-t border-line/70 bg-white">
+      <div className="bar flex items-center justify-between gap-3 px-4 py-2 sm:px-6 lg:px-8">
         <span className={label}>Review submissions ({submissions.length}):</span>
-        <span className={label}>
+        <span className={cn(label, "hidden sm:inline")}>
           Accepting releases payment and credits +{points} pts
         </span>
       </div>
@@ -123,12 +123,12 @@ export function ReviewPanel({
           </p>
         </div>
       ) : (
-        <div className="grid gap-px sm:grid-cols-2 lg:grid-cols-3">
+        <div className="grid gap-3 px-3 py-4 sm:grid-cols-2 sm:gap-4 sm:px-6 lg:grid-cols-3 lg:px-8">
           {submissions.map((submission) => (
             <article
               key={submission.id}
               className={cn(
-                "flex flex-col bg-white shadow-[1px_1px_0_0_var(--color-line)]",
+                "panel grain flex flex-col",
                 submission.status === "rejected" && "opacity-45"
               )}
             >
@@ -137,11 +137,11 @@ export function ReviewPanel({
                 controls
                 playsInline
                 preload="metadata"
-                className="aspect-[4/3] w-full border-b border-line/40 bg-ink object-contain"
+                className="relative z-[2] aspect-[3/4] w-full border-b border-ink/10 bg-ink object-contain"
               />
-              <div className="flex flex-1 flex-col gap-1.5 px-4 py-3">
+              <div className="relative z-[2] flex flex-1 flex-col gap-1.5 px-4 py-3">
                 <div className="flex items-center justify-between gap-3">
-                  <span className="truncate font-mono text-sm text-ink">
+                  <span className="truncate text-sm text-ink">
                     {submission.user.username}
                   </span>
                   <span className={label}>
@@ -157,18 +157,18 @@ export function ReviewPanel({
                   </p>
                 ) : null}
                 {submission.lat !== null && submission.lng !== null ? (
-                  <p className="font-mono text-[10px] text-ink/45">
+                  <p className="text-[10px] tabular-nums text-ink/45">
                     GPS {submission.lat.toFixed(4)}, {submission.lng.toFixed(4)}
                   </p>
                 ) : null}
               </div>
-              <div className="border-t border-line/40 px-4 py-2.5">
+              <div className="relative z-[2] border-t border-ink/10 px-4 py-2.5">
                 {submission.status === "pending" ? (
                   <button
                     type="button"
                     onClick={() => accept(submission.id)}
                     disabled={accepting !== null}
-                    className="glass-btn glass-btn-dark w-full cursor-pointer px-4 py-2 font-mono text-[10px] uppercase tracking-[0.1em]"
+                    className="glass-btn glass-btn-dark w-full cursor-pointer px-4 py-2 text-[10px] uppercase tracking-[0.14em]"
                   >
                     {accepting === submission.id
                       ? "Accepting..."

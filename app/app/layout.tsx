@@ -32,19 +32,19 @@ export default async function AppLayout({ children }: { children: ReactNode }) {
 
   return (
     <AppAuthProvider>
-      <div className="flex min-h-svh flex-col bg-mist">
+      <div className="app-shell flex min-h-svh flex-col bg-mist">
         <AppHeader />
         <main className="w-full flex-1 bg-white">{children}</main>
-        <footer className="border-t border-line/70 bg-white">
-          <div className="flex items-center justify-between gap-4 px-4 py-3 sm:px-6 lg:px-8">
-            <span className="font-mono text-[10px] uppercase tracking-[0.1em] text-ink/40">
+        <footer className="grain relative border-t border-line/70 bg-white">
+          <div className="relative z-[2] flex items-center justify-between gap-4 px-4 py-3 sm:px-6 lg:px-8">
+            <span className="text-[10px] uppercase tracking-[0.1em] text-ink/40">
               Utopia Data / ground truth network
             </span>
             <a
               href="https://x.com/utopiadata"
               target="_blank"
               rel="noreferrer"
-              className="font-mono text-[10px] uppercase tracking-[0.1em] text-ink/40 transition-colors hover:text-ink"
+              className="text-[10px] uppercase tracking-[0.1em] text-ink/40 transition-colors hover:text-ink"
             >
               @utopiadata
             </a>

@@ -111,10 +111,10 @@ export default function NewBountyPage() {
 
   return (
     <div>
-      <div className="flex items-center justify-between gap-3 border-b border-line/70 bg-black/[0.035] px-4 py-1.5 sm:px-6">
+      <div className="bar flex items-center justify-between gap-3 px-4 py-2 sm:px-6 lg:px-8">
         <Link
           href="/app"
-          className="flex items-center gap-1.5 font-mono text-[10px] uppercase tracking-[0.1em] text-ink/45 transition-colors hover:text-ink"
+          className="flex items-center gap-1.5 text-[10px] uppercase tracking-[0.16em] text-ink/45 transition-colors hover:text-ink"
         >
           <ArrowLeft className="h-3 w-3" strokeWidth={1.6} />
           Marketplace
@@ -147,9 +147,9 @@ export default function NewBountyPage() {
           </button>
         </div>
       ) : step === "details" ? (
-        <div className="mx-auto flex max-w-2xl flex-col gap-5 px-4 py-8 sm:px-6 sm:py-10">
+        <div className="mx-auto flex max-w-2xl flex-col gap-5 px-4 py-10 sm:px-6 sm:py-14">
           <div>
-            <h1 className="font-display text-3xl font-medium leading-tight tracking-tight text-ink">
+            <h1 className="text-3xl font-medium leading-tight tracking-tight text-ink">
               Post a bounty
             </h1>
             <p className="mt-3 text-sm leading-relaxed text-ink-soft">
@@ -273,9 +273,9 @@ export default function NewBountyPage() {
           </button>
         </div>
       ) : (
-        <div className="mx-auto flex max-w-2xl flex-col gap-5 px-4 py-8 sm:px-6 sm:py-10">
+        <div className="mx-auto flex max-w-2xl flex-col gap-5 px-4 py-10 sm:px-6 sm:py-14">
           <div>
-            <h1 className="font-display text-3xl font-medium leading-tight tracking-tight text-ink">
+            <h1 className="text-3xl font-medium leading-tight tracking-tight text-ink">
               Fund the bounty
             </h1>
             <p className="mt-3 text-sm leading-relaxed text-ink-soft">
@@ -285,10 +285,10 @@ export default function NewBountyPage() {
             </p>
           </div>
 
-          <div className="border border-line/70">
-            <div className="flex items-center justify-between gap-3 border-b border-line/70 bg-black/[0.035] px-4 py-2.5">
+          <div className="panel grain">
+            <div className="bar relative z-[2] flex items-center justify-between gap-3 px-4 py-3">
               <span className={label}>Amount due</span>
-              <span className="flex items-center gap-1.5 font-mono text-lg text-ink">
+              <span className="flex items-center gap-1.5 text-lg tabular-nums text-ink">
                 <Image
                   src="/usdc.svg"
                   alt="USDC"
@@ -301,7 +301,7 @@ export default function NewBountyPage() {
               </span>
             </div>
 
-            <div className="grid gap-px border-b border-line/70 sm:grid-cols-3">
+            <div className="relative z-[2] grid gap-px border-b border-line/70 sm:grid-cols-3">
               {DEPOSIT_NETWORKS.map((option) => (
                 <button
                   key={option.id}
@@ -329,17 +329,17 @@ export default function NewBountyPage() {
               ))}
             </div>
 
-            <div className="px-4 py-3">
+            <div className="relative z-[2] px-4 py-3">
               <span className={label}>Deposit address</span>
               <div className="mt-1.5 flex items-center gap-2">
-                <code className="min-w-0 flex-1 break-all font-mono text-[12px] text-ink">
+                <code className="min-w-0 flex-1 break-all text-[12px] text-ink">
                   {DEPOSIT_ADDRESS}
                 </code>
                 <button
                   type="button"
                   onClick={copyAddress}
                   aria-label="Copy deposit address"
-                  className="flex shrink-0 cursor-pointer items-center gap-1.5 border border-line/70 px-2.5 py-1.5 font-mono text-[10px] uppercase tracking-[0.1em] text-ink-soft transition-colors hover:border-ink/30 hover:text-ink"
+                  className="glass-btn flex shrink-0 cursor-pointer items-center gap-1.5 px-2.5 py-1.5 text-[10px] uppercase tracking-[0.14em] text-ink-soft"
                 >
                   {copied ? (
                     <Check className="h-3 w-3" strokeWidth={2} />

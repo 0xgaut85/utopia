@@ -155,6 +155,29 @@
   );
 }
 
+/* Generic liquid glass surface: heavy blur, saturated backdrop, bright rim. */
+.glass {
+  position: relative;
+  background: color-mix(in oklab, white 52%, transparent);
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  border: 1px solid color-mix(in oklab, white 72%, transparent);
+  box-shadow:
+    inset 0 1px 0 rgb(255 255 255 / 0.85),
+    0 12px 32px -20px rgb(0 0 0 / 0.35);
+}
+
+.glass-dark {
+  background: color-mix(in oklab, var(--color-ink) 78%, transparent);
+  backdrop-filter: blur(20px) saturate(160%);
+  -webkit-backdrop-filter: blur(20px) saturate(160%);
+  border: 1px solid color-mix(in oklab, white 14%, transparent);
+  color: var(--color-mist);
+  box-shadow:
+    inset 0 1px 0 rgb(255 255 255 / 0.12),
+    0 16px 40px -22px rgb(0 0 0 / 0.6);
+}
+
 .glass-card {
   position: relative;
   overflow: hidden;
@@ -177,74 +200,130 @@
     0 24px 60px -30px rgb(0 0 0 / 0.55);
 }
 
-.color-card {
+/* ============================================================
+   MONOCHROME SURFACES
+   The app is black and white only. Depth comes from glass blur,
+   grain and inversion, never from colour.
+   ============================================================ */
+
+.panel {
   position: relative;
+  isolation: isolate;
   overflow: hidden;
-  border-radius: var(--radius-glass-sm);
-  border: 1px solid color-mix(in oklab, var(--color-ink) 10%, transparent);
-  box-shadow:
-    inset 0 1px 0 rgb(255 255 255 / 0.7),
-    0 14px 34px -24px rgb(0 0 0 / 0.3);
+  background: #ffffff;
+  border: 1px solid color-mix(in oklab, var(--color-ink) 12%, transparent);
 }
 
-.tint-blue {
-  background: color-mix(in oklab, oklch(0.72 0.13 250) 16%, white);
-  border-color: color-mix(in oklab, oklch(0.55 0.13 250) 30%, transparent);
+.panel-dark {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  background: var(--color-ink);
+  color: var(--color-mist);
+  border: 1px solid color-mix(in oklab, white 14%, transparent);
 }
 
-.tint-green {
-  background: color-mix(in oklab, oklch(0.75 0.12 155) 16%, white);
-  border-color: color-mix(in oklab, oklch(0.55 0.12 155) 30%, transparent);
+/* Label bars that sit above a block of content. */
+.bar {
+  background: color-mix(in oklab, var(--color-ink) 4%, transparent);
+  border-bottom: 1px solid
+    color-mix(in oklab, var(--color-line) 70%, transparent);
 }
 
-.tint-amber {
-  background: color-mix(in oklab, oklch(0.82 0.12 85) 20%, white);
-  border-color: color-mix(in oklab, oklch(0.6 0.12 85) 32%, transparent);
+.bar-dark {
+  background: var(--color-ink);
+  color: var(--color-mist);
+  border-bottom: 1px solid color-mix(in oklab, white 14%, transparent);
 }
 
-.tint-pink {
-  background: color-mix(in oklab, oklch(0.75 0.14 350) 16%, white);
-  border-color: color-mix(in oklab, oklch(0.58 0.14 350) 30%, transparent);
+/* Film grain. Overlay blend keeps one texture legible on white and black. */
+.grain::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  opacity: 0.5;
+  mix-blend-mode: overlay;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='g'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23g)'/%3E%3C/svg%3E");
+  background-size: 140px 140px;
 }
 
-.tint-purple {
-  background: color-mix(in oklab, oklch(0.7 0.14 300) 15%, white);
-  border-color: color-mix(in oklab, oklch(0.55 0.14 300) 30%, transparent);
+/* Hairline graph paper, for texture without colour. */
+.grid-lines {
+  background-image:
+    linear-gradient(
+      to right,
+      color-mix(in oklab, var(--color-ink) 7%, transparent) 1px,
+      transparent 1px
+    ),
+    linear-gradient(
+      to bottom,
+      color-mix(in oklab, var(--color-ink) 7%, transparent) 1px,
+      transparent 1px
+    );
+  background-size: 26px 26px;
 }
 
-.tint-blue-bar {
-  background: color-mix(in oklab, oklch(0.72 0.13 250) 22%, white);
+.grid-lines-dark {
+  background-image:
+    linear-gradient(to right, rgb(255 255 255 / 0.08) 1px, transparent 1px),
+    linear-gradient(to bottom, rgb(255 255 255 / 0.08) 1px, transparent 1px);
+  background-size: 26px 26px;
 }
 
-.tint-green-bar {
-  background: color-mix(in oklab, oklch(0.75 0.12 155) 22%, white);
+/* Greyscale ambient wash sitting behind glass panels. */
+.wash {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(38rem 38rem at 10% -12%, rgb(0 0 0 / 0.1), transparent 60%),
+    radial-gradient(32rem 32rem at 94% 0%, rgb(0 0 0 / 0.07), transparent 62%),
+    radial-gradient(42rem 42rem at 68% 118%, rgb(0 0 0 / 0.09), transparent 60%);
 }
 
-.tint-amber-bar {
-  background: color-mix(in oklab, oklch(0.82 0.12 85) 28%, white);
-}
-
-.analytics-aurora {
+.wash-dark {
   position: absolute;
   inset: 0;
   z-index: 0;
   pointer-events: none;
   background:
     radial-gradient(
-      42rem 42rem at 12% -10%,
-      color-mix(in oklab, var(--color-accent) 22%, transparent),
+      36rem 36rem at 8% -10%,
+      rgb(255 255 255 / 0.16),
       transparent 60%
     ),
     radial-gradient(
-      38rem 38rem at 92% 0%,
-      color-mix(in oklab, oklch(0.7 0.17 330) 20%, transparent),
+      30rem 30rem at 96% 4%,
+      rgb(255 255 255 / 0.1),
       transparent 62%
-    ),
-    radial-gradient(
-      44rem 44rem at 70% 120%,
-      color-mix(in oklab, oklch(0.75 0.15 150) 18%, transparent),
-      transparent 60%
     );
+}
+
+/* The app runs on the landing page's mono face and nothing else. */
+.app-shell {
+  font-family: var(--font-mono);
+}
+
+/* Specular top edge, the tell of an iOS glass surface. */
+.glass-btn::before,
+.glass-card::before {
+  content: "";
+  position: absolute;
+  inset: 0 0 auto 0;
+  height: 45%;
+  background: linear-gradient(
+    to bottom,
+    rgb(255 255 255 / 0.35),
+    transparent
+  );
+  pointer-events: none;
+}
+
+.glass-btn-dark::before {
+  background: linear-gradient(to bottom, rgb(255 255 255 / 0.1), transparent);
 }
 
 @utility text-balance {

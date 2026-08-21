@@ -71,7 +71,7 @@ async function getAnalytics() {
   };
 }
 
-function UsdcValue({ amount }: { amount: number }) {
+function UsdcValue({ amount, dark }: { amount: number; dark?: boolean }) {
   return (
     <span className="flex items-baseline gap-2">
       <Image
@@ -81,10 +81,22 @@ function UsdcValue({ amount }: { amount: number }) {
         height={28}
         className="h-7 w-7 shrink-0 translate-y-1"
       />
-      <span className="font-mono text-4xl tracking-tight text-ink sm:text-5xl">
+      <span
+        className={cn(
+          "text-4xl tabular-nums tracking-tight sm:text-5xl",
+          dark ? "text-mist" : "text-ink"
+        )}
+      >
         {formatUsdc(amount)}
       </span>
-      <span className="font-mono text-sm text-ink/55">USDC</span>
+      <span
+        className={cn(
+          "text-sm uppercase tracking-[0.12em]",
+          dark ? "text-mist/50" : "text-ink/45"
+        )}
+      >
+        USDC
+      </span>
     </span>
   );
 }
@@ -93,23 +105,48 @@ function StatCard({
   label,
   value,
   hint,
-  tint,
+  dark,
+  wide,
 }: {
   label: string;
   value: string;
   hint?: string;
-  tint: string;
+  dark?: boolean;
+  wide?: boolean;
 }) {
   return (
-    <div className={cn("color-card px-5 py-6", tint)}>
-      <p className="font-mono text-[10px] uppercase tracking-[0.14em] text-ink/60">
+    <div
+      className={cn(
+        "grain flex flex-col justify-between px-5 py-6",
+        dark ? "panel-dark" : "panel",
+        wide && "sm:col-span-2"
+      )}
+    >
+      <p
+        className={cn(
+          "relative z-[2] text-[10px] uppercase tracking-[0.16em]",
+          dark ? "text-mist/45" : "text-ink/45"
+        )}
+      >
         {label}
       </p>
-      <p className="mt-3 font-mono text-3xl tracking-tight text-ink sm:text-4xl">
+      <p
+        className={cn(
+          "relative z-[2] mt-6 text-3xl tabular-nums tracking-tight sm:text-4xl",
+          dark ? "text-mist" : "text-ink"
+        )}
+      >
         {value}
       </p>
       {hint ? (
-        <p className="mt-1 font-mono text-[11px] text-ink/50">{hint}</p>
+        <p
+          className={cn(
+            "relative z-[2] mt-1 text-[11px]",
+            dark ? "text-mist/45" : "text-ink/45"
+          )}
+        >
+          {hint}
+        </p>
       ) : null}
     </div>
   );
@@ -125,97 +162,89 @@ export default async function AnalyticsPage() {
 
   return (
     <div className="relative overflow-hidden">
-      <div className="analytics-aurora" aria-hidden />
+      <div className="bar px-4 py-2 sm:px-6 lg:px-8">
+        <span className="text-[10px] uppercase tracking-[0.16em] text-ink/50">
+          Network analytics:
+        </span>
+      </div>
 
-      <div className="relative z-10">
-        <div className="border-b border-line/70 bg-white/40 px-4 py-1.5 backdrop-blur-sm sm:px-6 lg:px-8">
-          <span className="font-mono text-[10px] uppercase tracking-[0.1em] text-ink/45">
-            Network analytics:
-          </span>
-        </div>
+      <div className="relative">
+        <div aria-hidden className="wash" />
 
-        <div className="px-4 py-10 sm:px-6 sm:py-12 lg:px-8">
-          <h1 className="max-w-3xl font-display text-3xl font-medium leading-tight tracking-tight text-ink sm:text-5xl">
-            The ground truth network, in numbers.
-          </h1>
-          <p className="mt-4 max-w-xl text-sm leading-relaxed text-ink-soft">
-            Live figures across bounties, contributors and value flowing
-            through Utopia. Everything below is read straight from the network.
-          </p>
-
-          <div className="mt-8 grid gap-4 lg:grid-cols-2">
-            <div className={cn("color-card glass-sheen px-6 py-8", "tint-blue")}>
-              <p className="font-mono text-[10px] uppercase tracking-[0.14em] text-ink/60">
-                USDC on offer
-              </p>
-              <div className="mt-4">
-                <UsdcValue amount={a.usdcOnOffer} />
+        <div className="relative z-[2] px-3 py-4 sm:px-6 sm:py-6 lg:px-8">
+          <div className="grid gap-3 sm:gap-4 lg:grid-cols-3">
+            <section className="panel-dark grain flex flex-col justify-between p-6 sm:p-8 lg:col-span-2">
+              <div
+                aria-hidden
+                className="grid-lines-dark pointer-events-none absolute inset-0 z-0"
+              />
+              <div className="relative z-[2]">
+                <span className="text-[10px] uppercase tracking-[0.16em] text-mist/45">
+                  Live figures
+                </span>
+                <h1 className="mt-4 max-w-xl text-3xl font-medium leading-[1.15] tracking-tight text-mist sm:text-4xl">
+                  The ground truth network, in numbers.
+                </h1>
+                <p className="mt-4 max-w-md text-[13px] leading-relaxed text-mist/60">
+                  Bounties, contributors and value moving through Utopia.
+                  Everything here is read straight from the network.
+                </p>
               </div>
-              <p className="mt-2 font-mono text-[11px] text-ink/55">
-                Across {n(a.openBounties)} open bounties right now
-              </p>
-            </div>
+              <div className="relative z-[2] mt-8 border-t border-white/12 pt-6">
+                <p className="text-[10px] uppercase tracking-[0.16em] text-mist/45">
+                  USDC on offer
+                </p>
+                <div className="mt-3">
+                  <UsdcValue amount={a.usdcOnOffer} dark />
+                </div>
+                <p className="mt-2 text-[11px] text-mist/45">
+                  Across {n(a.openBounties)} open bounties right now
+                </p>
+              </div>
+            </section>
 
-            <div
-              className={cn("color-card glass-sheen px-6 py-8", "tint-green")}
-            >
-              <p className="font-mono text-[10px] uppercase tracking-[0.14em] text-ink/60">
+            <section className="panel grain flex flex-col justify-between p-6 sm:p-8">
+              <div
+                aria-hidden
+                className="grid-lines pointer-events-none absolute inset-0 z-0"
+              />
+              <p className="relative z-[2] text-[10px] uppercase tracking-[0.16em] text-ink/45">
                 Total volume
               </p>
-              <div className="mt-4">
+              <div className="relative z-[2] mt-6">
                 <UsdcValue amount={a.totalVolume} />
               </div>
-              <p className="mt-2 font-mono text-[11px] text-ink/55">
+              <p className="relative z-[2] mt-2 text-[11px] text-ink/45">
                 Committed across {n(a.totalBounties)} bounties all time
               </p>
-            </div>
+              <div className="relative z-[2] mt-6 grid grid-cols-2 gap-px border border-ink/10 bg-ink/10">
+                <span className="bg-white px-4 py-3">
+                  <span className="block text-lg tabular-nums text-ink">
+                    {n(a.openBounties)}
+                  </span>
+                  <span className="text-[10px] uppercase tracking-[0.14em] text-ink/40">
+                    Open
+                  </span>
+                </span>
+                <span className="bg-white px-4 py-3">
+                  <span className="block text-lg tabular-nums text-ink">
+                    {n(a.settledBounties)}
+                  </span>
+                  <span className="text-[10px] uppercase tracking-[0.14em] text-ink/40">
+                    Settled
+                  </span>
+                </span>
+              </div>
+            </section>
           </div>
 
-          <div className="mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-            <StatCard
-              label="Open bounties"
-              value={n(a.openBounties)}
-              tint="tint-blue"
-            />
-            <StatCard
-              label="Total bounties"
-              value={n(a.totalBounties)}
-              hint={`${n(a.settledBounties)} settled`}
-              tint="tint-green"
-            />
-            <StatCard
-              label="Contributors"
-              value={n(a.contributors)}
-              tint="tint-amber"
-            />
-            <StatCard
-              label="Total users"
-              value={n(a.totalUsers)}
-              tint="tint-pink"
-            />
+          <div className="mt-3 grid gap-3 sm:mt-4 sm:grid-cols-2 sm:gap-4 lg:grid-cols-4">
+            <StatCard label="Contributors" value={n(a.contributors)} />
+            <StatCard label="Total users" value={n(a.totalUsers)} dark />
             <StatCard
               label="Clips submitted"
               value={n(a.totalCaptures)}
               hint={`${n(a.acceptedCaptures)} accepted`}
-              tint="tint-purple"
-            />
-            <StatCard
-              label="Points distributed"
-              value={n(a.pointsDistributed)}
-              hint="1 USDC = 100 points"
-              tint="tint-blue"
-            />
-            <StatCard
-              label="Avg bounty"
-              value={
-                a.totalBounties
-                  ? `${formatUsdc(
-                      Math.round((a.totalVolume / a.totalBounties) * 100) / 100
-                    )}`
-                  : "0"
-              }
-              hint="USDC per bounty"
-              tint="tint-green"
             />
             <StatCard
               label="Acceptance rate"
@@ -227,13 +256,29 @@ export default async function AnalyticsPage() {
                   : "0%"
               }
               hint="of clips accepted"
-              tint="tint-amber"
             />
             <StatCard
               label="Data collected"
               value={`${gb} GB`}
               hint="Footage stored on the network"
-              tint="tint-purple"
+              dark
+              wide
+            />
+            <StatCard
+              label="Points distributed"
+              value={n(a.pointsDistributed)}
+              hint="1 USDC = 100 points"
+            />
+            <StatCard
+              label="Avg bounty"
+              value={
+                a.totalBounties
+                  ? formatUsdc(
+                      Math.round((a.totalVolume / a.totalBounties) * 100) / 100
+                    )
+                  : "0"
+              }
+              hint="USDC per bounty"
             />
           </div>
         </div>

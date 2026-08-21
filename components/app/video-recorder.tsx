@@ -27,20 +27,28 @@ type Phase = "init" | "ready" | "recording" | "recorded";
 
 const MAX_SECONDS = 20;
 const MAX_BYTES = 80 * 1024 * 1024;
-const MONO = "ui-monospace, SFMono-Regular, Menlo, Consolas, monospace";
+// The landing page fonts are loaded by next/font under hashed family names
+// exposed through CSS variables. Resolved once, lazily, so the canvas overlay
+// burns in the exact same faces the rest of the product uses.
+const fontCache = new Map<string, string>();
+function cssFont(variable: string, fallback: string) {
+  if (typeof window === "undefined") return fallback;
+  const cached = fontCache.get(variable);
+  if (cached) return cached;
+  const resolved =
+    getComputedStyle(document.documentElement)
+      .getPropertyValue(variable)
+      .trim() || fallback;
+  fontCache.set(variable, resolved);
+  return resolved;
+}
 
-// The landing wordmark font (Instrument Serif italic) is loaded by next/font
-// under a hashed family name exposed through this CSS variable. Resolved once,
-// lazily, so the canvas overlay can use the exact same face.
-let accentFontFamily: string | null = null;
+function monoFamily() {
+  return cssFont("--font-jetbrains", "ui-monospace, Menlo, Consolas, monospace");
+}
+
 function accentFamily() {
-  if (accentFontFamily === null && typeof window !== "undefined") {
-    accentFontFamily =
-      getComputedStyle(document.documentElement)
-        .getPropertyValue("--font-instrument-serif")
-        .trim() || "Georgia, serif";
-  }
-  return accentFontFamily ?? "Georgia, serif";
+  return cssFont("--font-instrument-serif", "Georgia, serif");
 }
 
 function pickMimeType() {
@@ -111,7 +119,7 @@ function drawOverlay(
   ctx.fillStyle = "#ffffff";
   ctx.font = `italic 400 ${Math.round(fs * 1.5)}px ${accentFamily()}`;
   ctx.fillText("Utopia", brandX, textTop);
-  ctx.font = `${Math.round(fs * 0.72)}px ${MONO}`;
+  ctx.font = `${Math.round(fs * 0.72)}px ${monoFamily()}`;
   ctx.fillStyle = "rgba(255,255,255,0.7)";
   ctx.fillText("VERIFIED CAPTURE", brandX, textTop + Math.round(fs * 1.6));
 
@@ -124,7 +132,7 @@ function drawOverlay(
 
   ctx.textAlign = "right";
   const rx = w - pad;
-  ctx.font = `${fs}px ${MONO}`;
+  ctx.font = `${fs}px ${monoFamily()}`;
   ctx.fillStyle = "#ffffff";
   ctx.fillText(timeLine, rx, textTop);
   ctx.fillText(coordLine, rx, textTop + rowH);
@@ -202,6 +210,7 @@ export function VideoRecorder({
       logoRef.current = offscreen;
     };
     void document.fonts?.load(`italic 400 24px ${accentFamily()}`);
+    void document.fonts?.load(`400 24px ${monoFamily()}`);
   }, []);
 
   // Continuously composite the camera frame plus overlay onto the canvas. This

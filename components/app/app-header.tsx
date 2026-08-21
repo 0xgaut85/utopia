@@ -76,7 +76,7 @@ export function AppHeader() {
   const [menuOpen, setMenuOpen] = useState(false);
 
   return (
-    <header className="sticky top-0 z-40 border-b border-line/70 bg-mist/80 backdrop-blur-xl">
+    <header className="sticky top-0 z-40 border-b border-line/70 bg-white/70 backdrop-blur-2xl backdrop-saturate-150">
       <div className="flex h-14 items-center justify-between gap-4 px-4 sm:px-6 lg:px-8">
         <Link href="/app" className="flex min-w-0 items-center gap-2.5">
           <Image
@@ -92,7 +92,8 @@ export function AppHeader() {
           </span>
         </Link>
 
-        <nav className="hidden items-center md:flex">
+        {/* Glass segmented control, the app's primary wayfinding. */}
+        <nav className="glass hidden items-center gap-0.5 rounded-full p-1 md:flex">
           {navLinks.map((link) => {
             const active = link.match.test(pathname);
             return (
@@ -100,10 +101,10 @@ export function AppHeader() {
                 key={link.href}
                 href={link.href}
                 className={cn(
-                  "border-b-2 px-4 py-[1.05rem] font-mono text-[11px] uppercase tracking-[0.14em] transition-colors",
+                  "rounded-full px-4 py-1.5 text-[11px] uppercase tracking-[0.14em] transition-all duration-200",
                   active
-                    ? "border-ink text-ink"
-                    : "border-transparent text-ink/45 hover:text-ink"
+                    ? "bg-ink text-mist shadow-[0_6px_18px_-8px_rgba(0,0,0,0.8)]"
+                    : "text-ink/50 hover:bg-white/60 hover:text-ink"
                 )}
               >
                 {link.label}

@@ -66,11 +66,11 @@ export function SubmitPanel({ taskId, priceUsdc, open }: SubmitPanelProps) {
     void refreshProfile();
   }
 
-  const label = "font-mono text-[10px] uppercase tracking-[0.1em] text-ink/55";
+  const label = "text-[10px] uppercase tracking-[0.16em] text-ink/50";
 
   return (
-    <aside className="flex flex-col">
-      <div className="border-b border-line/70 bg-black/[0.035] px-4 py-1.5">
+    <aside className="flex flex-col bg-white">
+      <div className="bar px-4 py-2 sm:px-6">
         <span className={label}>Record a clip:</span>
       </div>
 
@@ -85,10 +85,10 @@ export function SubmitPanel({ taskId, priceUsdc, open }: SubmitPanelProps) {
           <span className="flex h-12 w-12 items-center justify-center bg-ink text-mist">
             <Check className="h-5 w-5" strokeWidth={1.6} />
           </span>
-          <p className="font-display text-2xl font-medium tracking-tight text-ink">
+          <p className="text-2xl font-medium tracking-tight text-ink">
             Clip submitted
           </p>
-          <p className="max-w-xs font-mono text-sm text-ink-soft">
+          <p className="max-w-xs text-sm text-ink-soft">
             The buyer is reviewing submissions. You earn +{points} points if
             yours is accepted.
           </p>
