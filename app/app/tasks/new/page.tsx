@@ -220,9 +220,12 @@ export default function NewBountyPage() {
                 value={locationName}
                 onChange={(event) => setLocationName(event.target.value)}
                 maxLength={80}
-                placeholder="Shibuya, Tokyo"
+                placeholder="Shibuya, Tokyo, Japan"
                 className={field}
               />
+              <span className="text-xs text-app-faint">
+                End with the country so contributors can filter by region
+              </span>
             </div>
             <div className="flex flex-col gap-1.5">
               <span className={label}>Price in USDC</span>

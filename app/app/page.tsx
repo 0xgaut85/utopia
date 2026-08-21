@@ -3,7 +3,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { Plus } from "lucide-react";
 import { prisma } from "@/lib/app/db";
-import { TaskCard } from "@/components/app/task-card";
+import { BountyBrowser } from "@/components/app/bounty-browser";
 
 export const metadata: Metadata = {
   title: "Bounties",
@@ -95,31 +95,22 @@ export default async function MarketplacePage() {
           </p>
         </div>
       ) : (
-        <div className="mt-8">
-          <h2 className="text-sm font-medium text-app-muted">
-            All bounties, highest reward first
-          </h2>
-          <div className="mt-3 grid grid-cols-2 items-start gap-3 sm:gap-4 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6">
-            {tasks.map((task) => (
-              <TaskCard
-                key={task.id}
-                task={{
-                  id: task.id,
-                  title: task.title,
-                  brief: task.brief,
-                  category: task.category,
-                  locationName: task.locationName,
-                  lat: task.lat,
-                  lng: task.lng,
-                  priceUsdc: task.priceUsdc,
-                  maxSubmissions: task.maxSubmissions,
-                  status: task.status,
-                  submissionCount: task._count.submissions,
-                }}
-              />
-            ))}
-          </div>
-        </div>
+        <BountyBrowser
+          tasks={tasks.map((task) => ({
+            id: task.id,
+            title: task.title,
+            brief: task.brief,
+            category: task.category,
+            locationName: task.locationName,
+            lat: task.lat,
+            lng: task.lng,
+            priceUsdc: task.priceUsdc,
+            maxSubmissions: task.maxSubmissions,
+            status: task.status,
+            submissionCount: task._count.submissions,
+            createdAt: task.createdAt.toISOString(),
+          }))}
+        />
       )}
     </div>
   );

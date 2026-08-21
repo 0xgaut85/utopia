@@ -24,7 +24,7 @@ const seedTasks = [
     brief:
       "Record a short clip crossing the scramble at pedestrian height during a green light cycle. We need foot traffic density, signage state and storefront condition captured in motion. Daylight or night both accepted. Keep it under 20 seconds.",
     category: "location",
-    locationName: "Shibuya, Tokyo",
+    locationName: "Shibuya, Tokyo, Japan",
     lat: 35.6595,
     lng: 139.7005,
     radiusM: 150,
@@ -46,7 +46,7 @@ const seedTasks = [
     brief:
       "Ground level clip of stacked shipping containers from publicly accessible areas around a commercial port. We are mapping stack heights and yard utilization. Do not enter restricted zones.",
     category: "location",
-    locationName: "Port of Rotterdam",
+    locationName: "Port of Rotterdam, Netherlands",
     lat: 51.9496,
     lng: 4.1453,
     radiusM: 5000,
@@ -77,7 +77,7 @@ const seedTasks = [
     brief:
       "Walkway level clip of the Brooklyn Bridge deck showing pedestrian and cyclist volume plus the current state of the dividing lane markings. Weekday and weekend samples both wanted.",
     category: "location",
-    locationName: "Brooklyn Bridge, New York",
+    locationName: "Brooklyn Bridge, New York, United States",
     lat: 40.7061,
     lng: -73.9969,
     radiusM: 400,
@@ -117,7 +117,7 @@ const seedTasks = [
     brief:
       "Street level clip of the Esplanade de La Defense between 11:00 and 14:00 local time showing foot traffic in the business district. We compare weekday presence against office occupancy estimates.",
     category: "location",
-    locationName: "La Defense, Paris",
+    locationName: "La Defense, Paris, France",
     lat: 48.8898,
     lng: 2.2419,
     radiusM: 600,
