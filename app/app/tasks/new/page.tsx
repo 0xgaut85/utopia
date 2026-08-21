@@ -14,9 +14,8 @@ import {
   type DepositNetworkId,
 } from "@/lib/app/payments";
 
-const label = "font-mono text-[10px] uppercase tracking-[0.1em] text-ink/45";
-const field =
-  "w-full border border-line/70 bg-transparent px-3 py-2 text-sm text-ink outline-none placeholder:text-ink/30 focus:border-ink/40";
+const label = "text-xs text-app-faint";
+const field = "app-input";
 
 const CATEGORIES = [
   { id: "location", name: "Location", hint: "A specific place on the map" },
@@ -110,30 +109,31 @@ export default function NewBountyPage() {
   }
 
   return (
-    <div>
-      <div className="bar flex items-center justify-between gap-3 px-4 py-2 sm:px-6 lg:px-8">
-        <Link
-          href="/app"
-          className="flex items-center gap-1.5 text-[10px] uppercase tracking-[0.16em] text-ink/45 transition-colors hover:text-ink"
-        >
-          <ArrowLeft className="h-3 w-3" strokeWidth={1.6} />
-          Marketplace
-        </Link>
-        <span className={label}>
-          {step === "details" ? "Post a bounty / 1 of 2" : "Fund it / 2 of 2"}
-        </span>
-      </div>
+    <div className="px-4 py-8 sm:px-6 sm:py-10 lg:px-8">
+      <div className="mx-auto max-w-2xl">
+        <div className="flex items-center justify-between gap-3">
+          <Link
+            href="/app"
+            className="inline-flex items-center gap-1.5 text-sm text-app-muted transition-colors hover:text-app-text"
+          >
+            <ArrowLeft className="h-4 w-4" strokeWidth={1.8} />
+            All bounties
+          </Link>
+          <span className={label}>
+            {step === "details" ? "Step 1 of 2" : "Step 2 of 2"}
+          </span>
+        </div>
 
       {!configured ? (
         <div className="flex min-h-[50vh] items-center justify-center px-6">
-          <p className="max-w-sm text-center text-sm leading-relaxed text-ink-soft">
+          <p className="max-w-sm text-center text-sm leading-relaxed text-app-muted">
             Sign in is not configured on this deployment yet, so posting
             bounties is paused.
           </p>
         </div>
       ) : !authenticated ? (
         <div className="flex min-h-[50vh] flex-col items-center justify-center gap-5 px-6 text-center">
-          <p className="max-w-sm text-sm leading-relaxed text-ink-soft">
+          <p className="max-w-sm text-sm leading-relaxed text-app-muted">
             Sign in to post a bounty. You set the price in USDC, fund it and
             review submissions as they arrive.
           </p>
@@ -141,21 +141,21 @@ export default function NewBountyPage() {
             type="button"
             onClick={login}
             disabled={!ready}
-            className="glass-btn glass-btn-dark cursor-pointer px-6 py-2.5 font-mono text-[11px] uppercase tracking-[0.1em]"
+            className="app-btn app-btn-primary px-6"
           >
             Sign in
           </button>
         </div>
       ) : step === "details" ? (
-        <div className="mx-auto flex max-w-2xl flex-col gap-5 px-4 py-10 sm:px-6 sm:py-14">
+        <div className="mt-6 flex flex-col gap-5">
           <div>
-            <h1 className="text-3xl font-medium leading-tight tracking-tight text-ink">
+            <h1 className="text-2xl font-semibold tracking-tight text-app-text sm:text-3xl">
               Post a bounty
             </h1>
-            <p className="mt-3 text-sm leading-relaxed text-ink-soft">
+            <p className="mt-2 text-sm leading-relaxed text-app-muted">
               Describe the clip you need and set a price in USDC. Contributors
-              record footage in the app, you accept the one you prefer and
-              payment releases to them as points at 1 USDC = 100 points.
+              record footage in the app, you accept the one you prefer and the
+              reward releases to them at 100 points per USDC.
             </p>
           </div>
 
@@ -184,26 +184,26 @@ export default function NewBountyPage() {
 
           <div className="flex flex-col gap-1.5">
             <span className={label}>Category</span>
-            <div className="grid gap-px sm:grid-cols-3">
+            <div className="grid gap-2 sm:grid-cols-3">
               {CATEGORIES.map((option) => (
                 <button
                   key={option.id}
                   type="button"
                   onClick={() => setCategory(option.id)}
                   className={cn(
-                    "cursor-pointer border px-3 py-2.5 text-left transition-colors",
+                    "cursor-pointer rounded-lg border px-3 py-2.5 text-left transition-colors",
                     category === option.id
-                      ? "border-ink bg-ink text-mist"
-                      : "border-line/70 text-ink hover:border-ink/40"
+                      ? "border-app-text bg-app-text text-app-bg"
+                      : "border-app-line text-app-text hover:border-app-line-hi"
                   )}
                 >
-                  <span className="font-mono text-[11px] uppercase tracking-[0.1em]">
-                    {option.name}
-                  </span>
+                  <span className="text-sm font-medium">{option.name}</span>
                   <span
                     className={cn(
-                      "mt-0.5 block text-[11px] leading-snug",
-                      category === option.id ? "text-mist/60" : "text-ink/40"
+                      "mt-0.5 block text-xs leading-snug",
+                      category === option.id
+                        ? "text-app-bg/60"
+                        : "text-app-faint"
                     )}
                   >
                     {option.hint}
@@ -215,7 +215,7 @@ export default function NewBountyPage() {
 
           <div className="grid gap-4 sm:grid-cols-3">
             <div className="flex flex-col gap-1.5">
-              <span className={label}>Zone (optional)</span>
+              <span className={label}>Location (optional)</span>
               <input
                 value={locationName}
                 onChange={(event) => setLocationName(event.target.value)}
@@ -243,8 +243,8 @@ export default function NewBountyPage() {
                   className={cn(field, "pl-9 font-mono")}
                 />
               </div>
-              <span className="font-mono text-[10px] text-ink/45">
-                = {points} pts for the contributor
+              <span className="text-xs text-app-faint">
+                {points} pts for the contributor
               </span>
             </div>
             <div className="flex flex-col gap-1.5">
@@ -260,38 +260,36 @@ export default function NewBountyPage() {
             </div>
           </div>
 
-          {error ? (
-            <p className="font-mono text-[11px] text-ink">! {error}</p>
-          ) : null}
+          {error ? <p className="text-sm text-app-text">{error}</p> : null}
 
           <button
             type="button"
             onClick={continueToFunding}
-            className="glass-btn glass-btn-dark cursor-pointer px-5 py-2.5 font-mono text-[11px] uppercase tracking-[0.1em]"
+            className="app-btn app-btn-primary self-start px-5"
           >
             Continue to funding
           </button>
         </div>
       ) : (
-        <div className="mx-auto flex max-w-2xl flex-col gap-5 px-4 py-10 sm:px-6 sm:py-14">
+        <div className="mt-6 flex flex-col gap-5">
           <div>
-            <h1 className="text-3xl font-medium leading-tight tracking-tight text-ink">
+            <h1 className="text-2xl font-semibold tracking-tight text-app-text sm:text-3xl">
               Fund the bounty
             </h1>
-            <p className="mt-3 text-sm leading-relaxed text-ink-soft">
+            <p className="mt-2 text-sm leading-relaxed text-app-muted">
               Send the exact amount to the Utopia treasury on the network of
               your choice. The bounty goes live once you confirm the transfer
               and payment is held until you accept a submission.
             </p>
           </div>
 
-          <div className="panel grain">
-            <div className="bar relative z-[2] flex items-center justify-between gap-3 px-4 py-3">
+          <div className="panel overflow-hidden">
+            <div className="flex items-center justify-between gap-3 border-b border-app-line px-4 py-3">
               <span className={label}>Amount due</span>
-              <span className="flex items-center gap-1.5 text-lg tabular-nums text-ink">
+              <span className="flex items-center gap-1.5 font-mono text-lg tabular-nums text-app-text">
                 <Image
                   src="/usdc.svg"
-                  alt="USDC"
+                  alt=""
                   width={18}
                   height={18}
                   className="h-[18px] w-[18px]"
@@ -301,26 +299,26 @@ export default function NewBountyPage() {
               </span>
             </div>
 
-            <div className="relative z-[2] grid gap-px border-b border-line/70 sm:grid-cols-3">
+            <div className="grid border-b border-app-line sm:grid-cols-3">
               {DEPOSIT_NETWORKS.map((option) => (
                 <button
                   key={option.id}
                   type="button"
                   onClick={() => setNetwork(option.id)}
                   className={cn(
-                    "cursor-pointer px-3 py-2.5 text-left transition-colors",
+                    "cursor-pointer px-4 py-3 text-left transition-colors",
                     network === option.id
-                      ? "bg-ink text-mist"
-                      : "text-ink hover:bg-black/[0.03]"
+                      ? "bg-app-text text-app-bg"
+                      : "text-app-text hover:bg-app-surface-hi"
                   )}
                 >
-                  <span className="font-mono text-[11px] uppercase tracking-[0.1em]">
-                    {option.token}
-                  </span>
+                  <span className="text-sm font-medium">{option.token}</span>
                   <span
                     className={cn(
-                      "mt-0.5 block text-[11px]",
-                      network === option.id ? "text-mist/60" : "text-ink/40"
+                      "mt-0.5 block text-xs",
+                      network === option.id
+                        ? "text-app-bg/60"
+                        : "text-app-faint"
                     )}
                   >
                     on {option.network}
@@ -329,22 +327,22 @@ export default function NewBountyPage() {
               ))}
             </div>
 
-            <div className="relative z-[2] px-4 py-3">
+            <div className="px-4 py-3">
               <span className={label}>Deposit address</span>
-              <div className="mt-1.5 flex items-center gap-2">
-                <code className="min-w-0 flex-1 break-all text-[12px] text-ink">
+              <div className="mt-2 flex items-center gap-2">
+                <code className="min-w-0 flex-1 break-all font-mono text-xs text-app-text">
                   {DEPOSIT_ADDRESS}
                 </code>
                 <button
                   type="button"
                   onClick={copyAddress}
                   aria-label="Copy deposit address"
-                  className="glass-btn flex shrink-0 cursor-pointer items-center gap-1.5 px-2.5 py-1.5 text-[10px] uppercase tracking-[0.14em] text-ink-soft"
+                  className="app-btn app-btn-ghost shrink-0 px-3 py-2 text-xs"
                 >
                   {copied ? (
-                    <Check className="h-3 w-3" strokeWidth={2} />
+                    <Check className="h-3.5 w-3.5" strokeWidth={2} />
                   ) : (
-                    <Copy className="h-3 w-3" strokeWidth={1.6} />
+                    <Copy className="h-3.5 w-3.5" strokeWidth={1.8} />
                   )}
                   {copied ? "Copied" : "Copy"}
                 </button>
@@ -352,15 +350,13 @@ export default function NewBountyPage() {
             </div>
           </div>
 
-          {error ? (
-            <p className="font-mono text-[11px] text-ink">! {error}</p>
-          ) : null}
+          {error ? <p className="text-sm text-app-text">{error}</p> : null}
 
           <div className="flex flex-col gap-3 sm:flex-row">
             <button
               type="button"
               onClick={() => setStep("details")}
-              className="glass-btn cursor-pointer px-5 py-2.5 font-mono text-[11px] uppercase tracking-[0.1em] text-ink-soft"
+              className="app-btn app-btn-ghost px-5"
             >
               Back to details
             </button>
@@ -368,15 +364,14 @@ export default function NewBountyPage() {
               type="button"
               onClick={publish}
               disabled={publishing}
-              className="glass-btn glass-btn-dark flex-1 cursor-pointer px-5 py-2.5 font-mono text-[11px] uppercase tracking-[0.1em]"
+              className="app-btn app-btn-primary flex-1 px-5"
             >
-              {publishing
-                ? "Publishing..."
-                : "I sent the deposit / publish bounty"}
+              {publishing ? "Publishing" : "I sent the deposit, publish bounty"}
             </button>
           </div>
         </div>
       )}
+      </div>
     </div>
   );
 }

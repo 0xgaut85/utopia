@@ -10,9 +10,9 @@ type AvatarProps = {
 };
 
 const sizeClass = {
-  sm: "h-6 w-6 text-[10px]",
+  sm: "h-7 w-7 text-[11px]",
   md: "h-9 w-9 text-xs",
-  lg: "h-20 w-20 text-2xl",
+  lg: "h-14 w-14 text-lg",
 };
 
 export function Avatar({ username, avatarUrl, size = "md", className }: AvatarProps) {
@@ -23,7 +23,7 @@ export function Avatar({ username, avatarUrl, size = "md", className }: AvatarPr
         src={avatarUrl}
         alt={username}
         className={cn(
-          "shrink-0 border border-line/70 object-cover",
+          "shrink-0 rounded-full object-cover",
           sizeClass[size],
           className
         )}
@@ -35,7 +35,7 @@ export function Avatar({ username, avatarUrl, size = "md", className }: AvatarPr
     <span
       aria-hidden="true"
       className={cn(
-        "flex shrink-0 items-center justify-center border border-line/70 bg-ink font-mono uppercase text-mist",
+        "flex shrink-0 items-center justify-center rounded-full bg-app-surface-hi font-medium uppercase text-app-text",
         sizeClass[size],
         className
       )}

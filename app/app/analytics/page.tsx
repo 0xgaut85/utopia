@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import Image from "next/image";
 import { prisma } from "@/lib/app/db";
-import { cn } from "@/lib/utils";
 
 export const metadata: Metadata = {
   title: "Analytics",
@@ -71,32 +70,20 @@ async function getAnalytics() {
   };
 }
 
-function UsdcValue({ amount, dark }: { amount: number; dark?: boolean }) {
+function UsdcValue({ amount }: { amount: number }) {
   return (
     <span className="flex items-baseline gap-2">
       <Image
         src="/usdc.svg"
-        alt="USDC"
-        width={28}
-        height={28}
-        className="h-7 w-7 shrink-0 translate-y-1"
+        alt=""
+        width={24}
+        height={24}
+        className="h-6 w-6 shrink-0 translate-y-1"
       />
-      <span
-        className={cn(
-          "text-4xl tabular-nums tracking-tight sm:text-5xl",
-          dark ? "text-mist" : "text-ink"
-        )}
-      >
+      <span className="font-mono text-3xl tabular-nums text-app-text sm:text-4xl">
         {formatUsdc(amount)}
       </span>
-      <span
-        className={cn(
-          "text-sm uppercase tracking-[0.12em]",
-          dark ? "text-mist/50" : "text-ink/45"
-        )}
-      >
-        USDC
-      </span>
+      <span className="text-sm text-app-faint">USDC</span>
     </span>
   );
 }
@@ -105,49 +92,18 @@ function StatCard({
   label,
   value,
   hint,
-  dark,
-  wide,
 }: {
   label: string;
   value: string;
   hint?: string;
-  dark?: boolean;
-  wide?: boolean;
 }) {
   return (
-    <div
-      className={cn(
-        "grain flex flex-col justify-between px-5 py-6",
-        dark ? "panel-dark" : "panel",
-        wide && "sm:col-span-2"
-      )}
-    >
-      <p
-        className={cn(
-          "relative z-[2] text-[10px] uppercase tracking-[0.16em]",
-          dark ? "text-mist/45" : "text-ink/45"
-        )}
-      >
-        {label}
-      </p>
-      <p
-        className={cn(
-          "relative z-[2] mt-6 text-3xl tabular-nums tracking-tight sm:text-4xl",
-          dark ? "text-mist" : "text-ink"
-        )}
-      >
+    <div className="panel px-5 py-4">
+      <p className="text-xs text-app-faint">{label}</p>
+      <p className="mt-1.5 font-mono text-2xl tabular-nums text-app-text">
         {value}
       </p>
-      {hint ? (
-        <p
-          className={cn(
-            "relative z-[2] mt-1 text-[11px]",
-            dark ? "text-mist/45" : "text-ink/45"
-          )}
-        >
-          {hint}
-        </p>
-      ) : null}
+      {hint ? <p className="mt-1 text-xs text-app-faint">{hint}</p> : null}
     </div>
   );
 }
@@ -161,127 +117,70 @@ export default async function AnalyticsPage() {
   });
 
   return (
-    <div className="relative overflow-hidden">
-      <div className="bar px-4 py-2 sm:px-6 lg:px-8">
-        <span className="text-[10px] uppercase tracking-[0.16em] text-ink/50">
-          Network analytics:
-        </span>
+    <div className="px-4 py-8 sm:px-6 sm:py-10 lg:px-8">
+      <h1 className="text-2xl font-semibold tracking-tight text-app-text sm:text-3xl">
+        Analytics
+      </h1>
+      <p className="mt-2 max-w-xl text-sm leading-relaxed text-app-muted">
+        Bounties, contributors and value moving through Utopia. Every figure is
+        read straight from the network.
+      </p>
+
+      <div className="mt-6 grid gap-3 sm:gap-4 lg:grid-cols-2">
+        <section className="panel p-6">
+          <p className="text-xs text-app-faint">USDC on offer</p>
+          <div className="mt-3">
+            <UsdcValue amount={a.usdcOnOffer} />
+          </div>
+          <p className="mt-2 text-sm text-app-muted">
+            Across {n(a.openBounties)} open bounties right now
+          </p>
+        </section>
+
+        <section className="panel p-6">
+          <p className="text-xs text-app-faint">Total volume</p>
+          <div className="mt-3">
+            <UsdcValue amount={a.totalVolume} />
+          </div>
+          <p className="mt-2 text-sm text-app-muted">
+            Committed across {n(a.totalBounties)} bounties all time
+          </p>
+        </section>
       </div>
 
-      <div className="relative">
-        <div aria-hidden className="wash" />
-
-        <div className="relative z-[2] px-3 py-4 sm:px-6 sm:py-6 lg:px-8">
-          <div className="grid gap-3 sm:gap-4 lg:grid-cols-3">
-            <section className="panel-dark grain flex flex-col justify-between p-6 sm:p-8 lg:col-span-2">
-              <div
-                aria-hidden
-                className="grid-lines-dark pointer-events-none absolute inset-0 z-0"
-              />
-              <div className="relative z-[2]">
-                <span className="text-[10px] uppercase tracking-[0.16em] text-mist/45">
-                  Live figures
-                </span>
-                <h1 className="mt-4 max-w-xl text-3xl font-medium leading-[1.15] tracking-tight text-mist sm:text-4xl">
-                  The ground truth network, in numbers.
-                </h1>
-                <p className="mt-4 max-w-md text-[13px] leading-relaxed text-mist/60">
-                  Bounties, contributors and value moving through Utopia.
-                  Everything here is read straight from the network.
-                </p>
-              </div>
-              <div className="relative z-[2] mt-8 border-t border-white/12 pt-6">
-                <p className="text-[10px] uppercase tracking-[0.16em] text-mist/45">
-                  USDC on offer
-                </p>
-                <div className="mt-3">
-                  <UsdcValue amount={a.usdcOnOffer} dark />
-                </div>
-                <p className="mt-2 text-[11px] text-mist/45">
-                  Across {n(a.openBounties)} open bounties right now
-                </p>
-              </div>
-            </section>
-
-            <section className="panel grain flex flex-col justify-between p-6 sm:p-8">
-              <div
-                aria-hidden
-                className="grid-lines pointer-events-none absolute inset-0 z-0"
-              />
-              <p className="relative z-[2] text-[10px] uppercase tracking-[0.16em] text-ink/45">
-                Total volume
-              </p>
-              <div className="relative z-[2] mt-6">
-                <UsdcValue amount={a.totalVolume} />
-              </div>
-              <p className="relative z-[2] mt-2 text-[11px] text-ink/45">
-                Committed across {n(a.totalBounties)} bounties all time
-              </p>
-              <div className="relative z-[2] mt-6 grid grid-cols-2 gap-px border border-ink/10 bg-ink/10">
-                <span className="bg-white px-4 py-3">
-                  <span className="block text-lg tabular-nums text-ink">
-                    {n(a.openBounties)}
-                  </span>
-                  <span className="text-[10px] uppercase tracking-[0.14em] text-ink/40">
-                    Open
-                  </span>
-                </span>
-                <span className="bg-white px-4 py-3">
-                  <span className="block text-lg tabular-nums text-ink">
-                    {n(a.settledBounties)}
-                  </span>
-                  <span className="text-[10px] uppercase tracking-[0.14em] text-ink/40">
-                    Settled
-                  </span>
-                </span>
-              </div>
-            </section>
-          </div>
-
-          <div className="mt-3 grid gap-3 sm:mt-4 sm:grid-cols-2 sm:gap-4 lg:grid-cols-4">
-            <StatCard label="Contributors" value={n(a.contributors)} />
-            <StatCard label="Total users" value={n(a.totalUsers)} dark />
-            <StatCard
-              label="Clips submitted"
-              value={n(a.totalCaptures)}
-              hint={`${n(a.acceptedCaptures)} accepted`}
-            />
-            <StatCard
-              label="Acceptance rate"
-              value={
-                a.totalCaptures
-                  ? `${Math.round(
-                      (a.acceptedCaptures / a.totalCaptures) * 100
-                    )}%`
-                  : "0%"
-              }
-              hint="of clips accepted"
-            />
-            <StatCard
-              label="Data collected"
-              value={`${gb} GB`}
-              hint="Footage stored on the network"
-              dark
-              wide
-            />
-            <StatCard
-              label="Points distributed"
-              value={n(a.pointsDistributed)}
-              hint="1 USDC = 100 points"
-            />
-            <StatCard
-              label="Avg bounty"
-              value={
-                a.totalBounties
-                  ? formatUsdc(
-                      Math.round((a.totalVolume / a.totalBounties) * 100) / 100
-                    )
-                  : "0"
-              }
-              hint="USDC per bounty"
-            />
-          </div>
-        </div>
+      <div className="mt-3 grid gap-3 sm:grid-cols-2 sm:gap-4 lg:grid-cols-4">
+        <StatCard label="Open bounties" value={n(a.openBounties)} />
+        <StatCard
+          label="Total bounties"
+          value={n(a.totalBounties)}
+          hint={`${n(a.settledBounties)} settled`}
+        />
+        <StatCard label="Contributors" value={n(a.contributors)} />
+        <StatCard label="Total users" value={n(a.totalUsers)} />
+        <StatCard
+          label="Clips submitted"
+          value={n(a.totalCaptures)}
+          hint={`${n(a.acceptedCaptures)} accepted`}
+        />
+        <StatCard
+          label="Acceptance rate"
+          value={
+            a.totalCaptures
+              ? `${Math.round((a.acceptedCaptures / a.totalCaptures) * 100)}%`
+              : "0%"
+          }
+          hint="of clips accepted"
+        />
+        <StatCard
+          label="Data collected"
+          value={`${gb} GB`}
+          hint="Footage stored on the network"
+        />
+        <StatCard
+          label="Points distributed"
+          value={n(a.pointsDistributed)}
+          hint="100 points per USDC"
+        />
       </div>
     </div>
   );

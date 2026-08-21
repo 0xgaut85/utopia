@@ -10,7 +10,11 @@ import { useAppAuth } from "@/components/app/auth-context";
 import { Avatar } from "@/components/app/avatar";
 
 const navLinks = [
-  { href: "/app", label: "Marketplace", match: /^\/(app)?\/?$|^\/(app\/)?tasks/ },
+  {
+    href: "/app",
+    label: "Bounties",
+    match: /^\/(app)?\/?$|^\/(app\/)?tasks/,
+  },
   { href: "/app/analytics", label: "Analytics", match: /analytics/ },
   { href: "/app/leaderboard", label: "Leaderboard", match: /leaderboard/ },
   { href: "/app/profile", label: "Profile", match: /profile/ },
@@ -22,18 +26,14 @@ function AuthControls() {
 
   if (!configured) {
     return (
-      <span className="hidden font-mono text-[10px] uppercase tracking-[0.1em] text-ink/40 sm:inline">
-        Auth offline
+      <span className="hidden text-xs text-app-faint sm:inline">
+        Sign in offline
       </span>
     );
   }
 
   if (!ready) {
-    return (
-      <span className="font-mono text-[10px] uppercase tracking-[0.1em] text-ink/40">
-        ...
-      </span>
-    );
+    return <span className="text-xs text-app-faint">Loading</span>;
   }
 
   if (!authenticated) {
@@ -41,7 +41,7 @@ function AuthControls() {
       <button
         type="button"
         onClick={login}
-        className="glass-btn glass-btn-dark cursor-pointer px-4 py-1.5 font-mono text-[11px] uppercase tracking-[0.1em]"
+        className="app-btn app-btn-primary px-4 py-2"
       >
         Sign in
       </button>
@@ -49,23 +49,26 @@ function AuthControls() {
   }
 
   return (
-    <div className="flex items-center gap-2.5">
-      <Link href="/app/profile" className="flex items-center gap-2">
+    <div className="flex items-center gap-2">
+      <Link
+        href="/app/profile"
+        className="flex items-center gap-2 rounded-lg px-2 py-1.5 transition-colors hover:bg-app-surface"
+      >
         <Avatar
           username={profile?.username ?? "?"}
           avatarUrl={profile?.avatarUrl}
           size="sm"
         />
-        <span className="hidden max-w-28 truncate font-mono text-[11px] text-ink sm:inline">
+        <span className="hidden max-w-28 truncate text-sm text-app-text sm:inline">
           {profile?.username ?? "syncing"}
         </span>
       </Link>
       <button
         type="button"
         onClick={() => logout()}
-        className="glass-btn cursor-pointer px-3 py-1.5 font-mono text-[10px] uppercase tracking-[0.1em] text-ink-soft"
+        className="app-btn app-btn-ghost px-3 py-2 text-xs"
       >
-        Exit
+        Sign out
       </button>
     </div>
   );
@@ -76,24 +79,23 @@ export function AppHeader() {
   const [menuOpen, setMenuOpen] = useState(false);
 
   return (
-    <header className="sticky top-0 z-40 border-b border-line/70 bg-white/70 backdrop-blur-2xl backdrop-saturate-150">
-      <div className="flex h-14 items-center justify-between gap-4 px-4 sm:px-6 lg:px-8">
+    <header className="sticky top-0 z-40 border-b border-app-line bg-app-bg/85 backdrop-blur-xl">
+      <div className="flex h-16 items-center justify-between gap-4 px-4 sm:px-6 lg:px-8">
         <Link href="/app" className="flex min-w-0 items-center gap-2.5">
           <Image
             src="/logo-utopia.png"
-            alt="Utopia"
-            width={22}
-            height={22}
+            alt=""
+            width={24}
+            height={24}
             priority
-            className="h-5 w-5 shrink-0"
+            className="h-6 w-6 shrink-0 brightness-0 invert"
           />
-          <span className="truncate font-mono text-xs uppercase tracking-[0.18em] text-ink">
-            Utopia <span className="text-ink/40">/ App</span>
+          <span className="truncate text-base font-medium tracking-tight text-app-text">
+            Utopia
           </span>
         </Link>
 
-        {/* Glass segmented control, the app's primary wayfinding. */}
-        <nav className="glass hidden items-center gap-0.5 rounded-full p-1 md:flex">
+        <nav className="hidden items-center gap-1 md:flex">
           {navLinks.map((link) => {
             const active = link.match.test(pathname);
             return (
@@ -101,10 +103,10 @@ export function AppHeader() {
                 key={link.href}
                 href={link.href}
                 className={cn(
-                  "rounded-full px-4 py-1.5 text-[11px] uppercase tracking-[0.14em] transition-all duration-200",
+                  "rounded-lg px-3.5 py-2 text-sm transition-colors",
                   active
-                    ? "bg-ink text-mist shadow-[0_6px_18px_-8px_rgba(0,0,0,0.8)]"
-                    : "text-ink/50 hover:bg-white/60 hover:text-ink"
+                    ? "bg-app-surface text-app-text"
+                    : "text-app-muted hover:bg-app-surface/60 hover:text-app-text"
                 )}
               >
                 {link.label}
@@ -113,26 +115,26 @@ export function AppHeader() {
           })}
         </nav>
 
-        <div className="flex items-center gap-2.5">
+        <div className="flex items-center gap-2">
           <AuthControls />
           <button
             type="button"
             aria-label={menuOpen ? "Close menu" : "Open menu"}
             aria-expanded={menuOpen}
             onClick={() => setMenuOpen((open) => !open)}
-            className="inline-flex h-8 w-8 items-center justify-center border border-line/70 text-ink-soft transition-colors hover:text-ink md:hidden"
+            className="inline-flex h-9 w-9 cursor-pointer items-center justify-center rounded-lg border border-app-line text-app-muted transition-colors hover:text-app-text md:hidden"
           >
             {menuOpen ? (
-              <X className="h-4 w-4" strokeWidth={1.6} />
+              <X className="h-4 w-4" strokeWidth={1.8} />
             ) : (
-              <Menu className="h-4 w-4" strokeWidth={1.6} />
+              <Menu className="h-4 w-4" strokeWidth={1.8} />
             )}
           </button>
         </div>
       </div>
 
       {menuOpen ? (
-        <nav className="border-t border-line/70 md:hidden">
+        <nav className="border-t border-app-line px-3 py-2 md:hidden">
           {navLinks.map((link) => {
             const active = link.match.test(pathname);
             return (
@@ -141,8 +143,10 @@ export function AppHeader() {
                 href={link.href}
                 onClick={() => setMenuOpen(false)}
                 className={cn(
-                  "block border-b border-line/40 px-4 py-3 font-mono text-[11px] uppercase tracking-[0.14em]",
-                  active ? "bg-ink text-mist" : "text-ink-soft hover:text-ink"
+                  "block rounded-lg px-3 py-2.5 text-sm",
+                  active
+                    ? "bg-app-surface text-app-text"
+                    : "text-app-muted hover:text-app-text"
                 )}
               >
                 {link.label}

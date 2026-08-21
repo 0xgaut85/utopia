@@ -15,6 +15,16 @@
   --color-accent: oklch(0.62 0.19 255);
   --color-accent-soft: oklch(0.88 0.05 255);
 
+  /* Dark app palette. Scoped to /app, the marketing site stays light. */
+  --color-app-bg: oklch(0.145 0 0);
+  --color-app-surface: oklch(0.205 0 0);
+  --color-app-surface-hi: oklch(0.25 0 0);
+  --color-app-line: oklch(0.3 0 0);
+  --color-app-line-hi: oklch(0.42 0 0);
+  --color-app-text: oklch(0.98 0 0);
+  --color-app-muted: oklch(0.74 0 0);
+  --color-app-faint: oklch(0.56 0 0);
+
   --radius-glass: 1.5rem;
   --radius-glass-sm: 1rem;
   --radius-glass-lg: 2rem;
@@ -155,29 +165,6 @@
   );
 }
 
-/* Generic liquid glass surface: heavy blur, saturated backdrop, bright rim. */
-.glass {
-  position: relative;
-  background: color-mix(in oklab, white 52%, transparent);
-  backdrop-filter: blur(20px) saturate(180%);
-  -webkit-backdrop-filter: blur(20px) saturate(180%);
-  border: 1px solid color-mix(in oklab, white 72%, transparent);
-  box-shadow:
-    inset 0 1px 0 rgb(255 255 255 / 0.85),
-    0 12px 32px -20px rgb(0 0 0 / 0.35);
-}
-
-.glass-dark {
-  background: color-mix(in oklab, var(--color-ink) 78%, transparent);
-  backdrop-filter: blur(20px) saturate(160%);
-  -webkit-backdrop-filter: blur(20px) saturate(160%);
-  border: 1px solid color-mix(in oklab, white 14%, transparent);
-  color: var(--color-mist);
-  box-shadow:
-    inset 0 1px 0 rgb(255 255 255 / 0.12),
-    0 16px 40px -22px rgb(0 0 0 / 0.6);
-}
-
 .glass-card {
   position: relative;
   overflow: hidden;
@@ -201,129 +188,126 @@
 }
 
 /* ============================================================
-   MONOCHROME SURFACES
-   The app is black and white only. Depth comes from glass blur,
-   grain and inversion, never from colour.
+   APP THEME
+   The app is a dark product surface, not an editorial page: near
+   black canvas, white text, one raised surface level, no colour
+   and no decorative pattern.
    ============================================================ */
 
+.app-shell {
+  font-family: var(--font-body);
+  background: var(--color-app-bg);
+  color: var(--color-app-text);
+  /* Keeps scrollbars, form controls and overscroll dark instead of white. */
+  color-scheme: dark;
+}
+
+/* The single raised surface. Everything that groups content uses it. */
 .panel {
   position: relative;
   isolation: isolate;
-  overflow: hidden;
-  background: #ffffff;
-  border: 1px solid color-mix(in oklab, var(--color-ink) 12%, transparent);
+  border-radius: 0.75rem;
+  background: var(--color-app-surface);
+  border: 1px solid var(--color-app-line);
 }
 
-.panel-dark {
+/* Inverted block, used sparingly to make one thing the loudest on screen. */
+.panel-invert {
   position: relative;
   isolation: isolate;
-  overflow: hidden;
-  background: var(--color-ink);
-  color: var(--color-mist);
-  border: 1px solid color-mix(in oklab, white 14%, transparent);
+  border-radius: 0.75rem;
+  background: var(--color-app-text);
+  color: var(--color-app-bg);
 }
 
-/* Label bars that sit above a block of content. */
-.bar {
-  background: color-mix(in oklab, var(--color-ink) 4%, transparent);
-  border-bottom: 1px solid
-    color-mix(in oklab, var(--color-line) 70%, transparent);
-}
-
-.bar-dark {
-  background: var(--color-ink);
-  color: var(--color-mist);
-  border-bottom: 1px solid color-mix(in oklab, white 14%, transparent);
-}
-
-/* Film grain. Overlay blend keeps one texture legible on white and black. */
-.grain::after {
+/* Fine film grain on every surface. Negative z-index keeps it under the text,
+   so it reads as paper texture rather than noise laid over the copy. */
+.panel::after,
+.panel-invert::after {
   content: "";
   position: absolute;
   inset: 0;
-  z-index: 1;
+  z-index: -1;
+  border-radius: inherit;
   pointer-events: none;
-  opacity: 0.5;
-  mix-blend-mode: overlay;
+  opacity: 0.4;
+  mix-blend-mode: soft-light;
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='g'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23g)'/%3E%3C/svg%3E");
   background-size: 140px 140px;
 }
 
-/* Hairline graph paper, for texture without colour. */
-.grid-lines {
-  background-image:
-    linear-gradient(
-      to right,
-      color-mix(in oklab, var(--color-ink) 7%, transparent) 1px,
-      transparent 1px
-    ),
-    linear-gradient(
-      to bottom,
-      color-mix(in oklab, var(--color-ink) 7%, transparent) 1px,
-      transparent 1px
-    );
-  background-size: 26px 26px;
+/* ---- App buttons -------------------------------------------------
+   Two levels only, so the primary action is never ambiguous. */
+
+.app-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  border-radius: 0.625rem;
+  padding: 0.625rem 1rem;
+  font-size: 0.8125rem;
+  line-height: 1.2;
+  font-weight: 500;
+  cursor: pointer;
+  transition:
+    background-color 0.18s ease,
+    border-color 0.18s ease,
+    opacity 0.18s ease;
 }
 
-.grid-lines-dark {
-  background-image:
-    linear-gradient(to right, rgb(255 255 255 / 0.08) 1px, transparent 1px),
-    linear-gradient(to bottom, rgb(255 255 255 / 0.08) 1px, transparent 1px);
-  background-size: 26px 26px;
+.app-btn:disabled {
+  cursor: not-allowed;
+  opacity: 0.4;
 }
 
-/* Greyscale ambient wash sitting behind glass panels. */
-.wash {
-  position: absolute;
-  inset: 0;
-  z-index: 0;
-  pointer-events: none;
-  background:
-    radial-gradient(38rem 38rem at 10% -12%, rgb(0 0 0 / 0.1), transparent 60%),
-    radial-gradient(32rem 32rem at 94% 0%, rgb(0 0 0 / 0.07), transparent 62%),
-    radial-gradient(42rem 42rem at 68% 118%, rgb(0 0 0 / 0.09), transparent 60%);
+.app-btn-primary {
+  background: var(--color-app-text);
+  color: var(--color-app-bg);
+  border: 1px solid var(--color-app-text);
 }
 
-.wash-dark {
-  position: absolute;
-  inset: 0;
-  z-index: 0;
-  pointer-events: none;
-  background:
-    radial-gradient(
-      36rem 36rem at 8% -10%,
-      rgb(255 255 255 / 0.16),
-      transparent 60%
-    ),
-    radial-gradient(
-      30rem 30rem at 96% 4%,
-      rgb(255 255 255 / 0.1),
-      transparent 62%
-    );
+.app-btn-primary:hover:not(:disabled) {
+  background: #ffffff;
 }
 
-/* The app runs on the landing page's mono face and nothing else. */
-.app-shell {
-  font-family: var(--font-mono);
+/* Frosted secondary, the one place the glass treatment still earns its keep. */
+.app-btn-ghost {
+  background: rgb(255 255 255 / 0.07);
+  backdrop-filter: blur(18px) saturate(160%);
+  -webkit-backdrop-filter: blur(18px) saturate(160%);
+  border: 1px solid var(--color-app-line);
+  color: var(--color-app-text);
 }
 
-/* Specular top edge, the tell of an iOS glass surface. */
-.glass-btn::before,
-.glass-card::before {
-  content: "";
-  position: absolute;
-  inset: 0 0 auto 0;
-  height: 45%;
-  background: linear-gradient(
-    to bottom,
-    rgb(255 255 255 / 0.35),
-    transparent
-  );
-  pointer-events: none;
+.app-btn-ghost:hover:not(:disabled) {
+  background: rgb(255 255 255 / 0.13);
+  border-color: var(--color-app-line-hi);
 }
 
-.glass-btn-dark::before {
-  background: linear-gradient(to bottom, rgb(255 255 255 / 0.1), transparent);
+/* ---- App form controls ------------------------------------------- */
+
+.app-input {
+  width: 100%;
+  border-radius: 0.625rem;
+  background: var(--color-app-bg);
+  border: 1px solid var(--color-app-line);
+  padding: 0.625rem 0.75rem;
+  font-size: 0.875rem;
+  color: var(--color-app-text);
+  outline: none;
+  transition:
+    border-color 0.18s ease,
+    background-color 0.18s ease;
+}
+
+.app-input::placeholder {
+  color: var(--color-app-faint);
+}
+
+.app-input:focus {
+  border-color: var(--color-app-text);
+  background: var(--color-app-surface);
 }
 
 @utility text-balance {

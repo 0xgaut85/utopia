@@ -453,13 +453,11 @@ export function VideoRecorder({
     };
   }, []);
 
-  const label = "font-mono text-[10px] uppercase tracking-[0.1em] text-ink/55";
-
   if (cameraError) {
     return (
-      <div className="flex min-h-56 flex-col items-center justify-center gap-3 border border-dashed border-ink/25 px-6 py-10 text-center">
-        <Video className="h-5 w-5 text-ink/40" strokeWidth={1.4} />
-        <p className="max-w-xs text-sm leading-relaxed text-ink-soft">
+      <div className="flex min-h-56 flex-col items-center justify-center gap-3 rounded-xl border border-dashed border-app-line px-6 py-10 text-center">
+        <Video className="h-5 w-5 text-app-faint" strokeWidth={1.6} />
+        <p className="max-w-xs text-sm leading-relaxed text-app-muted">
           {cameraError}
         </p>
       </div>
@@ -468,7 +466,7 @@ export function VideoRecorder({
 
   return (
     <div className="flex flex-col gap-3">
-      <div className="relative overflow-hidden border border-line/70 bg-ink">
+      <div className="relative overflow-hidden rounded-xl border border-app-line bg-black">
         <video ref={videoRef} muted playsInline className="hidden" />
 
         <canvas
@@ -486,19 +484,17 @@ export function VideoRecorder({
         ) : null}
 
         {phase === "init" ? (
-          <div className="absolute inset-0 flex items-center justify-center gap-2 bg-ink/70 text-mist">
+          <div className="absolute inset-0 flex items-center justify-center gap-2 bg-black/70 text-white">
             <Loader2
               className={reducedMotion ? "h-4 w-4" : "h-4 w-4 animate-spin"}
-              strokeWidth={1.6}
+              strokeWidth={1.8}
             />
-            <span className="font-mono text-[11px] uppercase tracking-[0.14em]">
-              Starting camera...
-            </span>
+            <span className="text-sm">Starting camera</span>
           </div>
         ) : null}
 
         {phase === "recording" ? (
-          <div className="absolute left-3 top-3 flex items-center gap-2 bg-black/55 px-2.5 py-1 backdrop-blur-sm">
+          <div className="absolute left-3 top-3 flex items-center gap-2 rounded-full bg-black/60 px-2.5 py-1 backdrop-blur-sm">
             <span
               className={
                 reducedMotion
@@ -506,7 +502,7 @@ export function VideoRecorder({
                   : "h-2 w-2 animate-pulse rounded-full bg-red-500"
               }
             />
-            <span className="font-mono text-[11px] tabular-nums text-mist">
+            <span className="font-mono text-[11px] tabular-nums text-white">
               {String(elapsed).padStart(2, "0")} / {MAX_SECONDS}s
             </span>
           </div>
@@ -520,42 +516,40 @@ export function VideoRecorder({
                 mode === "environment" ? "user" : "environment"
               )
             }
-            className="absolute right-3 top-3 flex items-center gap-1.5 bg-black/55 px-2.5 py-1.5 font-mono text-[10px] uppercase tracking-[0.1em] text-mist backdrop-blur-sm transition-colors hover:bg-black/70"
+            className="absolute right-3 top-3 flex cursor-pointer items-center gap-1.5 rounded-full bg-black/60 px-3 py-1.5 text-xs text-white backdrop-blur-sm transition-colors hover:bg-black/80"
           >
-            <SwitchCamera className="h-3.5 w-3.5" strokeWidth={1.6} />
+            <SwitchCamera className="h-3.5 w-3.5" strokeWidth={1.8} />
             Flip
           </button>
         ) : null}
       </div>
 
-      <p className="text-[11px] leading-relaxed text-ink-soft">
+      <p className="text-xs leading-relaxed text-app-faint">
         After submission, your clip is processed and reconstructed into a 3D
         model.
       </p>
 
       {locationError ? (
-        <p className={`${label} normal-case text-ink`}>! {locationError}</p>
+        <p className="text-sm text-app-text">{locationError}</p>
       ) : null}
-      {error ? (
-        <p className="font-mono text-[11px] text-ink">! {error}</p>
-      ) : null}
+      {error ? <p className="text-sm text-app-text">{error}</p> : null}
 
       {phase === "recorded" ? (
         <button
           type="button"
           onClick={reRecord}
-          className="glass-btn flex cursor-pointer items-center justify-center gap-2 px-5 py-2.5 font-mono text-[11px] uppercase tracking-[0.1em]"
+          className="app-btn app-btn-ghost w-full"
         >
-          <RotateCcw className="h-3.5 w-3.5" strokeWidth={1.6} />
-          Re-record
+          <RotateCcw className="h-4 w-4" strokeWidth={1.8} />
+          Record again
         </button>
       ) : phase === "recording" ? (
         <button
           type="button"
           onClick={stopRecording}
-          className="glass-btn glass-btn-dark flex cursor-pointer items-center justify-center gap-2 px-5 py-2.5 font-mono text-[11px] uppercase tracking-[0.1em]"
+          className="app-btn app-btn-primary w-full"
         >
-          <Square className="h-3.5 w-3.5" strokeWidth={1.6} />
+          <Square className="h-4 w-4" strokeWidth={1.8} />
           Stop recording
         </button>
       ) : (
@@ -563,10 +557,10 @@ export function VideoRecorder({
           type="button"
           onClick={startRecording}
           disabled={phase !== "ready" || !coords || locationError !== null}
-          className="glass-btn glass-btn-dark flex cursor-pointer items-center justify-center gap-2 px-5 py-2.5 font-mono text-[11px] uppercase tracking-[0.1em] disabled:cursor-not-allowed disabled:opacity-40"
+          className="app-btn app-btn-primary w-full"
         >
-          <Video className="h-3.5 w-3.5" strokeWidth={1.6} />
-          {coords ? "Record clip" : "Waiting for GPS..."}
+          <Video className="h-4 w-4" strokeWidth={1.8} />
+          {coords ? "Start recording" : "Waiting for GPS"}
         </button>
       )}
     </div>

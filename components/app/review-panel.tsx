@@ -18,8 +18,6 @@ type ReviewSubmission = {
   user: { username: string; avatarUrl: string | null };
 };
 
-const label = "text-[10px] uppercase tracking-[0.16em] text-ink/50";
-
 /**
  * Buyer review area. Renders only for the bounty's creator or a team admin.
  * Accepting a submission credits the contributor and closes the bounty.
@@ -108,28 +106,30 @@ export function ReviewPanel({
   const points = taskPoints(priceUsdc).toLocaleString("en-US");
 
   return (
-    <section className="border-t border-line/70 bg-white">
-      <div className="bar flex items-center justify-between gap-3 px-4 py-2 sm:px-6 lg:px-8">
-        <span className={label}>Review submissions ({submissions.length}):</span>
-        <span className={cn(label, "hidden sm:inline")}>
-          Accepting releases payment and credits +{points} pts
+    <section className="mt-10 border-t border-app-line pt-8">
+      <div className="flex flex-wrap items-baseline justify-between gap-2">
+        <h2 className="text-lg font-medium text-app-text">
+          Submissions ({submissions.length})
+        </h2>
+        <span className="text-sm text-app-muted">
+          Accepting releases payment and credits {points} points
         </span>
       </div>
 
       {submissions.length === 0 ? (
-        <div className="px-4 py-10 text-center sm:px-6">
-          <p className="text-sm leading-relaxed text-ink-soft">
-            No submissions yet. You will review clips here as they arrive.
+        <div className="panel mt-4 px-6 py-12 text-center">
+          <p className="text-sm text-app-muted">
+            No submissions yet. Clips will appear here as they arrive.
           </p>
         </div>
       ) : (
-        <div className="grid gap-3 px-3 py-4 sm:grid-cols-2 sm:gap-4 sm:px-6 lg:grid-cols-3 lg:px-8">
+        <div className="mt-4 grid gap-3 sm:grid-cols-2 sm:gap-4 lg:grid-cols-3 xl:grid-cols-4">
           {submissions.map((submission) => (
             <article
               key={submission.id}
               className={cn(
-                "panel grain flex flex-col",
-                submission.status === "rejected" && "opacity-45"
+                "panel flex flex-col overflow-hidden",
+                submission.status === "rejected" && "opacity-50"
               )}
             >
               <video
@@ -137,14 +137,14 @@ export function ReviewPanel({
                 controls
                 playsInline
                 preload="metadata"
-                className="relative z-[2] aspect-[3/4] w-full border-b border-ink/10 bg-ink object-contain"
+                className="aspect-[3/4] w-full border-b border-app-line bg-black object-contain"
               />
-              <div className="relative z-[2] flex flex-1 flex-col gap-1.5 px-4 py-3">
+              <div className="flex flex-1 flex-col gap-1.5 px-4 py-3">
                 <div className="flex items-center justify-between gap-3">
-                  <span className="truncate text-sm text-ink">
+                  <span className="truncate text-sm text-app-text">
                     {submission.user.username}
                   </span>
-                  <span className={label}>
+                  <span className="shrink-0 text-xs text-app-faint">
                     {new Date(submission.createdAt).toLocaleDateString(
                       "en-US",
                       { month: "short", day: "numeric" }
@@ -152,40 +152,40 @@ export function ReviewPanel({
                   </span>
                 </div>
                 {submission.note ? (
-                  <p className="text-[13px] leading-relaxed text-ink-soft">
+                  <p className="text-sm leading-relaxed text-app-muted">
                     {submission.note}
                   </p>
                 ) : null}
                 {submission.lat !== null && submission.lng !== null ? (
-                  <p className="text-[10px] tabular-nums text-ink/45">
-                    GPS {submission.lat.toFixed(4)}, {submission.lng.toFixed(4)}
+                  <p className="font-mono text-xs tabular-nums text-app-faint">
+                    {submission.lat.toFixed(4)}, {submission.lng.toFixed(4)}
                   </p>
                 ) : null}
               </div>
-              <div className="relative z-[2] border-t border-ink/10 px-4 py-2.5">
+              <div className="border-t border-app-line p-3">
                 {submission.status === "pending" ? (
                   <button
                     type="button"
                     onClick={() => accept(submission.id)}
                     disabled={accepting !== null}
-                    className="glass-btn glass-btn-dark w-full cursor-pointer px-4 py-2 text-[10px] uppercase tracking-[0.14em]"
+                    className="app-btn app-btn-primary w-full"
                   >
                     {accepting === submission.id
-                      ? "Accepting..."
-                      : "Accept and release payment"}
+                      ? "Accepting"
+                      : "Accept and pay"}
                   </button>
                 ) : (
                   <span
                     className={cn(
-                      "flex items-center justify-center gap-1.5 px-4 py-2 font-mono text-[10px] uppercase tracking-[0.1em]",
+                      "flex items-center justify-center gap-1.5 py-2 text-sm",
                       submission.status === "accepted"
-                        ? "bg-ink text-mist"
-                        : "text-ink/40"
+                        ? "text-app-text"
+                        : "text-app-faint"
                     )}
                   >
                     {submission.status === "accepted" ? (
                       <>
-                        <Check className="h-3 w-3" strokeWidth={2} /> Accepted
+                        <Check className="h-4 w-4" strokeWidth={2} /> Accepted
                       </>
                     ) : (
                       "Rejected"
@@ -198,11 +198,7 @@ export function ReviewPanel({
         </div>
       )}
 
-      {error ? (
-        <p className="border-t border-line/40 px-4 py-3 font-mono text-[11px] text-ink sm:px-6">
-          ! {error}
-        </p>
-      ) : null}
+      {error ? <p className="mt-4 text-sm text-app-text">{error}</p> : null}
     </section>
   );
 }

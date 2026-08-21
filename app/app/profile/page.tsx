@@ -4,12 +4,13 @@ import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { Pencil, Wallet, Check, ShieldCheck } from "lucide-react";
 import { usePrivy } from "@privy-io/react-auth";
+import { cn } from "@/lib/utils";
 import { useAppAuth } from "@/components/app/auth-context";
 import { Avatar } from "@/components/app/avatar";
 import { compressAvatar } from "@/lib/app/image";
 import { taskPoints } from "@/lib/app/points";
 
-const label = "font-mono text-[10px] uppercase tracking-[0.1em] text-ink/55";
+const label = "text-xs text-app-faint";
 
 function shortAddress(address: string) {
   return `${address.slice(0, 6)}...${address.slice(-4)}`;
@@ -21,19 +22,19 @@ function WalletRow() {
   const wallet = user?.wallet?.address ?? null;
 
   return (
-    <div className="flex items-center justify-between gap-3 border-b border-line/40 px-4 py-3 sm:px-6">
+    <div className="flex items-center justify-between gap-3 border-t border-app-line px-4 py-3">
       <div className="min-w-0">
         <p className={label}>Wallet</p>
-        <p className="mt-1 truncate font-mono text-sm text-ink">
+        <p className="mt-1 truncate font-mono text-sm text-app-text">
           {wallet ? shortAddress(wallet) : "Not connected"}
         </p>
       </div>
       <button
         type="button"
         onClick={linkWallet}
-        className="flex shrink-0 cursor-pointer items-center gap-1.5 border border-line/70 px-3 py-1.5 font-mono text-[10px] uppercase tracking-[0.1em] text-ink-soft transition-colors hover:border-ink/30 hover:text-ink"
+        className="app-btn app-btn-ghost shrink-0 px-3 py-2 text-xs"
       >
-        <Wallet className="h-3.5 w-3.5" strokeWidth={1.6} />
+        <Wallet className="h-3.5 w-3.5" strokeWidth={1.8} />
         {wallet ? "Change" : "Connect"}
       </button>
     </div>
@@ -48,9 +49,9 @@ function TeamAccessRow() {
 
   if (profile?.isAdmin) {
     return (
-      <div className="flex items-center gap-2 border-b border-line/40 px-4 py-3 sm:px-6">
-        <ShieldCheck className="h-3.5 w-3.5 text-ink" strokeWidth={1.6} />
-        <span className="font-mono text-[10px] uppercase tracking-[0.1em] text-ink">
+      <div className="flex items-center gap-2 border-t border-app-line px-4 py-3">
+        <ShieldCheck className="h-4 w-4 text-app-text" strokeWidth={1.8} />
+        <span className="text-sm text-app-text">
           Team reviewer access active
         </span>
       </div>
@@ -89,28 +90,26 @@ function TeamAccessRow() {
   }
 
   return (
-    <div className="border-b border-line/40 px-4 py-3 sm:px-6">
-      <p className="font-mono text-[10px] uppercase tracking-[0.1em] text-ink/45">
-        Team access
-      </p>
-      <div className="mt-1.5 flex items-center gap-2">
+    <div className="border-t border-app-line px-4 py-3">
+      <p className={label}>Team access</p>
+      <div className="mt-2 flex items-center gap-2">
         <input
           value={code}
           onChange={(event) => setCode(event.target.value)}
           type="password"
           placeholder="Team code"
-          className="w-40 border border-line/70 bg-transparent px-2 py-1 font-mono text-sm text-ink outline-none placeholder:text-ink/30 focus:border-ink/40"
+          className="app-input w-40"
         />
         <button
           type="button"
           onClick={claim}
           disabled={checking}
-          className="cursor-pointer border border-line/70 px-3 py-1.5 font-mono text-[10px] uppercase tracking-[0.1em] text-ink-soft transition-colors hover:border-ink/30 hover:text-ink disabled:opacity-40"
+          className="app-btn app-btn-ghost px-3 py-2 text-xs"
         >
-          {checking ? "Checking..." : "Unlock"}
+          {checking ? "Checking" : "Unlock"}
         </button>
         {error ? (
-          <span className="font-mono text-[10px] text-ink/60">{error}</span>
+          <span className="text-xs text-app-muted">{error}</span>
         ) : null}
       </div>
     </div>
@@ -206,7 +205,7 @@ export default function ProfilePage() {
   if (!configured) {
     return (
       <div className="flex min-h-[50vh] items-center justify-center px-6">
-        <p className="max-w-sm text-center text-sm leading-relaxed text-ink-soft">
+        <p className="max-w-sm text-center text-sm leading-relaxed text-app-muted">
           Sign in is not configured on this deployment yet. Set
           NEXT_PUBLIC_PRIVY_APP_ID to enable accounts.
         </p>
@@ -217,9 +216,7 @@ export default function ProfilePage() {
   if (!ready) {
     return (
       <div className="flex min-h-[50vh] items-center justify-center">
-        <span className="font-mono text-[11px] uppercase tracking-[0.14em] text-ink/40">
-          Loading...
-        </span>
+        <span className="text-sm text-app-faint">Loading</span>
       </div>
     );
   }
@@ -227,14 +224,14 @@ export default function ProfilePage() {
   if (!authenticated) {
     return (
       <div className="flex min-h-[50vh] flex-col items-center justify-center gap-5 px-6 text-center">
-        <p className="max-w-sm text-sm leading-relaxed text-ink-soft">
+        <p className="max-w-sm text-sm leading-relaxed text-app-muted">
           Create an account or sign in with email, Google, Apple or a wallet to
           manage your contributor profile.
         </p>
         <button
           type="button"
           onClick={login}
-          className="glass-btn glass-btn-dark cursor-pointer px-6 py-2.5 font-mono text-[11px] uppercase tracking-[0.1em]"
+          className="app-btn app-btn-primary px-6"
         >
           Sign in
         </button>
@@ -243,14 +240,14 @@ export default function ProfilePage() {
   }
 
   return (
-    <div>
-      <div className="bar px-4 py-2 sm:px-6 lg:px-8">
-        <span className={label}>Contributor profile:</span>
-      </div>
+    <div className="px-4 py-8 sm:px-6 sm:py-10 lg:px-8">
+      <h1 className="text-2xl font-semibold tracking-tight text-app-text sm:text-3xl">
+        Profile
+      </h1>
 
-      <div className="grid lg:grid-cols-[1fr_1.2fr]">
-        <section className="border-b border-line/70 lg:border-b-0 lg:border-r">
-          <div className="flex items-center gap-5 px-4 py-8 sm:px-6">
+      <div className="mt-6 grid gap-3 sm:gap-4 lg:grid-cols-[1fr_1.3fr]">
+        <section className="panel self-start">
+          <div className="flex items-center gap-4 p-5">
             <input
               ref={avatarInput}
               type="file"
@@ -269,8 +266,8 @@ export default function ProfilePage() {
                 avatarUrl={profile?.avatarUrl}
                 size="lg"
               />
-              <span className="absolute inset-0 flex items-center justify-center bg-ink/60 opacity-0 transition-opacity group-hover:opacity-100">
-                <Pencil className="h-4 w-4 text-mist" strokeWidth={1.6} />
+              <span className="absolute inset-0 flex items-center justify-center rounded-full bg-black/60 opacity-0 transition-opacity group-hover:opacity-100">
+                <Pencil className="h-4 w-4 text-white" strokeWidth={1.8} />
               </span>
             </button>
 
@@ -284,13 +281,13 @@ export default function ProfilePage() {
                     }
                     maxLength={20}
                     autoFocus
-                    className="w-40 border border-line/70 bg-transparent px-2 py-1 font-mono text-sm text-ink outline-none focus:border-ink/40"
+                    className="app-input w-40"
                   />
                   <button
                     type="button"
                     onClick={saveUsername}
                     disabled={saving}
-                    className="cursor-pointer bg-ink px-2.5 py-1.5 font-mono text-[10px] uppercase text-mist disabled:opacity-40"
+                    className="app-btn app-btn-primary px-3 py-2 text-xs"
                   >
                     Save
                   </button>
@@ -301,45 +298,41 @@ export default function ProfilePage() {
                   onClick={() => setEditingUsername(true)}
                   className="group flex cursor-pointer items-center gap-2"
                 >
-                  <span className="truncate text-2xl font-medium tracking-tight text-ink">
-                    {profile?.username ?? "syncing..."}
+                  <span className="truncate text-xl font-medium tracking-tight text-app-text">
+                    {profile?.username ?? "syncing"}
                   </span>
                   <Pencil
-                    className="h-3.5 w-3.5 shrink-0 text-ink/30 transition-colors group-hover:text-ink"
-                    strokeWidth={1.6}
+                    className="h-3.5 w-3.5 shrink-0 text-app-faint transition-colors group-hover:text-app-text"
+                    strokeWidth={1.8}
                   />
                 </button>
               )}
-              <p className="mt-1 truncate font-mono text-[11px] text-ink/45">
-                {profile?.email ?? "no email linked"}
+              <p className="mt-1 truncate text-sm text-app-faint">
+                {profile?.email ?? "No email linked"}
               </p>
               {saved ? (
-                <p className="mt-1 flex items-center gap-1 font-mono text-[10px] uppercase tracking-[0.1em] text-ink">
-                  <Check className="h-3 w-3" strokeWidth={2} /> Saved
+                <p className="mt-1 flex items-center gap-1 text-xs text-app-text">
+                  <Check className="h-3.5 w-3.5" strokeWidth={2} /> Saved
                 </p>
               ) : null}
               {error ? (
-                <p className="mt-1 font-mono text-[11px] text-ink">! {error}</p>
+                <p className="mt-1 text-xs text-app-text">{error}</p>
               ) : null}
             </div>
           </div>
 
-          <div className="panel-dark grain grid grid-cols-2 border-x-0 border-b-0">
-            <div className="relative z-[2] border-r border-mist/15 px-4 py-6 sm:px-6">
-              <p className="text-4xl tabular-nums tracking-tight">
+          <div className="grid grid-cols-2 divide-x divide-app-line border-t border-app-line">
+            <div className="px-5 py-4">
+              <p className="font-mono text-3xl tabular-nums text-app-text">
                 {(profile?.points ?? 0).toLocaleString("en-US")}
               </p>
-              <p className="mt-1.5 text-[10px] uppercase tracking-[0.16em] text-mist/45">
-                Points
-              </p>
+              <p className="mt-1 text-xs text-app-faint">Points</p>
             </div>
-            <div className="relative z-[2] px-4 py-6 sm:px-6">
-              <p className="text-4xl tabular-nums tracking-tight">
+            <div className="px-5 py-4">
+              <p className="font-mono text-3xl tabular-nums text-app-text">
                 {submissions.length}
               </p>
-              <p className="mt-1.5 text-[10px] uppercase tracking-[0.16em] text-mist/45">
-                Clips
-              </p>
+              <p className="mt-1 text-xs text-app-faint">Clips</p>
             </div>
           </div>
 
@@ -347,97 +340,104 @@ export default function ProfilePage() {
           <TeamAccessRow />
         </section>
 
-        <section>
-          <div className="bar px-4 py-2 sm:px-6">
-            <span className={label}>My submissions:</span>
-          </div>
-          {submissions.length === 0 ? (
-            <div className="px-4 py-12 text-center sm:px-6">
-              <p className="text-sm leading-relaxed text-ink-soft">
-                No clips yet. Pick a bounty in the marketplace and record your
-                first clip.
-              </p>
+        <div className="flex flex-col gap-3 sm:gap-4">
+          <section className="panel overflow-hidden">
+            <div className="border-b border-app-line px-4 py-3">
+              <span className="text-sm font-medium text-app-text">
+                My clips
+              </span>
             </div>
-          ) : (
-            <ul>
-              {submissions.map((submission) => (
-                <li
-                  key={submission.id}
-                  className="flex items-center justify-between gap-3 border-b border-line/40 px-4 py-3 sm:px-6"
-                >
-                  <div className="min-w-0">
-                    <p className="truncate font-mono text-sm text-ink">
-                      {submission.task.title}
-                    </p>
-                    <p className="mt-0.5 font-mono text-[10px] uppercase tracking-[0.1em] text-ink/40">
-                      {new Date(submission.createdAt).toLocaleDateString(
-                        "en-US",
-                        { month: "short", day: "numeric", year: "numeric" }
-                      )}{" "}
-                      / {submission.status}
-                    </p>
-                  </div>
-                  <span
-                    className={
-                      submission.status === "accepted"
-                        ? "shrink-0 bg-ink px-2 py-0.5 font-mono text-[11px] text-mist"
-                        : "shrink-0 border border-line/70 px-2 py-0.5 font-mono text-[11px] text-ink/50"
-                    }
-                  >
-                    {submission.status === "accepted" ? "+" : ""}
-                    {taskPoints(submission.task.priceUsdc).toLocaleString(
-                      "en-US"
-                    )}{" "}
-                    pts
-                  </span>
-                </li>
-              ))}
-            </ul>
-          )}
-
-          <div className="bar border-t border-line/70 px-4 py-2 sm:px-6">
-            <span className={label}>My bounties:</span>
-          </div>
-          {myTasks.length === 0 ? (
-            <div className="px-4 py-8 text-center sm:px-6">
-              <p className="text-sm leading-relaxed text-ink-soft">
-                No bounties posted.{" "}
-                <Link
-                  href="/app/tasks/new"
-                  className="text-ink underline underline-offset-4 hover:text-ink/70"
-                >
-                  Post one
-                </Link>{" "}
-                to buy clips from the network.
-              </p>
-            </div>
-          ) : (
-            <ul>
-              {myTasks.map((task) => (
-                <li key={task.id}>
-                  <Link
-                    href={`/app/tasks/${task.id}`}
-                    className="flex items-center justify-between gap-3 border-b border-line/40 px-4 py-3 transition-colors hover:bg-black/[0.02] sm:px-6"
+            {submissions.length === 0 ? (
+              <div className="px-4 py-10 text-center">
+                <p className="text-sm leading-relaxed text-app-muted">
+                  No clips yet. Pick a bounty and record your first one.
+                </p>
+              </div>
+            ) : (
+              <ul>
+                {submissions.map((submission) => (
+                  <li
+                    key={submission.id}
+                    className="flex items-center justify-between gap-3 border-b border-app-line/60 px-4 py-3 last:border-b-0"
                   >
                     <div className="min-w-0">
-                      <p className="truncate font-mono text-sm text-ink">
-                        {task.title}
+                      <p className="truncate text-sm text-app-text">
+                        {submission.task.title}
                       </p>
-                      <p className="mt-0.5 font-mono text-[10px] uppercase tracking-[0.1em] text-ink/40">
-                        {task.status === "open"
-                          ? `${task.pendingCount} pending review`
-                          : "Settled"}
+                      <p className="mt-0.5 text-xs capitalize text-app-faint">
+                        {new Date(submission.createdAt).toLocaleDateString(
+                          "en-US",
+                          { month: "short", day: "numeric", year: "numeric" }
+                        )}
+                        , {submission.status}
                       </p>
                     </div>
-                    <span className="shrink-0 bg-ink px-2 py-0.5 font-mono text-[11px] text-mist">
-                      {task.priceUsdc.toLocaleString("en-US")} USDC
+                    <span
+                      className={cn(
+                        "shrink-0 rounded-md px-2 py-1 font-mono text-xs tabular-nums",
+                        submission.status === "accepted"
+                          ? "bg-app-text text-app-bg"
+                          : "bg-app-bg text-app-faint"
+                      )}
+                    >
+                      {taskPoints(submission.task.priceUsdc).toLocaleString(
+                        "en-US"
+                      )}{" "}
+                      pts
                     </span>
-                  </Link>
-                </li>
-              ))}
-            </ul>
-          )}
-        </section>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </section>
+
+          <section className="panel overflow-hidden">
+            <div className="border-b border-app-line px-4 py-3">
+              <span className="text-sm font-medium text-app-text">
+                My bounties
+              </span>
+            </div>
+            {myTasks.length === 0 ? (
+              <div className="px-4 py-10 text-center">
+                <p className="text-sm leading-relaxed text-app-muted">
+                  No bounties posted.{" "}
+                  <Link
+                    href="/app/tasks/new"
+                    className="text-app-text underline underline-offset-4"
+                  >
+                    Post one
+                  </Link>{" "}
+                  to buy clips from the network.
+                </p>
+              </div>
+            ) : (
+              <ul>
+                {myTasks.map((task) => (
+                  <li key={task.id}>
+                    <Link
+                      href={`/app/tasks/${task.id}`}
+                      className="flex items-center justify-between gap-3 border-b border-app-line/60 px-4 py-3 transition-colors last:border-b-0 hover:bg-app-surface-hi"
+                    >
+                      <div className="min-w-0">
+                        <p className="truncate text-sm text-app-text">
+                          {task.title}
+                        </p>
+                        <p className="mt-0.5 text-xs text-app-faint">
+                          {task.status === "open"
+                            ? `${task.pendingCount} pending review`
+                            : "Settled"}
+                        </p>
+                      </div>
+                      <span className="shrink-0 rounded-md bg-app-bg px-2 py-1 font-mono text-xs tabular-nums text-app-text">
+                        {task.priceUsdc.toLocaleString("en-US")} USDC
+                      </span>
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </section>
+        </div>
       </div>
     </div>
   );

@@ -175,8 +175,8 @@ export function AppAuthProvider({ children }: { children: ReactNode }) {
       config={{
         loginMethods: ["email", "google", "apple", "wallet"],
         appearance: {
-          theme: "light",
-          accentColor: "#1a1a1a",
+          theme: "dark",
+          accentColor: "#ffffff",
           logo: "/logo-utopia.png",
         },
       }}

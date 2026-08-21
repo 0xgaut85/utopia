@@ -13,6 +13,15 @@ const categoryIcon = {
   coverage: Globe2,
 } as const;
 
+function Fact({ label, children }: { label: string; children: React.ReactNode }) {
+  return (
+    <div className="px-4 py-3">
+      <dt className="text-xs text-app-faint">{label}</dt>
+      <dd className="mt-1 text-base text-app-text">{children}</dd>
+    </div>
+  );
+}
+
 export default async function TaskPage({
   params,
 }: {
@@ -35,93 +44,64 @@ export default async function TaskPage({
   const open = task.status === "open" && !full;
 
   return (
-    <div>
-      <div className="bar flex items-center justify-between gap-3 px-4 py-2 sm:px-6 lg:px-8">
-        <Link
-          href="/app"
-          className="flex items-center gap-1.5 text-[10px] uppercase tracking-[0.16em] text-ink/50 transition-colors hover:text-ink"
-        >
-          <ArrowLeft className="h-3 w-3" strokeWidth={1.6} />
-          Marketplace
-        </Link>
-        <span className="flex items-center gap-1.5 text-[10px] uppercase tracking-[0.16em] text-ink/50">
-          <Icon className="h-3 w-3" strokeWidth={1.6} />
-          {task.category}
-        </span>
-      </div>
+    <div className="px-4 py-8 sm:px-6 sm:py-10 lg:px-8">
+      <Link
+        href="/app"
+        className="inline-flex items-center gap-1.5 text-sm text-app-muted transition-colors hover:text-app-text"
+      >
+        <ArrowLeft className="h-4 w-4" strokeWidth={1.8} />
+        All bounties
+      </Link>
 
-      <div className="grid lg:min-h-[calc(100svh-10.5rem)] lg:grid-cols-[1.2fr_1fr]">
-        <div className="panel-dark grain border-0 lg:border-r lg:border-white/12">
-          <div aria-hidden className="wash-dark" />
-          <div
-            aria-hidden
-            className="grid-lines-dark pointer-events-none absolute inset-0 z-0"
-          />
+      <div className="mt-5 grid gap-4 lg:grid-cols-[1.15fr_1fr]">
+        <div>
+          <span className="flex items-center gap-1.5 text-sm capitalize text-app-muted">
+            <Icon className="h-4 w-4" strokeWidth={1.8} />
+            {task.category}
+          </span>
 
-          <div className="relative z-[2] px-4 py-10 sm:px-6 sm:py-14 lg:px-8">
-            <h1 className="max-w-2xl text-3xl font-medium leading-[1.15] tracking-tight text-mist sm:text-4xl">
-              {task.title}
-            </h1>
-            <p className="mt-5 max-w-xl text-[13px] leading-relaxed text-mist/65">
-              {task.brief}
+          <h1 className="mt-2 max-w-2xl text-2xl font-semibold leading-tight tracking-tight text-app-text sm:text-3xl">
+            {task.title}
+          </h1>
+
+          <p className="mt-4 max-w-xl text-sm leading-relaxed text-app-muted">
+            {task.brief}
+          </p>
+
+          {task.creator ? (
+            <p className="mt-4 text-xs text-app-faint">
+              Posted by {task.creator.username}
             </p>
-            {task.creator ? (
-              <p className="mt-6 text-[10px] uppercase tracking-[0.16em] text-mist/40">
-                Posted by {task.creator.username}
-              </p>
-            ) : null}
-          </div>
+          ) : null}
 
-          <dl className="relative z-[2] grid grid-cols-2 gap-px border-t border-white/12 bg-white/12 sm:grid-cols-4">
-            <div className="bg-ink px-4 py-4 lg:px-5">
-              <dt className="text-[10px] uppercase tracking-[0.16em] text-mist/45">
-                Bounty
-              </dt>
-              <dd className="mt-1.5 text-lg tabular-nums text-mist">
-                <UsdcAmount amount={task.priceUsdc} />
-              </dd>
-              <dd className="mt-0.5 text-[10px] text-mist/40">
+          <dl className="panel mt-6 grid grid-cols-2 divide-x divide-y divide-app-line overflow-hidden sm:grid-cols-4 sm:divide-y-0">
+            <Fact label="Reward">
+              <UsdcAmount amount={task.priceUsdc} className="font-mono" />
+              <span className="mt-0.5 block text-xs text-app-faint">
                 +{taskPoints(task.priceUsdc).toLocaleString("en-US")} pts if
                 accepted
-              </dd>
-            </div>
-            <div className="bg-ink px-4 py-4 lg:px-5">
-              <dt className="text-[10px] uppercase tracking-[0.16em] text-mist/45">
-                Filled
-              </dt>
-              <dd className="mt-1.5 text-lg tabular-nums text-mist">
+              </span>
+            </Fact>
+            <Fact label="Submissions">
+              <span className="font-mono tabular-nums">
                 {task._count.submissions}/{task.maxSubmissions}
-              </dd>
-            </div>
-            <div className="bg-ink px-4 py-4 lg:px-5">
-              <dt className="text-[10px] uppercase tracking-[0.16em] text-mist/45">
-                Status
-              </dt>
-              <dd className="mt-1.5 text-lg text-mist">
-                {open ? "Open" : "Closed"}
-              </dd>
-            </div>
-            <div className="bg-ink px-4 py-4 lg:px-5">
-              <dt className="text-[10px] uppercase tracking-[0.16em] text-mist/45">
-                Zone
-              </dt>
-              <dd className="mt-1.5 truncate text-lg text-mist">
-                {task.locationName ?? "Anywhere"}
-              </dd>
-            </div>
+              </span>
+            </Fact>
+            <Fact label="Status">{open ? "Open" : "Closed"}</Fact>
+            <Fact label="Location">{task.locationName ?? "Anywhere"}</Fact>
           </dl>
 
           {task.lat !== null && task.lng !== null ? (
-            <div className="relative z-[2] flex flex-wrap items-center gap-x-4 gap-y-1 border-t border-white/12 bg-white/[0.04] px-4 py-3 sm:px-6 lg:px-8">
-              <span className="text-[11px] tabular-nums text-mist/65">
-                Target: {task.lat.toFixed(4)}, {task.lng.toFixed(4)}
+            <div className="panel mt-3 flex flex-wrap items-center gap-x-4 gap-y-1 px-4 py-3">
+              <span className="font-mono text-sm tabular-nums text-app-muted">
+                {task.lat.toFixed(4)}, {task.lng.toFixed(4)}
                 {task.radiusM ? ` within ${task.radiusM}m` : ""}
               </span>
               <a
                 href={`https://www.openstreetmap.org/?mlat=${task.lat}&mlon=${task.lng}#map=16/${task.lat}/${task.lng}`}
                 target="_blank"
                 rel="noreferrer"
-                className="text-[11px] text-mist underline underline-offset-4 hover:text-mist/70"
+                className="text-sm text-app-text underline underline-offset-4 hover:text-app-muted"
               >
                 View on map
               </a>
