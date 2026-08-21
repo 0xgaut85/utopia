@@ -1,12 +1,12 @@
 /**
  * Temporary marketplace headline figures while the live pool is still small.
- * Open bounties sit in the $1–$20 band at a $12 average: 965 × 12 = 11,580.
- * 43 bounties are already settled, so the open count sits a bit under the total.
+ * 224 open bounties at about $14.55 each comes to $3,260 on offer.
+ * 26 bounties are already settled, so the open count sits a bit under 250.
  */
 export const NETWORK_STATS = {
-  usdcOnOffer: 11580,
-  openBounties: 965,
-  totalBounties: 1008,
-  settledBounties: 43,
-  totalVolume: 12096,
+  usdcOnOffer: 3260,
+  openBounties: 224,
+  totalBounties: 250,
+  settledBounties: 26,
+  totalVolume: 3638,
 } as const;
