@@ -38,12 +38,12 @@ function Select({
   options: { id: string; label: string }[];
 }) {
   return (
-    <label className="relative flex items-center">
+    <label className="relative flex min-w-0 w-full items-center sm:w-auto">
       <span className="sr-only">{label}</span>
       <select
         value={value}
         onChange={(event) => onChange(event.target.value)}
-        className="app-input w-auto cursor-pointer appearance-none py-2 pl-3 pr-8 text-sm"
+        className="app-input w-full cursor-pointer appearance-none py-2 pl-3 pr-8 text-sm sm:w-auto"
       >
         {options.map((option) => (
           <option key={option.id} value={option.id}>
@@ -162,7 +162,7 @@ export function BountyBrowser({ tasks }: { tasks: BrowsableTask[] }) {
 
   return (
     <div>
-      <div className="panel relative z-20 mt-8 overflow-visible p-3 sm:p-4">
+      <div className="panel relative z-20 mt-6 overflow-visible p-3 sm:mt-8 sm:p-4">
         <div className="relative">
           <Search
             className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-app-faint"
@@ -172,7 +172,7 @@ export function BountyBrowser({ tasks }: { tasks: BrowsableTask[] }) {
             value={query}
             onChange={(event) => setQuery(event.target.value)}
             type="search"
-            placeholder="Search bounties by title, place or country"
+            placeholder="Search title, place or country"
             className="app-input py-2.5 pl-9 pr-9"
           />
           {query ? (
@@ -187,15 +187,15 @@ export function BountyBrowser({ tasks }: { tasks: BrowsableTask[] }) {
           ) : null}
         </div>
 
-        <div className="mt-3 flex flex-wrap items-center gap-2">
-          <div className="flex items-center gap-1 rounded-lg bg-app-bg p-1">
+        <div className="mt-3 flex flex-col gap-2 sm:flex-row sm:flex-wrap sm:items-center">
+          <div className="no-scrollbar flex w-full items-center gap-1 overflow-x-auto rounded-lg bg-app-bg p-1 sm:w-auto">
             {CATEGORIES.map((option) => (
               <button
                 key={option.id}
                 type="button"
                 onClick={() => setCategory(option.id)}
                 className={cn(
-                  "cursor-pointer rounded-md px-3 py-1.5 text-sm transition-colors",
+                  "cursor-pointer whitespace-nowrap rounded-md px-3 py-1.5 text-sm transition-colors",
                   category === option.id
                     ? "bg-app-text text-app-bg"
                     : "text-app-muted hover:text-app-text"
@@ -206,40 +206,44 @@ export function BountyBrowser({ tasks }: { tasks: BrowsableTask[] }) {
             ))}
           </div>
 
-          <Select
-            label="Region"
-            value={region}
-            onChange={(next) => {
-              setRegion(next);
-              setCountry("all");
-            }}
-            options={regionOptions}
-          />
+          <div className="grid grid-cols-2 gap-2 sm:flex sm:flex-wrap sm:items-center">
+            <Select
+              label="Region"
+              value={region}
+              onChange={(next) => {
+                setRegion(next);
+                setCountry("all");
+              }}
+              options={regionOptions}
+            />
 
-          <CountryMenu value={country} onChange={setCountry} />
+            <div className="col-span-2 min-w-0 sm:col-span-1">
+              <CountryMenu value={country} onChange={setCountry} />
+            </div>
 
-          <Select
-            label="Availability"
-            value={availability}
-            onChange={setAvailability}
-            options={[
-              { id: "open", label: "Open only" },
-              { id: "all", label: "Open and closed" },
-            ]}
-          />
+            <Select
+              label="Availability"
+              value={availability}
+              onChange={setAvailability}
+              options={[
+                { id: "open", label: "Open only" },
+                { id: "all", label: "Open and closed" },
+              ]}
+            />
 
-          <Select
-            label="Sort by"
-            value={sort}
-            onChange={setSort}
-            options={SORTS}
-          />
+            <Select
+              label="Sort by"
+              value={sort}
+              onChange={setSort}
+              options={SORTS}
+            />
+          </div>
 
           {filtersActive ? (
             <button
               type="button"
               onClick={clearFilters}
-              className="cursor-pointer text-sm text-app-faint underline underline-offset-4 transition-colors hover:text-app-text"
+              className="cursor-pointer self-start text-sm text-app-faint underline underline-offset-4 transition-colors hover:text-app-text"
             >
               Reset
             </button>
@@ -272,7 +276,7 @@ export function BountyBrowser({ tasks }: { tasks: BrowsableTask[] }) {
           </button>
         </div>
       ) : (
-        <div className="mt-3 grid grid-cols-2 items-start gap-3 sm:gap-4 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6">
+        <div className="mt-3 grid grid-cols-1 items-start gap-3 min-[480px]:grid-cols-2 sm:gap-4 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6">
           {results.map((entry) => (
             <TaskCard key={entry.task.id} task={entry.task} />
           ))}

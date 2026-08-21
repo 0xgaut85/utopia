@@ -3,6 +3,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { Plus } from "lucide-react";
 import { prisma } from "@/lib/app/db";
+import { NETWORK_STATS } from "@/lib/app/network-stats";
 import { BountyBrowser } from "@/components/app/bounty-browser";
 
 export const metadata: Metadata = {
@@ -22,9 +23,9 @@ function formatUsdc(amount: number) {
 
 function Stat({ label, value }: { label: string; value: string }) {
   return (
-    <div className="panel px-4 py-3">
+    <div className="panel min-w-0 px-3 py-2.5 sm:px-4 sm:py-3">
       <p className="text-xs text-app-faint">{label}</p>
-      <p className="mt-1 text-xl tabular-nums text-app-text">
+      <p className="mt-1 text-lg tabular-nums text-app-text sm:text-xl">
         {value}
       </p>
     </div>
@@ -40,15 +41,9 @@ export default async function MarketplacePage() {
     },
   });
 
-  const open = tasks.filter(
-    (task) =>
-      task.status === "open" && task._count.submissions < task.maxSubmissions
-  );
-  const onOffer = open.reduce((total, task) => total + task.priceUsdc, 0);
-
   return (
-    <div className="px-4 py-8 sm:px-6 sm:py-10 lg:px-8">
-      <div className="flex flex-col gap-6 lg:flex-row lg:items-start lg:justify-between">
+    <div className="px-4 py-6 sm:px-6 sm:py-10 lg:px-8">
+      <div className="flex flex-col gap-4 sm:gap-6 lg:flex-row lg:items-start lg:justify-between">
         <div className="max-w-xl">
           <h1 className="text-2xl font-semibold tracking-tight text-app-text sm:text-3xl">
             Bounties
@@ -61,17 +56,17 @@ export default async function MarketplacePage() {
 
         <Link
           href="/app/tasks/new"
-          className="app-btn app-btn-primary shrink-0 self-start"
+          className="app-btn app-btn-primary w-full shrink-0 sm:w-auto sm:self-start"
         >
           <Plus className="h-4 w-4" strokeWidth={2} />
           Post a bounty
         </Link>
       </div>
 
-      <div className="mt-6 grid grid-cols-2 gap-3 sm:grid-cols-4">
-        <div className="panel px-4 py-3">
+      <div className="mt-5 grid grid-cols-2 gap-2 sm:mt-6 sm:grid-cols-4 sm:gap-3">
+        <div className="panel min-w-0 px-3 py-2.5 sm:px-4 sm:py-3">
           <p className="text-xs text-app-faint">Available now</p>
-          <p className="mt-1 flex items-center gap-1.5">
+          <p className="mt-1 flex flex-wrap items-center gap-x-1.5 gap-y-0.5">
             <Image
               src="/usdc.svg"
               alt=""
@@ -79,14 +74,20 @@ export default async function MarketplacePage() {
               height={16}
               className="h-4 w-4 shrink-0"
             />
-            <span className="text-xl tabular-nums text-app-text">
-              {formatUsdc(onOffer)}
+            <span className="text-lg tabular-nums text-app-text sm:text-xl">
+              {formatUsdc(NETWORK_STATS.usdcOnOffer)}
             </span>
             <span className="text-xs text-app-faint">USDC</span>
           </p>
         </div>
-        <Stat label="Open bounties" value={String(open.length)} />
-        <Stat label="All bounties" value={String(tasks.length)} />
+        <Stat
+          label="Open bounties"
+          value={NETWORK_STATS.openBounties.toLocaleString("en-US")}
+        />
+        <Stat
+          label="All bounties"
+          value={NETWORK_STATS.totalBounties.toLocaleString("en-US")}
+        />
         <Stat label="Points per USDC" value="100" />
       </div>
 

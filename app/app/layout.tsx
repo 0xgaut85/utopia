@@ -32,11 +32,11 @@ export default async function AppLayout({ children }: { children: ReactNode }) {
 
   return (
     <AppAuthProvider>
-      <div className="app-shell flex min-h-svh flex-col">
+      <div className="app-shell flex min-h-svh flex-col overflow-x-clip">
         <AppHeader />
         <main className="w-full flex-1">{children}</main>
         <footer className="border-t border-app-line">
-          <div className="flex items-center justify-between gap-4 px-4 py-4 sm:px-6 lg:px-8">
+          <div className="flex flex-col gap-2 px-4 py-4 pb-[max(1rem,env(safe-area-inset-bottom))] sm:flex-row sm:items-center sm:justify-between sm:gap-4 sm:px-6 lg:px-8">
             <span className="text-xs text-app-faint">
               Utopia Data, the ground truth network
             </span>

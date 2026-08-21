@@ -56,14 +56,14 @@ export function TaskCard({ task }: { task: TaskCardData }) {
   return (
     <article
       className={cn(
-        "panel flex aspect-[3/4] flex-col overflow-hidden",
+        "panel flex min-h-[22rem] flex-col overflow-hidden sm:aspect-[3/4] sm:min-h-0",
         closed && "opacity-50"
       )}
     >
       <Link
         href={`/app/tasks/${task.id}`}
         className={cn(
-          "flex min-h-0 flex-1 flex-col p-4 transition-colors",
+          "flex min-h-0 flex-1 flex-col p-3.5 transition-colors sm:p-4",
           !closed && "hover:bg-app-surface-hi"
         )}
       >
@@ -97,7 +97,7 @@ export function TaskCard({ task }: { task: TaskCardData }) {
         </div>
       </Link>
 
-      <div className="border-t border-app-line px-4 py-3">
+      <div className="border-t border-app-line px-3.5 py-3 sm:px-4">
         {task.creator ? (
           <div className="flex items-center gap-2">
             <Avatar

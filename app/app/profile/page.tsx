@@ -240,7 +240,7 @@ export default function ProfilePage() {
   }
 
   return (
-    <div className="px-4 py-8 sm:px-6 sm:py-10 lg:px-8">
+    <div className="px-4 py-6 sm:px-6 sm:py-10 lg:px-8">
       <h1 className="text-2xl font-semibold tracking-tight text-app-text sm:text-3xl">
         Profile
       </h1>

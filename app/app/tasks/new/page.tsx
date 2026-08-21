@@ -33,8 +33,8 @@ export default function NewBountyPage() {
   const [brief, setBrief] = useState("");
   const [category, setCategory] = useState("location");
   const [locationName, setLocationName] = useState("");
-  const [price, setPrice] = useState("25");
-  const [maxSubmissions, setMaxSubmissions] = useState("25");
+  const [price, setPrice] = useState("12");
+  const [maxSubmissions, setMaxSubmissions] = useState("10");
   const [network, setNetwork] = useState<DepositNetworkId>("usdc-base");
   const [txHash, setTxHash] = useState("");
   const [copied, setCopied] = useState(false);
@@ -112,7 +112,7 @@ export default function NewBountyPage() {
   }
 
   return (
-    <div className="px-4 py-8 sm:px-6 sm:py-10 lg:px-8">
+    <div className="px-4 py-6 sm:px-6 sm:py-10 lg:px-8">
       <div className="mx-auto max-w-2xl">
         <div className="flex items-center justify-between gap-3">
           <Link

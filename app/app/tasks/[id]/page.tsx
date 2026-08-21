@@ -17,7 +17,7 @@ const categoryIcon = {
 
 function Fact({ label, children }: { label: string; children: React.ReactNode }) {
   return (
-    <div className="px-4 py-3">
+    <div className="min-w-0 px-3 py-3 sm:px-4">
       <dt className="text-xs text-app-faint">{label}</dt>
       <dd className="mt-1 text-base text-app-text">{children}</dd>
     </div>
@@ -46,7 +46,7 @@ export default async function TaskPage({
   const open = task.status === "open" && !full;
 
   return (
-    <div className="px-4 py-8 sm:px-6 sm:py-10 lg:px-8">
+    <div className="px-4 py-6 sm:px-6 sm:py-10 lg:px-8">
       <Link
         href="/app"
         className="inline-flex items-center gap-1.5 text-sm text-app-muted transition-colors hover:text-app-text"
@@ -113,7 +113,11 @@ export default async function TaskPage({
               </span>
             </Fact>
             <Fact label="Status">{open ? "Open" : "Closed"}</Fact>
-            <Fact label="Location">{task.locationName ?? "Anywhere"}</Fact>
+            <Fact label="Location">
+              <span className="line-clamp-2 break-words">
+                {task.locationName ?? "Anywhere"}
+              </span>
+            </Fact>
           </dl>
 
           {task.lat !== null && task.lng !== null ? (

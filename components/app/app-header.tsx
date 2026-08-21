@@ -80,7 +80,7 @@ export function AppHeader() {
 
   return (
     <header className="sticky top-0 z-40 border-b border-app-line bg-app-bg/85 backdrop-blur-xl">
-      <div className="flex h-16 items-center justify-between gap-4 px-4 sm:px-6 lg:px-8">
+      <div className="flex h-14 items-center justify-between gap-2 px-4 sm:h-16 sm:gap-4 sm:px-6 lg:px-8">
         <Link href="/app" className="flex min-w-0 items-center gap-2.5">
           <Image
             src="/logo-utopia.png"

@@ -19,12 +19,14 @@ export function BountyProof({
       target="_blank"
       rel="noreferrer"
       className={cn(
-        "inline-flex items-center gap-1 text-app-muted underline-offset-4 hover:text-app-text hover:underline",
+        "inline-flex max-w-full min-w-0 items-center gap-1 text-app-muted underline-offset-4 hover:text-app-text hover:underline",
         className
       )}
     >
-      {proof.label}
-      <span className="font-mono tabular-nums">{proof.detail}</span>
+      <span className="shrink-0">{proof.label}</span>
+      <span className="min-w-0 truncate font-mono tabular-nums">
+        {proof.detail}
+      </span>
       <ExternalLink className="h-3 w-3 shrink-0" strokeWidth={1.8} />
     </a>
   );

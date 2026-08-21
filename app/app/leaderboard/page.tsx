@@ -34,7 +34,7 @@ export default async function LeaderboardPage() {
   const n = (value: number) => value.toLocaleString("en-US");
 
   return (
-    <div className="px-4 py-8 sm:px-6 sm:py-10 lg:px-8">
+    <div className="px-4 py-6 sm:px-6 sm:py-10 lg:px-8">
       <h1 className="text-2xl font-semibold tracking-tight text-app-text sm:text-3xl">
         Leaderboard
       </h1>
@@ -95,22 +95,26 @@ export default async function LeaderboardPage() {
         ))}
       </div>
 
-      <div className="mt-3 grid grid-cols-3 gap-3 sm:gap-4">
-        <div className="panel px-4 py-3">
-          <p className="text-xs text-app-faint">Contributors</p>
-          <p className="mt-1 text-xl tabular-nums text-app-text">
+      <div className="mt-3 grid grid-cols-3 gap-2 sm:gap-4">
+        <div className="panel min-w-0 px-2.5 py-2.5 sm:px-4 sm:py-3">
+          <p className="text-[11px] text-app-faint sm:text-xs">Contributors</p>
+          <p className="mt-1 text-base tabular-nums text-app-text sm:text-xl">
             {n(totals._count._all)}
           </p>
         </div>
-        <div className="panel px-4 py-3">
-          <p className="text-xs text-app-faint">Points distributed</p>
-          <p className="mt-1 text-xl tabular-nums text-app-text">
+        <div className="panel min-w-0 px-2.5 py-2.5 sm:px-4 sm:py-3">
+          <p className="text-[11px] text-app-faint sm:text-xs">
+            Points distributed
+          </p>
+          <p className="mt-1 text-base tabular-nums text-app-text sm:text-xl">
             {n(pointsPool)}
           </p>
         </div>
-        <div className="panel px-4 py-3">
-          <p className="text-xs text-app-faint">Clips submitted</p>
-          <p className="mt-1 text-xl tabular-nums text-app-text">
+        <div className="panel min-w-0 px-2.5 py-2.5 sm:px-4 sm:py-3">
+          <p className="text-[11px] text-app-faint sm:text-xs">
+            Clips submitted
+          </p>
+          <p className="mt-1 text-base tabular-nums text-app-text sm:text-xl">
             {n(networkClips)}
           </p>
         </div>
