@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/app/db";
 import { getAuthUser } from "@/lib/app/auth";
-import { DEPOSIT_NETWORKS } from "@/lib/app/payments";
+import { DEPOSIT_NETWORKS, isValidTxHash, normalizeTxHash } from "@/lib/app/payments";
 
 const CATEGORIES = ["location", "object", "coverage"];
 
@@ -30,6 +30,7 @@ export async function POST(request: Request) {
     priceUsdc?: number;
     maxSubmissions?: number;
     depositNetwork?: string;
+    depositTxHash?: string;
   };
 
   const title = typeof body.title === "string" ? body.title.trim() : "";
@@ -82,6 +83,17 @@ export async function POST(request: Request) {
     );
   }
 
+  const depositTxHash =
+    typeof body.depositTxHash === "string"
+      ? normalizeTxHash(body.depositTxHash)
+      : "";
+  if (!isValidTxHash(depositTxHash)) {
+    return NextResponse.json(
+      { error: "Paste the transaction hash from your deposit." },
+      { status: 400 }
+    );
+  }
+
   const locationName =
     typeof body.locationName === "string" && body.locationName.trim()
       ? body.locationName.trim().slice(0, 80)
@@ -116,6 +128,7 @@ export async function POST(request: Request) {
       maxSubmissions,
       status: "open",
       depositNetwork,
+      depositTxHash,
       fundedAt: new Date(),
       creatorId: user.id,
     },

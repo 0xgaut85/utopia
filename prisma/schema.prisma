@@ -37,6 +37,7 @@ model Task {
   maxSubmissions Int          @default(25)
   status         String       @default("open")
   depositNetwork String?
+  depositTxHash  String?
   fundedAt       DateTime?
   creatorId      String?
   creator        User?        @relation("TaskCreator", fields: [creatorId], references: [id], onDelete: SetNull)

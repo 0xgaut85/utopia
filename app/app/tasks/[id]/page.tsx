@@ -5,6 +5,8 @@ import { prisma } from "@/lib/app/db";
 import { SubmitPanel } from "@/components/app/submit-panel";
 import { ReviewPanel } from "@/components/app/review-panel";
 import { UsdcAmount } from "@/components/app/usdc-amount";
+import { Avatar } from "@/components/app/avatar";
+import { BountyProof } from "@/components/app/bounty-proof";
 import { taskPoints } from "@/lib/app/points";
 
 const categoryIcon = {
@@ -32,7 +34,7 @@ export default async function TaskPage({
     where: { id },
     include: {
       _count: { select: { submissions: true } },
-      creator: { select: { id: true, username: true } },
+      creator: { select: { id: true, username: true, avatarUrl: true } },
     },
   });
 
@@ -69,10 +71,33 @@ export default async function TaskPage({
           </p>
 
           {task.creator ? (
-            <p className="mt-4 text-xs text-app-faint">
-              Posted by {task.creator.username}
-            </p>
+            <div className="mt-5 flex items-center gap-2.5">
+              <Avatar
+                username={task.creator.username}
+                avatarUrl={task.creator.avatarUrl}
+                size="sm"
+              />
+              <div className="min-w-0">
+                <p className="truncate text-sm text-app-text">
+                  {task.creator.username}
+                </p>
+                <p className="text-xs text-app-faint">Posted this bounty</p>
+              </div>
+            </div>
           ) : null}
+
+          <div className="panel mt-4 px-4 py-3">
+            <p className="text-xs text-app-faint">Payment proof</p>
+            <p className="mt-1 text-sm text-app-muted">
+              The reward is held in the Utopia escrow wallet. Open the
+              transaction to confirm it landed.
+            </p>
+            <BountyProof
+              depositNetwork={task.depositNetwork}
+              depositTxHash={task.depositTxHash}
+              className="mt-2 text-sm"
+            />
+          </div>
 
           <dl className="panel mt-6 grid grid-cols-2 divide-x divide-y divide-app-line overflow-hidden sm:grid-cols-4 sm:divide-y-0">
             <Fact label="Reward">

@@ -11,6 +11,7 @@ import { taskPoints } from "@/lib/app/points";
 import {
   DEPOSIT_ADDRESS,
   DEPOSIT_NETWORKS,
+  isValidTxHash,
   type DepositNetworkId,
 } from "@/lib/app/payments";
 
@@ -35,6 +36,7 @@ export default function NewBountyPage() {
   const [price, setPrice] = useState("25");
   const [maxSubmissions, setMaxSubmissions] = useState("25");
   const [network, setNetwork] = useState<DepositNetworkId>("usdc-base");
+  const [txHash, setTxHash] = useState("");
   const [copied, setCopied] = useState(false);
   const [publishing, setPublishing] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -91,6 +93,7 @@ export default function NewBountyPage() {
         priceUsdc: priceValue,
         maxSubmissions: Number(maxSubmissions) || 25,
         depositNetwork: network,
+        depositTxHash: txHash.trim(),
       }),
     });
 
@@ -353,6 +356,22 @@ export default function NewBountyPage() {
             </div>
           </div>
 
+          <div className="flex flex-col gap-1.5">
+            <span className={label}>Transaction hash</span>
+            <input
+              value={txHash}
+              onChange={(event) => setTxHash(event.target.value)}
+              spellCheck={false}
+              autoComplete="off"
+              placeholder="Paste the hash after you send the deposit"
+              className={field}
+            />
+            <span className="text-xs text-app-faint">
+              This becomes the public proof that the reward reached the escrow
+              wallet
+            </span>
+          </div>
+
           {error ? <p className="text-sm text-app-text">{error}</p> : null}
 
           <div className="flex flex-col gap-3 sm:flex-row">
@@ -366,7 +385,7 @@ export default function NewBountyPage() {
             <button
               type="button"
               onClick={publish}
-              disabled={publishing}
+              disabled={publishing || !isValidTxHash(txHash)}
               className="app-btn app-btn-primary flex-1 px-5"
             >
               {publishing ? "Publishing" : "I sent the deposit, publish bounty"}

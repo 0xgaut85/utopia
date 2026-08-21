@@ -159,12 +159,14 @@ async function main() {
       where: { slug },
       update: {
         ...rest,
+        depositNetwork: "usdc-base",
         creatorId: official.id,
         fundedAt: new Date(),
       },
       create: {
         slug,
         ...rest,
+        depositNetwork: "usdc-base",
         creatorId: official.id,
         fundedAt: new Date(),
       },

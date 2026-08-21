@@ -34,7 +34,10 @@ function Stat({ label, value }: { label: string; value: string }) {
 export default async function MarketplacePage() {
   const tasks = await prisma.task.findMany({
     orderBy: [{ status: "asc" }, { priceUsdc: "desc" }],
-    include: { _count: { select: { submissions: true } } },
+    include: {
+      _count: { select: { submissions: true } },
+      creator: { select: { username: true, avatarUrl: true } },
+    },
   });
 
   const open = tasks.filter(
@@ -109,6 +112,9 @@ export default async function MarketplacePage() {
             status: task.status,
             submissionCount: task._count.submissions,
             createdAt: task.createdAt.toISOString(),
+            creator: task.creator,
+            depositNetwork: task.depositNetwork,
+            depositTxHash: task.depositTxHash,
           }))}
         />
       )}

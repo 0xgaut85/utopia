@@ -2,6 +2,8 @@ import Link from "next/link";
 import Image from "next/image";
 import { MapPin, Crosshair, Globe2 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { Avatar } from "@/components/app/avatar";
+import { BountyProof } from "@/components/app/bounty-proof";
 
 export type TaskCardData = {
   id: string;
@@ -15,6 +17,9 @@ export type TaskCardData = {
   maxSubmissions: number;
   status: string;
   submissionCount: number;
+  creator: { username: string; avatarUrl: string | null } | null;
+  depositNetwork: string | null;
+  depositTxHash: string | null;
 };
 
 const categoryIcon = {
@@ -49,60 +54,90 @@ export function TaskCard({ task }: { task: TaskCardData }) {
   const closed = task.status !== "open" || full;
 
   return (
-    <Link
-      href={`/app/tasks/${task.id}`}
+    <article
       className={cn(
-        "panel flex aspect-[3/4] flex-col p-4 transition-colors",
-        closed ? "opacity-50" : "hover:border-app-line-hi hover:bg-app-surface-hi"
+        "panel flex aspect-[3/4] flex-col overflow-hidden",
+        closed && "opacity-50"
       )}
     >
-      <div className="flex items-center justify-between gap-2">
-        <span className="flex items-center gap-1.5 text-xs capitalize text-app-muted">
-          <Icon className="h-3.5 w-3.5 shrink-0" strokeWidth={1.8} />
-          {task.category}
-        </span>
-        {closed ? (
-          <span className="rounded-md bg-app-bg px-1.5 py-0.5 text-[11px] text-app-faint">
-            Closed
+      <Link
+        href={`/app/tasks/${task.id}`}
+        className={cn(
+          "flex min-h-0 flex-1 flex-col p-4 transition-colors",
+          !closed && "hover:bg-app-surface-hi"
+        )}
+      >
+        <div className="flex items-center justify-between gap-2">
+          <span className="flex items-center gap-1.5 text-xs capitalize text-app-muted">
+            <Icon className="h-3.5 w-3.5 shrink-0" strokeWidth={1.8} />
+            {task.category}
           </span>
-        ) : null}
-      </div>
+          {closed ? (
+            <span className="rounded-md bg-app-bg px-1.5 py-0.5 text-[11px] text-app-faint">
+              Closed
+            </span>
+          ) : null}
+        </div>
 
-      <h3 className="mt-3 text-[15px] font-medium leading-snug text-app-text">
-        {task.title}
-      </h3>
+        <h3 className="mt-3 text-[15px] font-medium leading-snug text-app-text">
+          {task.title}
+        </h3>
 
-      <p className="mt-2 line-clamp-3 text-[13px] leading-relaxed text-app-muted">
-        {task.brief}
-      </p>
-
-      <div className="mt-auto pt-4">
-        <p className="truncate text-[13px] text-app-text">
-          {task.locationName ?? "Any location"}
+        <p className="mt-2 line-clamp-3 text-[13px] leading-relaxed text-app-muted">
+          {task.brief}
         </p>
-        <p className="mt-0.5 truncate font-mono text-[11px] tabular-nums text-app-faint">
-          {coordLine(task)}
-        </p>
-      </div>
 
-      <div className="mt-3 flex items-center justify-between gap-2 border-t border-app-line pt-3">
-        <span className="flex items-baseline gap-1.5">
-          <Image
-            src="/usdc.svg"
-            alt=""
-            width={16}
-            height={16}
-            className="h-4 w-4 shrink-0 translate-y-0.5"
-          />
-          <span className="text-lg tabular-nums leading-none text-app-text">
-            {formatUsdc(task.priceUsdc)}
+        <div className="mt-auto pt-4">
+          <p className="truncate text-[13px] text-app-text">
+            {task.locationName ?? "Any location"}
+          </p>
+          <p className="mt-0.5 truncate font-mono text-[11px] tabular-nums text-app-faint">
+            {coordLine(task)}
+          </p>
+        </div>
+      </Link>
+
+      <div className="border-t border-app-line px-4 py-3">
+        {task.creator ? (
+          <div className="flex items-center gap-2">
+            <Avatar
+              username={task.creator.username}
+              avatarUrl={task.creator.avatarUrl}
+              size="xs"
+            />
+            <span className="min-w-0 truncate text-[13px] text-app-text">
+              {task.creator.username}
+            </span>
+          </div>
+        ) : (
+          <p className="text-[13px] text-app-faint">Unknown buyer</p>
+        )}
+
+        <div className="mt-2.5 flex items-end justify-between gap-2">
+          <span className="flex items-baseline gap-1.5">
+            <Image
+              src="/usdc.svg"
+              alt=""
+              width={16}
+              height={16}
+              className="h-4 w-4 shrink-0 translate-y-0.5"
+            />
+            <span className="text-lg tabular-nums leading-none text-app-text">
+              {formatUsdc(task.priceUsdc)}
+            </span>
+            <span className="text-[11px] text-app-faint">USDC</span>
           </span>
-          <span className="text-[11px] text-app-faint">USDC</span>
-        </span>
-        <span className="shrink-0 text-[11px] tabular-nums text-app-faint">
-          {task.submissionCount}/{task.maxSubmissions}
-        </span>
+          <span className="shrink-0 text-[11px] tabular-nums text-app-faint">
+            {task.submissionCount}/{task.maxSubmissions}
+          </span>
+        </div>
+
+        <BountyProof
+          depositNetwork={task.depositNetwork}
+          depositTxHash={task.depositTxHash}
+          className="mt-2 text-[11px]"
+        />
       </div>
-    </Link>
+    </article>
   );
 }
