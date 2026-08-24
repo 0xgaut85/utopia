@@ -11,12 +11,20 @@ function isMainHost(host: string) {
   return host === "utopiadata.net" || host === "www.utopiadata.net";
 }
 
+function isDataHost(host: string) {
+  return host === "data.utopiadata.net";
+}
+
+function isAdminPath(pathname: string) {
+  return pathname === "/adminmode" || pathname.startsWith("/adminmode/");
+}
+
 export function proxy(request: NextRequest) {
   const host = request.headers.get("host")?.split(":")[0] ?? "";
   const { pathname, search } = request.nextUrl;
 
   if (isAppHost(host)) {
-    if (pathname.startsWith("/api")) {
+    if (pathname.startsWith("/api") || isAdminPath(pathname)) {
       return NextResponse.next();
     }
 
@@ -30,6 +38,12 @@ export function proxy(request: NextRequest) {
 
     const rewritten = pathname === "/" ? "/app" : `/app${pathname}`;
     return NextResponse.rewrite(new URL(`${rewritten}${search}`, request.url));
+  }
+
+  if (isAdminPath(pathname) && (isDataHost(host) || isMainHost(host))) {
+    return NextResponse.redirect(
+      new URL(`https://${APP_HOST}/adminmode${search}`)
+    );
   }
 
   // Send /app/* on the marketing domain over to the app subdomain.
