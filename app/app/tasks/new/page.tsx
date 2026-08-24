@@ -10,8 +10,11 @@ import { useAppAuth } from "@/components/app/auth-context";
 import { taskPoints } from "@/lib/app/points";
 import {
   DEPOSIT_NETWORKS,
+  PLATFORM_FEE_RATE,
+  bountyDepositTotal,
   depositAddressFor,
   isValidTxHash,
+  platformFeeOn,
   type DepositNetworkId,
 } from "@/lib/app/payments";
 
@@ -39,7 +42,7 @@ export default function NewBountyPage() {
   const [brief, setBrief] = useState("");
   const [category, setCategory] = useState("location");
   const [locationName, setLocationName] = useState("");
-  const [price, setPrice] = useState("12");
+  const [price, setPrice] = useState("");
   const [maxSubmissions, setMaxSubmissions] = useState("10");
   const [expiresAt, setExpiresAt] = useState(() => localDateTime(7));
   const [network, setNetwork] = useState<DepositNetworkId>("usdc-base");
@@ -51,6 +54,10 @@ export default function NewBountyPage() {
   const priceValue = Number(price);
   const priceOk = Number.isFinite(priceValue) && priceValue >= 1;
   const points = priceOk ? taskPoints(priceValue).toLocaleString("en-US") : "0";
+  const totalDue = priceOk ? bountyDepositTotal(priceValue) : 0;
+  const feeDue = priceOk ? platformFeeOn(priceValue) : 0;
+  const money = (value: number) =>
+    value.toLocaleString("en-US", { maximumFractionDigits: 2 });
 
   function continueToFunding() {
     setError(null);
@@ -262,6 +269,7 @@ export default function NewBountyPage() {
                     setPrice(event.target.value.replace(/[^0-9.]/g, ""))
                   }
                   inputMode="decimal"
+                  placeholder="10"
                   className={cn(field, "pl-9")}
                 />
               </div>
@@ -322,26 +330,33 @@ export default function NewBountyPage() {
               Fund the bounty
             </h1>
             <p className="mt-2 text-sm leading-relaxed text-app-muted">
-              Send the exact amount to the Utopia treasury on the network of
-              your choice. The bounty goes live once you confirm the transfer
-              and payment is held until you accept a submission.
+              Send the reward plus the 10% platform fee to the Utopia escrow on
+              the network of your choice. We verify the transaction on chain,
+              then the bounty goes live and the reward is held until you accept
+              a submission.
             </p>
           </div>
 
           <div className="panel overflow-hidden">
-            <div className="flex items-center justify-between gap-3 border-b border-app-line px-4 py-3">
-              <span className={label}>Amount due</span>
-              <span className="flex items-center gap-1.5 text-lg tabular-nums text-app-text">
-                <Image
-                  src="/usdc.svg"
-                  alt=""
-                  width={18}
-                  height={18}
-                  className="h-[18px] w-[18px]"
-                />
-                {priceValue.toLocaleString("en-US")}{" "}
-                {network === "usdg-robinhood" ? "USDG" : "USDC"}
-              </span>
+            <div className="border-b border-app-line px-4 py-3">
+              <div className="flex items-center justify-between gap-3">
+                <span className={label}>Amount due</span>
+                <span className="flex items-center gap-1.5 text-lg tabular-nums text-app-text">
+                  <Image
+                    src="/usdc.svg"
+                    alt=""
+                    width={18}
+                    height={18}
+                    className="h-[18px] w-[18px]"
+                  />
+                  {money(totalDue)}{" "}
+                  {network === "usdg-robinhood" ? "USDG" : "USDC"}
+                </span>
+              </div>
+              <p className="mt-1 text-right text-xs tabular-nums text-app-faint">
+                {money(priceValue)} reward + {money(feeDue)} platform fee (
+                {Math.round(PLATFORM_FEE_RATE * 100)}%)
+              </p>
             </div>
 
             <div className="grid border-b border-app-line sm:grid-cols-3">

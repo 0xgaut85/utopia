@@ -52,6 +52,19 @@ export function isValidTxHash(value: string) {
   return EVM_TX.test(hash) || SOLANA_TX.test(hash);
 }
 
+/** Platform fee the buyer pays on top of the reward, per the docs. */
+export const PLATFORM_FEE_RATE = 0.1;
+
+/** 10% commission taken at bounty creation. */
+export function platformFeeOn(priceUsdc: number) {
+  return Math.round(priceUsdc * PLATFORM_FEE_RATE * 100) / 100;
+}
+
+/** What the buyer must actually deposit: reward plus the platform fee. */
+export function bountyDepositTotal(priceUsdc: number) {
+  return Math.round((priceUsdc + platformFeeOn(priceUsdc)) * 100) / 100;
+}
+
 export function shortTxHash(hash: string) {
   if (hash.length <= 12) return hash;
   return `${hash.slice(0, 6)}...${hash.slice(-4)}`;

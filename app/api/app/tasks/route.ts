@@ -1,7 +1,12 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/app/db";
 import { getAuthUser } from "@/lib/app/auth";
-import { DEPOSIT_NETWORKS, isValidTxHash, normalizeTxHash } from "@/lib/app/payments";
+import {
+  DEPOSIT_NETWORKS,
+  bountyDepositTotal,
+  isValidTxHash,
+  normalizeTxHash,
+} from "@/lib/app/payments";
 import { parseDeadline } from "@/lib/app/bounty";
 import { verifyDeposit } from "@/lib/app/verify-deposit";
 
@@ -117,7 +122,12 @@ export async function POST(request: Request) {
     );
   }
 
-  const deposit = await verifyDeposit(depositNetwork, depositTxHash, priceUsdc);
+  // The deposit must cover the reward plus the 10% platform fee.
+  const deposit = await verifyDeposit(
+    depositNetwork,
+    depositTxHash,
+    bountyDepositTotal(priceUsdc)
+  );
   if (!deposit.ok) {
     return NextResponse.json({ error: deposit.error }, { status: 400 });
   }

@@ -16,7 +16,7 @@ You can find bounties at [data.utopiadata.net](https://data.utopiadata.net).
     Write a title and spell out precisely what needs capturing and at which location. The quality of the submissions you get back tracks the precision of this brief.
   </Step>
   <Step title="Fund it">
-    Make a single payment, $50 for example, then set how long the bounty remains open. That one payment also covers reconstruction of the winning capture; nothing more is owed later.
+    Deposit the reward plus a 10% platform fee. A $50 bounty therefore requires $55 at funding: $50 into escrow for the contributor and $5 kept by Utopia as revenue. That one payment also covers reconstruction of the winning capture; nothing more is owed later.
   </Step>
   <Step title="Reward held in escrow">
     Before any contributor lifts a finger, the reward is locked in on-chain USDC escrow. Contributors can verify for themselves that the money exists, and it cannot move until you accept a submission.
@@ -26,7 +26,7 @@ You can find bounties at [data.utopiadata.net](https://data.utopiadata.net).
   </Step>
 </Steps>
 
-Up until you accept a submission, you can cancel and get every cent back. The same applies if the deadline arrives with no accepted submission: the bounty closes and the full reward is returned.
+Up until you accept a submission, you can cancel and the escrowed reward is returned. The same applies if the deadline arrives with no accepted submission. The 10% platform fee is taken at funding and is not returned.
 
 ## Submit to a bounty
 
@@ -50,9 +50,16 @@ When the requester accepts a submission, the bounty is closed on chain and the e
 
 ## Where the money goes
 
-The reward enters escrow at funding time and leaves it at acceptance. From that amount, Utopia deducts a platform fee (10% at present) and the reconstruction cost (roughly $5 at present); the contributor gets everything that remains.
+The requester pays two amounts in a single deposit at bounty creation:
 
-At today's defaults, $50 splits into $5 for the platform, $5 for reconstruction and $40 for the contributor. Treat those numbers as illustrative, since they are subject to change.
+| Part | Amount | Who receives it |
+| --- | --- | --- |
+| Reward | 100% of the posted bounty | The winning contributor, held in escrow until acceptance |
+| Platform fee | 10% of the posted bounty | Utopia. This is our revenue, never paid to the contributor |
+
+A $50 bounty therefore costs $55 to post. The contributor is paid the $50 bounty only. The $5 fee stays with Utopia. Reconstruction of the winning capture is included in the fee; the requester is not billed again later.
+
+If the bounty is cancelled or expires without an accepted submission, the reward returns to the requester and the fee does not. Treat the 10% rate as the current default; it is subject to change.
 
 ## Privacy
 

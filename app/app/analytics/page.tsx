@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Image from "next/image";
 import { prisma } from "@/lib/app/db";
 import { isBountyOpen } from "@/lib/app/bounty";
+import { PLATFORM_FEE_RATE, platformFeeOn } from "@/lib/app/payments";
 
 export const metadata: Metadata = {
   title: "Analytics",
@@ -89,6 +90,10 @@ async function getAnalytics() {
     acceptedCaptures,
     usdcOnOffer: open.reduce((total, task) => total + task.priceUsdc, 0),
     totalVolume: volume._sum.priceUsdc ?? 0,
+    platformFee: tasks.reduce(
+      (total, task) => total + platformFeeOn(task.priceUsdc),
+      0
+    ),
     pointsDistributed: pointsAgg._sum.points ?? 0,
     gbCollected,
   };
@@ -150,7 +155,7 @@ export default async function AnalyticsPage() {
         read straight from the network.
       </p>
 
-      <div className="mt-6 grid gap-3 sm:gap-4 lg:grid-cols-2">
+      <div className="mt-6 grid gap-3 sm:gap-4 lg:grid-cols-3">
         <section className="panel p-4 sm:p-6">
           <p className="text-xs text-app-faint">USDC on offer</p>
           <div className="mt-3">
@@ -168,6 +173,17 @@ export default async function AnalyticsPage() {
           </div>
           <p className="mt-2 text-sm text-app-muted">
             Committed across {n(a.totalBounties)} bounties all time
+          </p>
+        </section>
+
+        <section className="panel p-4 sm:p-6">
+          <p className="text-xs text-app-faint">Fee</p>
+          <div className="mt-3">
+            <UsdcValue amount={a.platformFee} />
+          </div>
+          <p className="mt-2 text-sm text-app-muted">
+            {Math.round(PLATFORM_FEE_RATE * 100)}% of bounty rewards, kept as
+            revenue
           </p>
         </section>
       </div>
