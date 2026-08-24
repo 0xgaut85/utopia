@@ -13,6 +13,9 @@ model User {
   username     String       @unique
   email        String?
   wallet       String?
+  payoutSolanaUsdc     String?
+  payoutUsdcBase       String?
+  payoutUsdgRobinhood  String?
   avatarUrl    String?
   points       Int          @default(0)
   isAdmin      Boolean      @default(false)

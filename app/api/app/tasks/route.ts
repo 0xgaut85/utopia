@@ -2,6 +2,8 @@ import { NextResponse } from "next/server";
 import { prisma } from "@/lib/app/db";
 import { getAuthUser } from "@/lib/app/auth";
 import { DEPOSIT_NETWORKS, isValidTxHash, normalizeTxHash } from "@/lib/app/payments";
+import { parseDeadline } from "@/lib/app/bounty";
+import { verifyDeposit } from "@/lib/app/verify-deposit";
 
 const CATEGORIES = ["location", "object", "coverage"];
 
@@ -31,6 +33,7 @@ export async function POST(request: Request) {
     maxSubmissions?: number;
     depositNetwork?: string;
     depositTxHash?: string;
+    expiresAt?: string;
   };
 
   const title = typeof body.title === "string" ? body.title.trim() : "";
@@ -94,6 +97,31 @@ export async function POST(request: Request) {
     );
   }
 
+  const expiresAt = parseDeadline(body.expiresAt);
+  if (!expiresAt) {
+    return NextResponse.json(
+      { error: "Set a deadline at least one hour from now." },
+      { status: 400 }
+    );
+  }
+
+  // A deposit tx can only ever fund one bounty.
+  const reused = await prisma.task.findFirst({
+    where: { depositTxHash },
+    select: { id: true },
+  });
+  if (reused) {
+    return NextResponse.json(
+      { error: "This transaction already funded another bounty." },
+      { status: 400 }
+    );
+  }
+
+  const deposit = await verifyDeposit(depositNetwork, depositTxHash, priceUsdc);
+  if (!deposit.ok) {
+    return NextResponse.json({ error: deposit.error }, { status: 400 });
+  }
+
   const locationName =
     typeof body.locationName === "string" && body.locationName.trim()
       ? body.locationName.trim().slice(0, 80)
@@ -129,6 +157,7 @@ export async function POST(request: Request) {
       status: "open",
       depositNetwork,
       depositTxHash,
+      expiresAt,
       fundedAt: new Date(),
       creatorId: user.id,
     },

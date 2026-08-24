@@ -9,14 +9,20 @@ import { cn } from "@/lib/utils";
 import { useAppAuth } from "@/components/app/auth-context";
 import { taskPoints } from "@/lib/app/points";
 import {
-  DEPOSIT_ADDRESS,
   DEPOSIT_NETWORKS,
+  depositAddressFor,
   isValidTxHash,
   type DepositNetworkId,
 } from "@/lib/app/payments";
 
 const label = "text-xs text-app-faint";
 const field = "app-input";
+
+function localDateTime(daysFromNow: number) {
+  const date = new Date(Date.now() + daysFromNow * 24 * 60 * 60 * 1000);
+  const pad = (value: number) => String(value).padStart(2, "0");
+  return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}T${pad(date.getHours())}:${pad(date.getMinutes())}`;
+}
 
 const CATEGORIES = [
   { id: "location", name: "Location", hint: "A specific place on the map" },
@@ -35,6 +41,7 @@ export default function NewBountyPage() {
   const [locationName, setLocationName] = useState("");
   const [price, setPrice] = useState("12");
   const [maxSubmissions, setMaxSubmissions] = useState("10");
+  const [expiresAt, setExpiresAt] = useState(() => localDateTime(7));
   const [network, setNetwork] = useState<DepositNetworkId>("usdc-base");
   const [txHash, setTxHash] = useState("");
   const [copied, setCopied] = useState(false);
@@ -59,11 +66,19 @@ export default function NewBountyPage() {
       setError("Price must be at least 1 USDC.");
       return;
     }
+    const deadline = new Date(expiresAt);
+    if (
+      Number.isNaN(deadline.getTime()) ||
+      deadline.getTime() < Date.now() + 60 * 60 * 1000
+    ) {
+      setError("Set a deadline at least one hour from now.");
+      return;
+    }
     setStep("funding");
   }
 
   async function copyAddress() {
-    await navigator.clipboard.writeText(DEPOSIT_ADDRESS);
+    await navigator.clipboard.writeText(depositAddressFor(network));
     setCopied(true);
     window.setTimeout(() => setCopied(false), 2000);
   }
@@ -94,6 +109,7 @@ export default function NewBountyPage() {
         maxSubmissions: Number(maxSubmissions) || 25,
         depositNetwork: network,
         depositTxHash: txHash.trim(),
+        expiresAt: new Date(expiresAt).toISOString(),
       }),
     });
 
@@ -266,6 +282,29 @@ export default function NewBountyPage() {
             </div>
           </div>
 
+          <div className="flex flex-col gap-1.5">
+            <span className={label}>Deadline</span>
+            <input
+              type="datetime-local"
+              value={expiresAt}
+              min={localDateTime(0)}
+              onChange={(event) => setExpiresAt(event.target.value)}
+              className={field}
+            />
+            <div className="flex flex-wrap gap-2">
+              {[3, 7, 14, 30].map((days) => (
+                <button
+                  key={days}
+                  type="button"
+                  onClick={() => setExpiresAt(localDateTime(days))}
+                  className="cursor-pointer text-xs text-app-faint underline underline-offset-4 hover:text-app-text"
+                >
+                  {days} days
+                </button>
+              ))}
+            </div>
+          </div>
+
           {error ? <p className="text-sm text-app-text">{error}</p> : null}
 
           <button
@@ -334,10 +373,14 @@ export default function NewBountyPage() {
             </div>
 
             <div className="px-4 py-3">
-              <span className={label}>Deposit address</span>
+              <span className={label}>
+                Deposit address on{" "}
+                {DEPOSIT_NETWORKS.find((option) => option.id === network)
+                  ?.network ?? "Base"}
+              </span>
               <div className="mt-2 flex items-center gap-2">
                 <code className="min-w-0 flex-1 break-all font-mono text-xs text-app-text">
-                  {DEPOSIT_ADDRESS}
+                  {depositAddressFor(network)}
                 </code>
                 <button
                   type="button"
@@ -367,8 +410,8 @@ export default function NewBountyPage() {
               className={field}
             />
             <span className="text-xs text-app-faint">
-              This becomes the public proof that the reward reached the escrow
-              wallet
+              We verify the transaction on chain before the bounty goes live,
+              and it becomes the public proof of escrow
             </span>
           </div>
 

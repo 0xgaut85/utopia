@@ -8,6 +8,9 @@ export type PublicUser = {
   wallet: string | null;
   email?: string | null;
   isAdmin?: boolean;
+  payoutSolanaUsdc?: string | null;
+  payoutUsdcBase?: string | null;
+  payoutUsdgRobinhood?: string | null;
   createdAt: string;
 };
 
@@ -18,7 +21,15 @@ export function publicUser(user: User, includePrivate = false): PublicUser {
     avatarUrl: user.avatarUrl,
     points: user.points,
     wallet: user.wallet,
-    ...(includePrivate ? { email: user.email, isAdmin: user.isAdmin } : {}),
+    ...(includePrivate
+      ? {
+          email: user.email,
+          isAdmin: user.isAdmin,
+          payoutSolanaUsdc: user.payoutSolanaUsdc,
+          payoutUsdcBase: user.payoutUsdcBase,
+          payoutUsdgRobinhood: user.payoutUsdgRobinhood,
+        }
+      : {}),
     createdAt: user.createdAt.toISOString(),
   };
 }

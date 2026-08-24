@@ -8,6 +8,8 @@ import { UsdcAmount } from "@/components/app/usdc-amount";
 import { Avatar } from "@/components/app/avatar";
 import { BountyProof } from "@/components/app/bounty-proof";
 import { taskPoints } from "@/lib/app/points";
+import { isBountyOpen } from "@/lib/app/bounty";
+import { RemainingTime } from "@/components/app/remaining-time";
 
 const categoryIcon = {
   location: MapPin,
@@ -42,8 +44,12 @@ export default async function TaskPage({
 
   const Icon =
     categoryIcon[task.category as keyof typeof categoryIcon] ?? Crosshair;
-  const full = task._count.submissions >= task.maxSubmissions;
-  const open = task.status === "open" && !full;
+  const open = isBountyOpen({
+    status: task.status,
+    maxSubmissions: task.maxSubmissions,
+    submissionCount: task._count.submissions,
+    expiresAt: task.expiresAt,
+  });
 
   return (
     <div className="px-4 py-6 sm:px-6 sm:py-10 lg:px-8">
@@ -99,7 +105,7 @@ export default async function TaskPage({
             />
           </div>
 
-          <dl className="panel mt-6 grid grid-cols-2 divide-x divide-y divide-app-line overflow-hidden sm:grid-cols-4 sm:divide-y-0">
+          <dl className="panel mt-6 grid grid-cols-2 divide-x divide-y divide-app-line overflow-hidden sm:grid-cols-3 lg:grid-cols-5 sm:divide-y-0">
             <Fact label="Reward">
               <UsdcAmount amount={task.priceUsdc} />
               <span className="mt-0.5 block text-xs text-app-faint">
@@ -113,6 +119,11 @@ export default async function TaskPage({
               </span>
             </Fact>
             <Fact label="Status">{open ? "Open" : "Closed"}</Fact>
+            <Fact label="Closes">
+              <RemainingTime
+                expiresAt={task.expiresAt?.toISOString() ?? null}
+              />
+            </Fact>
             <Fact label="Location">
               <span className="line-clamp-2 break-words">
                 {task.locationName ?? "Anywhere"}

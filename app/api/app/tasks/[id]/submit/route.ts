@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { prisma } from "@/lib/app/db";
 import { getAuthUser } from "@/lib/app/auth";
 import { taskPoints } from "@/lib/app/points";
+import { isBountyOpen } from "@/lib/app/bounty";
 
 // Clips are recorded in-app and stored as base64 video data URLs in the reused
 // `photo` column. Allow ~20s of webm/mp4 at up to roughly 60MB of raw bytes.
@@ -26,12 +27,16 @@ export async function POST(
   if (!task) {
     return NextResponse.json({ error: "Task not found" }, { status: 404 });
   }
-  if (task.status !== "open") {
-    return NextResponse.json({ error: "This task is closed." }, { status: 400 });
-  }
-  if (task._count.submissions >= task.maxSubmissions) {
+  if (
+    !isBountyOpen({
+      status: task.status,
+      maxSubmissions: task.maxSubmissions,
+      submissionCount: task._count.submissions,
+      expiresAt: task.expiresAt,
+    })
+  ) {
     return NextResponse.json(
-      { error: "This task has reached its submission limit." },
+      { error: "This bounty is closed or the deadline has passed." },
       { status: 400 }
     );
   }

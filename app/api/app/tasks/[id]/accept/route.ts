@@ -1,12 +1,13 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/app/db";
 import { getAuthUser } from "@/lib/app/auth";
-import { taskPoints } from "@/lib/app/points";
+import { acceptSubmission } from "@/lib/app/accept-submission";
+import { isExpired } from "@/lib/app/bounty";
 
 /**
  * The buyer accepts the submission they prefer. The contributor is credited
  * priceUsdc x 100 points, every other pending submission is rejected and the
- * bounty closes.
+ * bounty closes. USDC payout is done separately from admin mode.
  */
 export async function POST(
   request: Request,
@@ -20,7 +21,7 @@ export async function POST(
   const { id } = await params;
   const task = await prisma.task.findUnique({
     where: { id },
-    select: { id: true, creatorId: true, status: true, priceUsdc: true },
+    select: { id: true, creatorId: true, expiresAt: true },
   });
 
   if (!task) {
@@ -29,9 +30,9 @@ export async function POST(
   if (task.creatorId !== user.id && !user.isAdmin) {
     return NextResponse.json({ error: "Forbidden" }, { status: 403 });
   }
-  if (task.status !== "open") {
+  if (isExpired(task.expiresAt) && !user.isAdmin) {
     return NextResponse.json(
-      { error: "This bounty is already settled." },
+      { error: "This bounty has ended." },
       { status: 400 }
     );
   }
@@ -42,44 +43,13 @@ export async function POST(
   const submissionId =
     typeof body.submissionId === "string" ? body.submissionId : "";
 
-  const submission = await prisma.submission.findUnique({
-    where: { id: submissionId },
-    select: { id: true, taskId: true, userId: true, status: true },
+  const result = await acceptSubmission(id, submissionId);
+  if ("error" in result) {
+    return NextResponse.json({ error: result.error }, { status: result.status });
+  }
+
+  return NextResponse.json({
+    accepted: result.accepted,
+    pointsAwarded: result.pointsAwarded,
   });
-
-  if (!submission || submission.taskId !== task.id) {
-    return NextResponse.json(
-      { error: "Submission not found on this task." },
-      { status: 404 }
-    );
-  }
-  if (submission.status !== "pending") {
-    return NextResponse.json(
-      { error: "This submission was already reviewed." },
-      { status: 400 }
-    );
-  }
-
-  const points = taskPoints(task.priceUsdc);
-
-  await prisma.$transaction([
-    prisma.submission.update({
-      where: { id: submission.id },
-      data: { status: "accepted" },
-    }),
-    prisma.submission.updateMany({
-      where: { taskId: task.id, status: "pending", id: { not: submission.id } },
-      data: { status: "rejected" },
-    }),
-    prisma.user.update({
-      where: { id: submission.userId },
-      data: { points: { increment: points } },
-    }),
-    prisma.task.update({
-      where: { id: task.id },
-      data: { status: "closed" },
-    }),
-  ]);
-
-  return NextResponse.json({ accepted: submission.id, pointsAwarded: points });
 }

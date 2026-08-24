@@ -112,7 +112,7 @@ export function ReviewPanel({
           Submissions ({submissions.length})
         </h2>
         <span className="text-sm text-app-muted">
-          Accepting releases payment and credits {points} points
+          Accepting credits {points} points. USDC is sent from the payout desk.
         </span>
       </div>
 

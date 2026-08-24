@@ -3,8 +3,8 @@ import Link from "next/link";
 import Image from "next/image";
 import { Plus } from "lucide-react";
 import { prisma } from "@/lib/app/db";
-import { NETWORK_STATS } from "@/lib/app/network-stats";
 import { BountyBrowser } from "@/components/app/bounty-browser";
+import { isBountyOpen } from "@/lib/app/bounty";
 
 export const metadata: Metadata = {
   title: "Bounties",
@@ -34,12 +34,23 @@ function Stat({ label, value }: { label: string; value: string }) {
 
 export default async function MarketplacePage() {
   const tasks = await prisma.task.findMany({
+    where: { NOT: { creator: { isSeed: true } } },
     orderBy: [{ status: "asc" }, { priceUsdc: "desc" }],
     include: {
       _count: { select: { submissions: true } },
       creator: { select: { username: true, avatarUrl: true } },
     },
   });
+
+  const open = tasks.filter((task) =>
+    isBountyOpen({
+      status: task.status,
+      maxSubmissions: task.maxSubmissions,
+      submissionCount: task._count.submissions,
+      expiresAt: task.expiresAt,
+    })
+  );
+  const onOffer = open.reduce((total, task) => total + task.priceUsdc, 0);
 
   return (
     <div className="px-4 py-6 sm:px-6 sm:py-10 lg:px-8">
@@ -75,19 +86,13 @@ export default async function MarketplacePage() {
               className="h-4 w-4 shrink-0"
             />
             <span className="text-lg tabular-nums text-app-text sm:text-xl">
-              {formatUsdc(NETWORK_STATS.usdcOnOffer)}
+              {formatUsdc(onOffer)}
             </span>
             <span className="text-xs text-app-faint">USDC</span>
           </p>
         </div>
-        <Stat
-          label="Open bounties"
-          value={NETWORK_STATS.openBounties.toLocaleString("en-US")}
-        />
-        <Stat
-          label="All bounties"
-          value={NETWORK_STATS.totalBounties.toLocaleString("en-US")}
-        />
+        <Stat label="Open bounties" value={String(open.length)} />
+        <Stat label="All bounties" value={String(tasks.length)} />
         <Stat label="Points per USDC" value="100" />
       </div>
 
@@ -116,6 +121,7 @@ export default async function MarketplacePage() {
             creator: task.creator,
             depositNetwork: task.depositNetwork,
             depositTxHash: task.depositTxHash,
+            expiresAt: task.expiresAt?.toISOString() ?? null,
           }))}
         />
       )}

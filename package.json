@@ -12,7 +12,8 @@
     "build:search": "tsx scripts/build-search-index.ts",
     "postinstall": "prisma generate",
     "db:push": "prisma db push",
-    "db:seed": "node prisma/seed.mjs"
+    "db:seed": "node prisma/seed.mjs",
+    "db:purge-seed": "node prisma/purge-seed.mjs"
   },
   "dependencies": {
     "@gsap/react": "2.1.2",

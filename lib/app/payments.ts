@@ -1,10 +1,14 @@
-export const DEPOSIT_ADDRESS = "0x8ac4F91442f4Ef4EfDa321d019A0B056fC3BF57E";
+export const EVM_DEPOSIT_ADDRESS =
+  "0x8ac4F91442f4Ef4EfDa321d019A0B056fC3BF57E";
+export const SOLANA_DEPOSIT_ADDRESS =
+  "DXszVtcKYSwi1hkMWCp8S2YmAN7UACau8sSHnaSbof8w";
 
 export const DEPOSIT_NETWORKS = [
   {
     id: "usdc-solana",
     token: "USDC",
     network: "Solana",
+    depositAddress: SOLANA_DEPOSIT_ADDRESS,
     txUrl: (hash: string) => `https://solscan.io/tx/${hash}`,
     addressUrl: (address: string) => `https://solscan.io/account/${address}`,
   },
@@ -12,6 +16,7 @@ export const DEPOSIT_NETWORKS = [
     id: "usdc-base",
     token: "USDC",
     network: "Base",
+    depositAddress: EVM_DEPOSIT_ADDRESS,
     txUrl: (hash: string) => `https://basescan.org/tx/${hash}`,
     addressUrl: (address: string) => `https://basescan.org/address/${address}`,
   },
@@ -19,12 +24,21 @@ export const DEPOSIT_NETWORKS = [
     id: "usdg-robinhood",
     token: "USDG",
     network: "Robinhood",
-    txUrl: (hash: string) => `https://basescan.org/tx/${hash}`,
-    addressUrl: (address: string) => `https://basescan.org/address/${address}`,
+    depositAddress: EVM_DEPOSIT_ADDRESS,
+    txUrl: (hash: string) => `https://robinhoodchain.blockscout.com/tx/${hash}`,
+    addressUrl: (address: string) =>
+      `https://robinhoodchain.blockscout.com/address/${address}`,
   },
 ] as const;
 
 export type DepositNetworkId = (typeof DEPOSIT_NETWORKS)[number]["id"];
+
+export function depositAddressFor(id: DepositNetworkId | string) {
+  return (
+    DEPOSIT_NETWORKS.find((network) => network.id === id)?.depositAddress ??
+    EVM_DEPOSIT_ADDRESS
+  );
+}
 
 const EVM_TX = /^0x[a-fA-F0-9]{64}$/;
 const SOLANA_TX = /^[1-9A-HJ-NP-Za-km-z]{32,88}$/;
@@ -73,8 +87,8 @@ export function bountyProof(task: {
   }
 
   return {
-    href: network.addressUrl(DEPOSIT_ADDRESS),
+    href: network.addressUrl(network.depositAddress),
     label: "Escrow",
-    detail: shortTxHash(DEPOSIT_ADDRESS),
+    detail: shortTxHash(network.depositAddress),
   };
 }

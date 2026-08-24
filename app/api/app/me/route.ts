@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { prisma } from "@/lib/app/db";
 import { getAuthUser } from "@/lib/app/auth";
 import { publicUser } from "@/lib/app/serialize";
+import { parsePayoutAddresses } from "@/lib/app/payout-addresses";
 
 const USERNAME_PATTERN = /^[a-z0-9_]{3,20}$/;
 const AVATAR_PATTERN = /^data:image\/(png|jpeg|webp);base64,/;
@@ -64,9 +65,18 @@ export async function PATCH(request: Request) {
   const body = (await request.json().catch(() => ({}))) as {
     username?: string;
     avatar?: string;
+    payoutSolanaUsdc?: string;
+    payoutUsdcBase?: string;
+    payoutUsdgRobinhood?: string;
   };
 
-  const data: { username?: string; avatarUrl?: string } = {};
+  const data: {
+    username?: string;
+    avatarUrl?: string;
+    payoutSolanaUsdc?: string | null;
+    payoutUsdcBase?: string | null;
+    payoutUsdgRobinhood?: string | null;
+  } = {};
 
   if (body.username !== undefined) {
     const username = String(body.username).toLowerCase().trim();
@@ -91,6 +101,31 @@ export async function PATCH(request: Request) {
       );
     }
     data.avatarUrl = avatar;
+  }
+
+  if (
+    body.payoutSolanaUsdc !== undefined ||
+    body.payoutUsdcBase !== undefined ||
+    body.payoutUsdgRobinhood !== undefined
+  ) {
+    const parsed = parsePayoutAddresses({
+      payoutSolanaUsdc:
+        body.payoutSolanaUsdc !== undefined
+          ? body.payoutSolanaUsdc
+          : user.payoutSolanaUsdc,
+      payoutUsdcBase:
+        body.payoutUsdcBase !== undefined
+          ? body.payoutUsdcBase
+          : user.payoutUsdcBase,
+      payoutUsdgRobinhood:
+        body.payoutUsdgRobinhood !== undefined
+          ? body.payoutUsdgRobinhood
+          : user.payoutUsdgRobinhood,
+    });
+    if (!parsed.ok) {
+      return NextResponse.json({ error: parsed.error }, { status: 400 });
+    }
+    Object.assign(data, parsed.data);
   }
 
   if (Object.keys(data).length === 0) {

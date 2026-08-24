@@ -1,3 +1,4 @@
+// Local-only. Production deploys no longer run this.
 import { PrismaClient } from "@prisma/client";
 
 const prisma = new PrismaClient();

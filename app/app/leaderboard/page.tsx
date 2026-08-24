@@ -14,6 +14,7 @@ const RANK_LABEL = ["1st place", "2nd place", "3rd place"];
 export default async function LeaderboardPage() {
   const [users, totals, networkClips] = await Promise.all([
     prisma.user.findMany({
+      where: { isSeed: false },
       orderBy: [{ points: "desc" }, { createdAt: "asc" }],
       take: 50,
       select: {
@@ -24,8 +25,12 @@ export default async function LeaderboardPage() {
         _count: { select: { submissions: true } },
       },
     }),
-    prisma.user.aggregate({ _sum: { points: true }, _count: { _all: true } }),
-    prisma.submission.count(),
+    prisma.user.aggregate({
+      where: { isSeed: false },
+      _sum: { points: true },
+      _count: { _all: true },
+    }),
+    prisma.submission.count({ where: { user: { isSeed: false } } }),
   ]);
 
   const podium = users.slice(0, 3);

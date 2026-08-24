@@ -5,6 +5,7 @@ import { Search, SlidersHorizontal, X } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { TaskCard, type TaskCardData } from "@/components/app/task-card";
 import { CONTINENTS, normalize, resolvePlace } from "@/lib/app/geo";
+import { isBountyOpen } from "@/lib/app/bounty";
 import { CountryMenu } from "@/components/app/country-menu";
 
 export type BrowsableTask = TaskCardData & {
@@ -79,9 +80,12 @@ export function BountyBrowser({ tasks }: { tasks: BrowsableTask[] }) {
           code,
           continent,
         } = resolvePlace(task);
-        const open =
-          task.status === "open" &&
-          task.submissionCount < task.maxSubmissions;
+        const open = isBountyOpen({
+          status: task.status,
+          maxSubmissions: task.maxSubmissions,
+          submissionCount: task.submissionCount,
+          expiresAt: task.expiresAt,
+        });
 
         return {
           task,

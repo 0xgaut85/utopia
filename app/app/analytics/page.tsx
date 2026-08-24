@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Image from "next/image";
 import { prisma } from "@/lib/app/db";
-import { NETWORK_STATS } from "@/lib/app/network-stats";
+import { isBountyOpen } from "@/lib/app/bounty";
 
 export const metadata: Metadata = {
   title: "Analytics",
@@ -19,19 +19,61 @@ function formatUsdc(amount: number) {
 }
 
 async function getAnalytics() {
-  const [totalUsers, contributors, totalCaptures, acceptedCaptures, pointsAgg, sizeRows] =
-    await Promise.all([
-      prisma.user.count(),
-      prisma.user.count({ where: { submissions: { some: {} } } }),
-      prisma.submission.count(),
-      prisma.submission.count({ where: { status: "accepted" } }),
-      prisma.user.aggregate({ _sum: { points: true } }),
-      // Videos are stored as base64 data URLs in the `photo` column, so the
-      // summed character length approximates raw bytes at a 3/4 ratio.
-      prisma.$queryRaw<
-        Array<{ total: bigint | null }>
-      >`SELECT SUM(LENGTH(photo)) AS total FROM "Submission"`,
-    ]);
+  const [
+    totalUsers,
+    contributors,
+    tasks,
+    settledBounties,
+    totalCaptures,
+    acceptedCaptures,
+    volume,
+    pointsAgg,
+    sizeRows,
+  ] = await Promise.all([
+    prisma.user.count({ where: { isSeed: false } }),
+    prisma.user.count({
+      where: { isSeed: false, submissions: { some: {} } },
+    }),
+    prisma.task.findMany({
+      where: { NOT: { creator: { isSeed: true } } },
+      select: {
+        status: true,
+        priceUsdc: true,
+        maxSubmissions: true,
+        expiresAt: true,
+        _count: { select: { submissions: true } },
+      },
+    }),
+    prisma.task.count({
+      where: { status: "closed", NOT: { creator: { isSeed: true } } },
+    }),
+    prisma.submission.count({
+      where: { user: { isSeed: false } },
+    }),
+    prisma.submission.count({
+      where: { status: "accepted", user: { isSeed: false } },
+    }),
+    prisma.task.aggregate({
+      _sum: { priceUsdc: true },
+      where: { NOT: { creator: { isSeed: true } } },
+    }),
+    prisma.user.aggregate({
+      _sum: { points: true },
+      where: { isSeed: false },
+    }),
+    prisma.$queryRaw<
+      Array<{ total: bigint | null }>
+    >`SELECT SUM(LENGTH(photo)) AS total FROM "Submission"`,
+  ]);
+
+  const open = tasks.filter((task) =>
+    isBountyOpen({
+      status: task.status,
+      maxSubmissions: task.maxSubmissions,
+      submissionCount: task._count.submissions,
+      expiresAt: task.expiresAt,
+    })
+  );
 
   const base64Chars = Number(sizeRows[0]?.total ?? 0);
   const bytesCollected = base64Chars * 0.75;
@@ -40,13 +82,13 @@ async function getAnalytics() {
   return {
     totalUsers,
     contributors,
-    totalBounties: NETWORK_STATS.totalBounties,
-    openBounties: NETWORK_STATS.openBounties,
-    settledBounties: NETWORK_STATS.settledBounties,
+    totalBounties: tasks.length,
+    openBounties: open.length,
+    settledBounties,
     totalCaptures,
     acceptedCaptures,
-    usdcOnOffer: NETWORK_STATS.usdcOnOffer,
-    totalVolume: NETWORK_STATS.totalVolume,
+    usdcOnOffer: open.reduce((total, task) => total + task.priceUsdc, 0),
+    totalVolume: volume._sum.priceUsdc ?? 0,
     pointsDistributed: pointsAgg._sum.points ?? 0,
     gbCollected,
   };

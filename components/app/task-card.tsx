@@ -4,6 +4,8 @@ import { MapPin, Crosshair, Globe2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Avatar } from "@/components/app/avatar";
 import { BountyProof } from "@/components/app/bounty-proof";
+import { RemainingTime } from "@/components/app/remaining-time";
+import { isBountyOpen } from "@/lib/app/bounty";
 
 export type TaskCardData = {
   id: string;
@@ -20,6 +22,7 @@ export type TaskCardData = {
   creator: { username: string; avatarUrl: string | null } | null;
   depositNetwork: string | null;
   depositTxHash: string | null;
+  expiresAt: string | null;
 };
 
 const categoryIcon = {
@@ -50,8 +53,12 @@ function coordLine(task: TaskCardData) {
 export function TaskCard({ task }: { task: TaskCardData }) {
   const Icon =
     categoryIcon[task.category as keyof typeof categoryIcon] ?? Crosshair;
-  const full = task.submissionCount >= task.maxSubmissions;
-  const closed = task.status !== "open" || full;
+  const closed = !isBountyOpen({
+    status: task.status,
+    maxSubmissions: task.maxSubmissions,
+    submissionCount: task.submissionCount,
+    expiresAt: task.expiresAt,
+  });
 
   return (
     <article
@@ -76,7 +83,11 @@ export function TaskCard({ task }: { task: TaskCardData }) {
             <span className="rounded-md bg-app-bg px-1.5 py-0.5 text-[11px] text-app-faint">
               Closed
             </span>
-          ) : null}
+          ) : (
+            <span className="text-[11px] text-app-faint">
+              <RemainingTime expiresAt={task.expiresAt} />
+            </span>
+          )}
         </div>
 
         <h3 className="mt-3 text-[15px] font-medium leading-snug text-app-text">

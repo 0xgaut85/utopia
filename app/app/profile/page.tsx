@@ -9,6 +9,7 @@ import { useAppAuth } from "@/components/app/auth-context";
 import { Avatar } from "@/components/app/avatar";
 import { compressAvatar } from "@/lib/app/image";
 import { taskPoints } from "@/lib/app/points";
+import { PayoutFields } from "@/components/app/payout-fields";
 
 const label = "text-xs text-app-faint";
 
@@ -337,6 +338,7 @@ export default function ProfilePage() {
           </div>
 
           <WalletRow />
+          <PayoutFields />
           <TeamAccessRow />
         </section>
 
