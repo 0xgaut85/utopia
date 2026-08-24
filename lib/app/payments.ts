@@ -62,8 +62,9 @@ function networkById(id: string | null) {
 }
 
 /**
- * Prefer the recorded transaction. If a bounty was posted before we stored
- * hashes, fall back to the escrow address so the wallet is still public.
+ * The funding transaction: the on-chain transfer of USDC/USDG to the Utopia
+ * escrow that created this bounty. Falls back to the escrow wallet only for
+ * legacy bounties recorded before deposits were verified.
  */
 export function bountyProof(task: {
   depositNetwork: string | null;
@@ -73,15 +74,9 @@ export function bountyProof(task: {
   const hash = task.depositTxHash ? normalizeTxHash(task.depositTxHash) : null;
 
   if (hash) {
-    const evm = EVM_TX.test(hash);
-    const href =
-      evm && task.depositNetwork === "usdc-solana"
-        ? `https://basescan.org/tx/${hash}`
-        : network.txUrl(hash);
-
     return {
-      href,
-      label: "Proof",
+      href: network.txUrl(hash),
+      label: "Funding tx",
       detail: shortTxHash(hash),
     };
   }

@@ -93,10 +93,10 @@ export default async function TaskPage({
           ) : null}
 
           <div className="panel mt-4 px-4 py-3">
-            <p className="text-xs text-app-faint">Payment proof</p>
+            <p className="text-xs text-app-faint">Bounty funding</p>
             <p className="mt-1 text-sm text-app-muted">
-              The reward is held in the Utopia escrow wallet. Open the
-              transaction to confirm it landed.
+              This is the on-chain transaction that funded the reward into the
+              Utopia escrow. Open it to confirm the deposit landed.
             </p>
             <BountyProof
               depositNetwork={task.depositNetwork}
