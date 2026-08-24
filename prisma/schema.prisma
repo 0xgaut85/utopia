@@ -64,3 +64,15 @@ model Submission {
 
   @@unique([taskId, userId])
 }
+
+model WorkerEvent {
+  id        String   @id @default(cuid())
+  level     String
+  kind      String
+  message   String
+  payload   Json?
+  createdAt DateTime @default(now())
+
+  @@index([createdAt])
+  @@index([kind])
+}
