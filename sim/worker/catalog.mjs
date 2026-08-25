@@ -138,3 +138,11 @@ export function dueCloses(startedAt) {
       isDue(startedAt, row.closeDay, row.closeTimeMinutes)
   );
 }
+
+/** Last 6 hours of a bounty, or already past the deadline. */
+const CLOSE_LEAD_MS = 6 * 60 * 60 * 1000;
+
+export function isNearDeadline(expiresAt, now = Date.now()) {
+  if (!expiresAt) return false;
+  return now >= new Date(expiresAt).getTime() - CLOSE_LEAD_MS;
+}

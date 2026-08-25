@@ -3,8 +3,8 @@ import { logEvent, safeError } from "./worker/log.mjs";
 import { escrowKeysReady } from "./worker/money.mjs";
 import {
   BOUNTIES,
-  dueCloses,
   dueCreates,
+  isNearDeadline,
   ensureDueUsers,
   findFunder,
   launchBounties,
@@ -164,9 +164,10 @@ async function tick() {
 
     await writeLaunchClips();
 
-    for (const bounty of dueCloses(startedAt)) {
+    for (const bounty of BOUNTIES.filter((row) => row.plannedClose)) {
       const task = await findTaskByBounty(bounty.id);
       if (!task || task.status !== "open") continue;
+      if (!isNearDeadline(task.expiresAt)) continue;
       const picked = await pickWinner(task);
       if (!picked) {
         await logEvent({

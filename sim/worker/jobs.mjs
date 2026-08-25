@@ -3,7 +3,6 @@ import { logEvent, safeError } from "./log.mjs";
 import {
   assertBountyChain,
   bountyDepositTotal,
-  creatorPoints,
   taskPoints,
 } from "./money.mjs";
 import {
@@ -134,37 +133,30 @@ async function insertTask(bounty, creatorId, depositTxHash) {
   let slug = slugFor(bounty);
   const clash = await app.task.findUnique({ where: { slug } });
   if (clash) slug = `${slug}-${Date.now().toString(36).slice(-4)}`;
-  const [task] = await app.$transaction([
-    app.task.create({
-      data: {
-        slug,
-        title: bounty.title,
-        brief: bounty.brief,
-        category: bounty.category,
-        locationName: bounty.locationName,
-        lat: bounty.lat,
-        lng: bounty.lng,
-        radiusM: bounty.radiusM,
-        priceUsdc: bounty.priceUsdc,
-        maxSubmissions: 20,
-        status: "open",
-        depositNetwork: bounty.chain,
-        depositTxHash,
-        fundedAt: new Date(),
-        creatorKind: bounty.creatorKind,
-        isSynthetic: true,
-        creatorId,
-        expiresAt: new Date(
-          Date.now() + bounty.deadlineDays * 24 * 60 * 60 * 1000
-        ),
-      },
-    }),
-    app.user.update({
-      where: { id: creatorId },
-      data: { points: { increment: creatorPoints(bounty.priceUsdc) } },
-    }),
-  ]);
-  return task;
+  return app.task.create({
+    data: {
+      slug,
+      title: bounty.title,
+      brief: bounty.brief,
+      category: bounty.category,
+      locationName: bounty.locationName,
+      lat: bounty.lat,
+      lng: bounty.lng,
+      radiusM: bounty.radiusM,
+      priceUsdc: bounty.priceUsdc,
+      maxSubmissions: 20,
+      status: "open",
+      depositNetwork: bounty.chain,
+      depositTxHash,
+      fundedAt: new Date(),
+      creatorKind: bounty.creatorKind,
+      isSynthetic: true,
+      creatorId,
+      expiresAt: new Date(
+        Date.now() + bounty.deadlineDays * 24 * 60 * 60 * 1000
+      ),
+    },
+  });
 }
 
 async function cancelSiblingJobs(job) {

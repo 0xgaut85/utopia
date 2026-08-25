@@ -46,8 +46,9 @@ export function taskPoints(priceUsdc) {
   return Math.round(priceUsdc * 100);
 }
 
-/** Matches creatorPoints in lib/app/points.ts: 25 pts per USDC for posting. */
-export function creatorPoints(priceUsdc) {
+/** Matches lib/app/points.ts. Worker bounties never use kind "user". */
+export function creatorPoints(priceUsdc, kind) {
+  if (kind !== "user") return 0;
   return Math.round(priceUsdc * 25);
 }
 

@@ -240,6 +240,11 @@ export default function NewBountyPage() {
                 </button>
               ))}
             </div>
+            <p className="text-xs leading-relaxed text-app-faint">
+              Posting as User shows your username and credits you 25 points per
+              USDC. AI Lab, Robotics Team and Private stay anonymous and do not
+              grant points.
+            </p>
           </div>
 
           <div className="flex flex-col gap-1.5">
@@ -308,11 +313,16 @@ export default function NewBountyPage() {
                 />
               </div>
               <span className="text-xs text-app-faint">
-                {points} pts for the contributor,{" "}
-                {priceOk
-                  ? creatorPoints(priceValue).toLocaleString("en-US")
-                  : "0"}{" "}
-                pts for you
+                {points} pts for the contributor
+                {creatorKind === "user"
+                  ? `, ${
+                      priceOk
+                        ? creatorPoints(priceValue, "user").toLocaleString(
+                            "en-US"
+                          )
+                        : "0"
+                    } pts for you`
+                  : ". This posted-as option does not grant you points"}
               </span>
             </div>
             <div className="flex flex-col gap-1.5">

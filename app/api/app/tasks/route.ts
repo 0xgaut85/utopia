@@ -163,36 +163,37 @@ export async function POST(request: Request) {
   const slug = `${base}-${Math.random().toString(36).slice(2, 8)}`;
 
   const roundedPrice = Math.round(priceUsdc * 100) / 100;
-  const [task] = await prisma.$transaction([
-    prisma.task.create({
-      data: {
-        slug,
-        title,
-        brief,
-        category,
-        locationName,
-        lat,
-        lng,
-        radiusM,
-        priceUsdc: roundedPrice,
-        maxSubmissions,
-        status: "open",
-        depositNetwork,
-        depositTxHash,
-        expiresAt,
-        fundedAt: new Date(),
-        creatorKind: body.creatorKind,
-        creatorId: user.id,
-      },
-    }),
-    prisma.user.update({
+  const posterPts = creatorPoints(roundedPrice, body.creatorKind);
+  const task = await prisma.task.create({
+    data: {
+      slug,
+      title,
+      brief,
+      category,
+      locationName,
+      lat,
+      lng,
+      radiusM,
+      priceUsdc: roundedPrice,
+      maxSubmissions,
+      status: "open",
+      depositNetwork,
+      depositTxHash,
+      expiresAt,
+      fundedAt: new Date(),
+      creatorKind: body.creatorKind,
+      creatorId: user.id,
+    },
+  });
+  if (posterPts > 0) {
+    await prisma.user.update({
       where: { id: user.id },
-      data: { points: { increment: creatorPoints(roundedPrice) } },
-    }),
-  ]);
+      data: { points: { increment: posterPts } },
+    });
+  }
 
   return NextResponse.json({
     task: { id: task.id, slug: task.slug },
-    pointsAwarded: creatorPoints(roundedPrice),
+    pointsAwarded: posterPts,
   });
 }

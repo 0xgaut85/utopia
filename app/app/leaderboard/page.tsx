@@ -23,7 +23,7 @@ export default async function LeaderboardPage({
 
   const [ranked, totals, networkClips] = await Promise.all([
     prisma.user.findMany({
-      where: { isSeed: false, points: { gt: 0 } },
+      where: { isSeed: false },
       orderBy: [{ points: "desc" }, { createdAt: "asc" }],
       select: {
         id: true,
@@ -34,7 +34,7 @@ export default async function LeaderboardPage({
       },
     }),
     prisma.user.aggregate({
-      where: { isSeed: false, points: { gt: 0 } },
+      where: { isSeed: false },
       _sum: { points: true },
       _count: { _all: true },
     }),
@@ -179,8 +179,7 @@ export default async function LeaderboardPage({
       {searching && rest.length === 0 ? (
         <div className="panel mt-4 px-6 py-12 text-center">
           <p className="text-sm text-app-muted">
-            No contributor matches &quot;{query}&quot;. Only users with points
-            appear here.
+            No contributor matches &quot;{query}&quot;.
           </p>
         </div>
       ) : rest.length > 0 ? (
