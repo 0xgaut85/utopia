@@ -1,9 +1,10 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { Search, SlidersHorizontal, X } from "lucide-react";
+import { SlidersHorizontal } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { TaskCard, type TaskCardData } from "@/components/app/task-card";
+import { SearchField } from "@/components/app/search-field";
 import { CONTINENTS, normalize, resolvePlace } from "@/lib/app/geo";
 import { isBountyOpen } from "@/lib/app/bounty";
 import { creatorDisplay } from "@/lib/app/creator-kind";
@@ -169,29 +170,12 @@ export function BountyBrowser({ tasks }: { tasks: BrowsableTask[] }) {
   return (
     <div>
       <div className="panel relative z-20 mt-6 overflow-visible p-3 sm:mt-8 sm:p-4">
-        <div className="relative">
-          <Search
-            className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-app-faint"
-            strokeWidth={1.8}
-          />
-          <input
-            value={query}
-            onChange={(event) => setQuery(event.target.value)}
-            type="search"
-            placeholder="Search title, place or country"
-            className="app-input py-2.5 pl-9 pr-9"
-          />
-          {query ? (
-            <button
-              type="button"
-              onClick={() => setQuery("")}
-              aria-label="Clear search"
-              className="absolute right-2 top-1/2 flex h-6 w-6 -translate-y-1/2 cursor-pointer items-center justify-center rounded-md text-app-faint transition-colors hover:text-app-text"
-            >
-              <X className="h-3.5 w-3.5" strokeWidth={2} />
-            </button>
-          ) : null}
-        </div>
+        <SearchField
+          value={query}
+          onChange={setQuery}
+          onClear={() => setQuery("")}
+          placeholder="Search title, place or country"
+        />
 
         <div className="mt-3 flex flex-col gap-2 sm:flex-row sm:flex-wrap sm:items-center">
           <div className="no-scrollbar flex w-full items-center gap-1 overflow-x-auto rounded-lg bg-app-bg p-1 sm:w-auto">

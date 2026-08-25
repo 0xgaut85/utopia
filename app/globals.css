@@ -309,7 +309,8 @@
   color: var(--color-app-faint);
 }
 
-.app-input:focus {
+.app-input:focus,
+.app-input:focus-within {
   border-color: var(--color-app-text);
   background: var(--color-app-surface);
 }

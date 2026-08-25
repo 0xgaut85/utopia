@@ -1,9 +1,9 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { Search } from "lucide-react";
 import { prisma } from "@/lib/app/db";
 import { cn } from "@/lib/utils";
 import { Avatar } from "@/components/app/avatar";
+import { SearchField } from "@/components/app/search-field";
 
 export const metadata: Metadata = {
   title: "Leaderboard",
@@ -70,19 +70,13 @@ export default async function LeaderboardPage({
         </div>
 
         <form action="/app/leaderboard" className="flex items-center gap-2">
-          <div className="relative">
-            <Search
-              className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-app-faint"
-              strokeWidth={1.8}
-            />
-            <input
-              name="q"
-              defaultValue={query}
-              maxLength={30}
-              placeholder="Search a username"
-              className="app-input w-56 pl-9"
-            />
-          </div>
+          <SearchField
+            name="q"
+            defaultValue={query}
+            maxLength={30}
+            placeholder="Search a username"
+            className="w-56"
+          />
           <button type="submit" className="app-btn app-btn-ghost px-3 py-2 text-xs">
             Search
           </button>

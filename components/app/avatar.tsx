@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import { cn } from "@/lib/utils";
 
 type AvatarProps = {
@@ -17,12 +18,16 @@ const sizeClass = {
 };
 
 export function Avatar({ username, avatarUrl, size = "md", className }: AvatarProps) {
-  if (avatarUrl) {
+  const [failed, setFailed] = useState(false);
+
+  if (avatarUrl && !failed) {
     return (
-      // eslint-disable-next-line @next/next/no-img-element -- avatars are data URLs, next/image adds nothing
+      // eslint-disable-next-line @next/next/no-img-element -- mix of data URLs and library portraits
       <img
         src={avatarUrl}
         alt={username}
+        referrerPolicy="no-referrer"
+        onError={() => setFailed(true)}
         className={cn(
           "shrink-0 rounded-full object-cover",
           sizeClass[size],

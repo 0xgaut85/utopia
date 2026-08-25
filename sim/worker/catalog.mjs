@@ -51,20 +51,16 @@ export function isDue(startedAt, day, timeMinutes, now = Date.now()) {
   return now >= dueAt(startedAt, day, timeMinutes);
 }
 
+function avatarUrlFor(row) {
+  if (!row.avatar) return null;
+  const value = String(row.avatar);
+  if (value.startsWith("http") || value.startsWith("/")) return value;
+  return `/sim-avatars/${value}`;
+}
+
 export async function ensureUser(row) {
   const privyId = `sim:${row.username}`;
-  const taken = await app.user.findFirst({
-    where: { username: { equals: row.username, mode: "insensitive" } },
-  });
-  if (taken) {
-    if (taken.privyId === privyId) return taken;
-    await logEvent({
-      kind: "user.join",
-      level: "warn",
-      message: `skip ${row.username}, name taken by a real account`,
-    });
-    return null;
-  }
+  const avatarUrl = avatarUrlFor(row);
   const wallet = await loadSimWallet(row.walletIndex);
   if (!wallet) {
     await logEvent({
@@ -72,14 +68,82 @@ export async function ensureUser(row) {
       level: "error",
       message: `no SimWallet for ${row.username}`,
     });
-    return null;
+    return { user: null, created: false };
   }
+
+  const existing =
+    (await app.user.findFirst({ where: { privyId } })) ||
+    (await app.user.findFirst({
+      where: { isSynthetic: true, wallet: wallet.evmAddress },
+    }));
+
+  if (existing) {
+    if (!existing.isSynthetic || !existing.privyId?.startsWith("sim:")) {
+      if (existing.privyId === privyId) return { user: existing, created: false };
+      await logEvent({
+        kind: "user.join",
+        level: "warn",
+        message: `skip ${row.username}, name taken by a real account`,
+      });
+      return { user: null, created: false };
+    }
+    if (existing.username.toLowerCase() !== row.username.toLowerCase()) {
+      const clash = await app.user.findFirst({
+        where: {
+          id: { not: existing.id },
+          username: { equals: row.username, mode: "insensitive" },
+        },
+      });
+      if (clash) {
+        await logEvent({
+          kind: "user.join",
+          level: "warn",
+          message: `skip ${row.username}, name taken by a real account`,
+        });
+        return { user: existing, created: false };
+      }
+    }
+    const data = {};
+    if (existing.username !== row.username) data.username = row.username;
+    if (existing.privyId !== privyId) data.privyId = privyId;
+    if (existing.avatarUrl !== avatarUrl) data.avatarUrl = avatarUrl;
+    if (Object.keys(data).length === 0) {
+      return { user: existing, created: false };
+    }
+    const updated = await app.user.update({
+      where: { id: existing.id },
+      data,
+    });
+    await logEvent({
+      kind: "user.join",
+      message: data.username
+        ? `renamed ${existing.username} → ${updated.username}`
+        : `sync ${updated.username}`,
+      payload: { walletIndex: row.walletIndex },
+    });
+    return { user: updated, created: false };
+  }
+
+  const taken = await app.user.findFirst({
+    where: { username: { equals: row.username, mode: "insensitive" } },
+  });
+  if (taken) {
+    if (taken.privyId === privyId) return { user: taken, created: false };
+    await logEvent({
+      kind: "user.join",
+      level: "warn",
+      message: `skip ${row.username}, name taken by a real account`,
+    });
+    return { user: null, created: false };
+  }
+
   const created = await app.user.create({
     data: {
       privyId,
       username: row.username,
       isSeed: false,
       isSynthetic: true,
+      avatarUrl,
       ...publicAddresses(wallet),
     },
   });
@@ -88,7 +152,7 @@ export async function ensureUser(row) {
     message: created.username,
     payload: { walletIndex: row.walletIndex },
   });
-  return created;
+  return { user: created, created: true };
 }
 
 export async function ensureDueUsers(startedAt) {
@@ -98,12 +162,8 @@ export async function ensureDueUsers(startedAt) {
     if (now < startedAt.getTime() + row.joinOffsetMinutes * 60 * 1000) {
       continue;
     }
-    const existing = await app.user.findFirst({
-      where: { privyId: `sim:${row.username}` },
-    });
-    if (existing) continue;
-    const user = await ensureUser(row);
-    if (user) created += 1;
+    const result = await ensureUser(row);
+    if (result.created) created += 1;
   }
   return created;
 }
