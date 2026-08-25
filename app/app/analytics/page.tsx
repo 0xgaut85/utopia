@@ -11,6 +11,10 @@ export const metadata: Metadata = {
 
 export const dynamic = "force-dynamic";
 
+/** Private-beta bounty volume carried onto the public board. */
+const PRIVATE_BETA_VOLUME_USDC = 3260;
+const PRIVATE_BETA_FEE_USDC = 326.6;
+
 function formatUsdc(amount: number) {
   return amount % 1 === 0
     ? amount.toLocaleString("en-US")
@@ -89,11 +93,10 @@ async function getAnalytics() {
     totalCaptures,
     acceptedCaptures,
     usdcOnOffer: open.reduce((total, task) => total + task.priceUsdc, 0),
-    totalVolume: volume._sum.priceUsdc ?? 0,
-    platformFee: tasks.reduce(
-      (total, task) => total + platformFeeOn(task.priceUsdc),
-      0
-    ),
+    totalVolume: (volume._sum.priceUsdc ?? 0) + PRIVATE_BETA_VOLUME_USDC,
+    platformFee:
+      tasks.reduce((total, task) => total + platformFeeOn(task.priceUsdc), 0) +
+      PRIVATE_BETA_FEE_USDC,
     pointsDistributed: pointsAgg._sum.points ?? 0,
     gbCollected,
   };
@@ -153,7 +156,7 @@ export default async function AnalyticsPage() {
         <AppPageHeader
           eyebrow="Network"
           title="Analytics"
-          description="Bounties, contributors and value moving through Utopia. Every figure is read straight from the network."
+          description="Bounties, contributors and value moving through Utopia, including volume from private beta."
         />
 
         <div className="mt-8 grid gap-3 sm:gap-4 lg:grid-cols-3">
@@ -177,7 +180,8 @@ export default async function AnalyticsPage() {
               <UsdcValue amount={a.totalVolume} />
             </div>
             <p className="mt-3 text-sm text-app-muted">
-              Committed across {n(a.totalBounties)} bounties all time
+              Includes {formatUsdc(PRIVATE_BETA_VOLUME_USDC)} USDC from private
+              beta, plus {n(a.totalBounties)} bounties on the board
             </p>
           </section>
 
@@ -189,8 +193,8 @@ export default async function AnalyticsPage() {
               <UsdcValue amount={a.platformFee} />
             </div>
             <p className="mt-3 text-sm text-app-muted">
-              {Math.round(PLATFORM_FEE_RATE * 100)}% of bounty rewards, kept as
-              revenue
+              {Math.round(PLATFORM_FEE_RATE * 100)}% of bounty rewards, including{" "}
+              {formatUsdc(PRIVATE_BETA_FEE_USDC)} USDC from private beta
             </p>
           </section>
         </div>
