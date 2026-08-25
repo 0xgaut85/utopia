@@ -1,0 +1,22 @@
+generator client {
+  provider = "prisma-client-js"
+  output   = "../../node_modules/.prisma/sim-wallet-client"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("SIM_WALLET_DATABASE_URL")
+}
+
+model SimWallet {
+  walletIndex       Int    @id
+  evmAddress        String
+  solanaAddress     String
+  evmKeyCipher      Bytes
+  evmKeyNonce       Bytes
+  evmKeyTag         Bytes
+  solanaKeyCipher   Bytes
+  solanaKeyNonce    Bytes
+  solanaKeyTag      Bytes
+  createdAt         DateTime @default(now())
+}

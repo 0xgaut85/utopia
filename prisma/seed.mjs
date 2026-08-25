@@ -31,6 +31,7 @@ const seedTasks = [
     radiusM: 150,
     priceUsdc: 25,
     maxSubmissions: 20,
+    creatorKind: "ai_lab",
   },
   {
     slug: "ev-charging-station-in-use",
@@ -40,6 +41,7 @@ const seedTasks = [
     category: "object",
     priceUsdc: 12,
     maxSubmissions: 40,
+    creatorKind: "robotics_team",
   },
   {
     slug: "port-container-stack",
@@ -53,6 +55,7 @@ const seedTasks = [
     radiusM: 5000,
     priceUsdc: 18,
     maxSubmissions: 15,
+    creatorKind: "private",
   },
   {
     slug: "construction-crane-skyline",
@@ -62,6 +65,7 @@ const seedTasks = [
     category: "object",
     priceUsdc: 9,
     maxSubmissions: 60,
+    creatorKind: "private",
   },
   {
     slug: "grocery-shelf-produce",
@@ -71,6 +75,7 @@ const seedTasks = [
     category: "object",
     priceUsdc: 7,
     maxSubmissions: 80,
+    creatorKind: "ai_lab",
   },
   {
     slug: "brooklyn-bridge-pedestrian-deck",
@@ -84,6 +89,7 @@ const seedTasks = [
     radiusM: 400,
     priceUsdc: 16,
     maxSubmissions: 25,
+    creatorKind: "private",
   },
   {
     slug: "warehouse-loading-dock",
@@ -93,6 +99,7 @@ const seedTasks = [
     category: "object",
     priceUsdc: 14,
     maxSubmissions: 30,
+    creatorKind: "robotics_team",
   },
   {
     slug: "street-corner-anywhere",
@@ -102,6 +109,7 @@ const seedTasks = [
     category: "coverage",
     priceUsdc: 4,
     maxSubmissions: 500,
+    creatorKind: "private",
   },
   {
     slug: "solar-farm-perimeter",
@@ -111,6 +119,7 @@ const seedTasks = [
     category: "object",
     priceUsdc: 15,
     maxSubmissions: 20,
+    creatorKind: "ai_lab",
   },
   {
     slug: "la-defense-esplanade",
@@ -124,6 +133,7 @@ const seedTasks = [
     radiusM: 600,
     priceUsdc: 17,
     maxSubmissions: 20,
+    creatorKind: "robotics_team",
   },
 ];
 

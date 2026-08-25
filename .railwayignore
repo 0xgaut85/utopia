@@ -1,0 +1,6 @@
+sim/secrets/
+.env
+.env.local
+node_modules
+.next
+banner/

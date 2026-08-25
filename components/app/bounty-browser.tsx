@@ -6,6 +6,7 @@ import { cn } from "@/lib/utils";
 import { TaskCard, type TaskCardData } from "@/components/app/task-card";
 import { CONTINENTS, normalize, resolvePlace } from "@/lib/app/geo";
 import { isBountyOpen } from "@/lib/app/bounty";
+import { creatorDisplay } from "@/lib/app/creator-kind";
 import { CountryMenu } from "@/components/app/country-menu";
 
 export type BrowsableTask = TaskCardData & {
@@ -101,6 +102,7 @@ export function BountyBrowser({ tasks }: { tasks: BrowsableTask[] }) {
               taskCountry ?? "",
               continent ?? "",
               task.category,
+              creatorDisplay(task.creatorKind, task.creatorName),
             ].join(" ")
           ),
         };

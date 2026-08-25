@@ -2,10 +2,10 @@ import Link from "next/link";
 import Image from "next/image";
 import { MapPin, Crosshair, Globe2 } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { Avatar } from "@/components/app/avatar";
 import { BountyProof } from "@/components/app/bounty-proof";
 import { RemainingTime } from "@/components/app/remaining-time";
 import { isBountyOpen } from "@/lib/app/bounty";
+import { creatorDisplay } from "@/lib/app/creator-kind";
 
 export type TaskCardData = {
   id: string;
@@ -19,7 +19,8 @@ export type TaskCardData = {
   maxSubmissions: number;
   status: string;
   submissionCount: number;
-  creator: { username: string; avatarUrl: string | null } | null;
+  creatorKind: string;
+  creatorName: string | null;
   depositNetwork: string | null;
   depositTxHash: string | null;
   expiresAt: string | null;
@@ -109,20 +110,9 @@ export function TaskCard({ task }: { task: TaskCardData }) {
       </Link>
 
       <div className="border-t border-app-line px-3.5 py-3 sm:px-4">
-        {task.creator ? (
-          <div className="flex items-center gap-2">
-            <Avatar
-              username={task.creator.username}
-              avatarUrl={task.creator.avatarUrl}
-              size="xs"
-            />
-            <span className="min-w-0 truncate text-[13px] text-app-text">
-              {task.creator.username}
-            </span>
-          </div>
-        ) : (
-          <p className="text-[13px] text-app-faint">Unknown buyer</p>
-        )}
+        <p className="truncate text-[13px] text-app-text">
+          {creatorDisplay(task.creatorKind, task.creatorName)}
+        </p>
 
         <div className="mt-2.5 flex items-end justify-between gap-2">
           <span className="flex items-baseline gap-1.5">

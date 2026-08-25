@@ -38,7 +38,7 @@ export default async function MarketplacePage() {
     orderBy: [{ status: "asc" }, { priceUsdc: "desc" }],
     include: {
       _count: { select: { submissions: true } },
-      creator: { select: { username: true, avatarUrl: true } },
+      creator: { select: { username: true } },
     },
   });
 
@@ -118,7 +118,11 @@ export default async function MarketplacePage() {
             status: task.status,
             submissionCount: task._count.submissions,
             createdAt: task.createdAt.toISOString(),
-            creator: task.creator,
+            creatorKind: task.creatorKind,
+            creatorName:
+              task.creatorKind === "user"
+                ? (task.creator?.username ?? null)
+                : null,
             depositNetwork: task.depositNetwork,
             depositTxHash: task.depositTxHash,
             expiresAt: task.expiresAt?.toISOString() ?? null,

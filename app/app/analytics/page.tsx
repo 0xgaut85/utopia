@@ -64,7 +64,7 @@ async function getAnalytics() {
     }),
     prisma.$queryRaw<
       Array<{ total: bigint | null }>
-    >`SELECT SUM(LENGTH(photo)) AS total FROM "Submission"`,
+    >`SELECT SUM(COALESCE("sizeBytes", FLOOR(LENGTH(photo) * 0.75))) AS total FROM "Submission"`,
   ]);
 
   const open = tasks.filter((task) =>
@@ -76,8 +76,7 @@ async function getAnalytics() {
     })
   );
 
-  const base64Chars = Number(sizeRows[0]?.total ?? 0);
-  const bytesCollected = base64Chars * 0.75;
+  const bytesCollected = Number(sizeRows[0]?.total ?? 0);
   const gbCollected = bytesCollected / 1024 ** 3;
 
   return {

@@ -8,7 +8,11 @@ export async function GET() {
   }
 
   const submissions = await prisma.submission.findMany({
-    where: { status: "pending" },
+    where: {
+      status: "pending",
+      user: { isSynthetic: false },
+      task: { isSynthetic: false },
+    },
     orderBy: { createdAt: "desc" },
     select: {
       id: true,

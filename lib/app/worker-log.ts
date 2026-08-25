@@ -1,3 +1,4 @@
+import type { Prisma } from "@prisma/client";
 import { prisma } from "@/lib/app/db";
 
 export type WorkerEventLevel = "info" | "warn" | "error";
@@ -6,7 +7,7 @@ export async function logWorkerEvent(input: {
   level?: WorkerEventLevel;
   kind: string;
   message: string;
-  payload?: Record<string, unknown>;
+  payload?: Prisma.InputJsonValue;
 }) {
   try {
     return await prisma.workerEvent.create({
@@ -14,7 +15,7 @@ export async function logWorkerEvent(input: {
         level: input.level ?? "info",
         kind: input.kind,
         message: input.message,
-        payload: input.payload ?? undefined,
+        payload: input.payload,
       },
     });
   } catch (error) {

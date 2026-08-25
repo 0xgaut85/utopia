@@ -7,7 +7,8 @@ import { useRouter } from "next/navigation";
 import { ArrowLeft, Copy, Check } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useAppAuth } from "@/components/app/auth-context";
-import { taskPoints } from "@/lib/app/points";
+import { creatorPoints, taskPoints } from "@/lib/app/points";
+import { CREATOR_KIND_OPTIONS, type CreatorKind } from "@/lib/app/creator-kind";
 import {
   DEPOSIT_NETWORKS,
   PLATFORM_FEE_RATE,
@@ -41,6 +42,7 @@ export default function NewBountyPage() {
   const [title, setTitle] = useState("");
   const [brief, setBrief] = useState("");
   const [category, setCategory] = useState("location");
+  const [creatorKind, setCreatorKind] = useState<CreatorKind>("private");
   const [locationName, setLocationName] = useState("");
   const [price, setPrice] = useState("");
   const [maxSubmissions, setMaxSubmissions] = useState("10");
@@ -111,6 +113,7 @@ export default function NewBountyPage() {
         title: title.trim(),
         brief: brief.trim(),
         category,
+        creatorKind,
         locationName: locationName.trim() || undefined,
         priceUsdc: priceValue,
         maxSubmissions: Number(maxSubmissions) || 25,
@@ -209,6 +212,37 @@ export default function NewBountyPage() {
           </div>
 
           <div className="flex flex-col gap-1.5">
+            <span className={label}>Posted as</span>
+            <div className="grid gap-2 sm:grid-cols-2">
+              {CREATOR_KIND_OPTIONS.map((option) => (
+                <button
+                  key={option.id}
+                  type="button"
+                  onClick={() => setCreatorKind(option.id)}
+                  className={cn(
+                    "cursor-pointer rounded-lg border px-3 py-2.5 text-left transition-colors",
+                    creatorKind === option.id
+                      ? "border-app-text bg-app-text text-app-bg"
+                      : "border-app-line text-app-text hover:border-app-line-hi"
+                  )}
+                >
+                  <span className="text-sm font-medium">{option.name}</span>
+                  <span
+                    className={cn(
+                      "mt-0.5 block text-xs leading-snug",
+                      creatorKind === option.id
+                        ? "text-app-bg/60"
+                        : "text-app-faint"
+                    )}
+                  >
+                    {option.hint}
+                  </span>
+                </button>
+              ))}
+            </div>
+          </div>
+
+          <div className="flex flex-col gap-1.5">
             <span className={label}>Category</span>
             <div className="grid gap-2 sm:grid-cols-3">
               {CATEGORIES.map((option) => (
@@ -274,7 +308,11 @@ export default function NewBountyPage() {
                 />
               </div>
               <span className="text-xs text-app-faint">
-                {points} pts for the contributor
+                {points} pts for the contributor,{" "}
+                {priceOk
+                  ? creatorPoints(priceValue).toLocaleString("en-US")
+                  : "0"}{" "}
+                pts for you
               </span>
             </div>
             <div className="flex flex-col gap-1.5">

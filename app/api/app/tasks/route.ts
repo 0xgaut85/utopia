@@ -9,6 +9,8 @@ import {
 } from "@/lib/app/payments";
 import { parseDeadline } from "@/lib/app/bounty";
 import { verifyDeposit } from "@/lib/app/verify-deposit";
+import { isCreatorKind } from "@/lib/app/creator-kind";
+import { creatorPoints } from "@/lib/app/points";
 
 const CATEGORIES = ["location", "object", "coverage"];
 
@@ -39,6 +41,7 @@ export async function POST(request: Request) {
     depositNetwork?: string;
     depositTxHash?: string;
     expiresAt?: string;
+    creatorKind?: string;
   };
 
   const title = typeof body.title === "string" ? body.title.trim() : "";
@@ -63,6 +66,13 @@ export async function POST(request: Request) {
   if (!category) {
     return NextResponse.json(
       { error: "Category must be location, object or coverage." },
+      { status: 400 }
+    );
+  }
+
+  if (!isCreatorKind(body.creatorKind)) {
+    return NextResponse.json(
+      { error: "Pick AI Lab, Robotics Team, Private or User." },
       { status: 400 }
     );
   }
@@ -152,26 +162,37 @@ export async function POST(request: Request) {
   const base = slugify(title) || "bounty";
   const slug = `${base}-${Math.random().toString(36).slice(2, 8)}`;
 
-  const task = await prisma.task.create({
-    data: {
-      slug,
-      title,
-      brief,
-      category,
-      locationName,
-      lat,
-      lng,
-      radiusM,
-      priceUsdc: Math.round(priceUsdc * 100) / 100,
-      maxSubmissions,
-      status: "open",
-      depositNetwork,
-      depositTxHash,
-      expiresAt,
-      fundedAt: new Date(),
-      creatorId: user.id,
-    },
-  });
+  const roundedPrice = Math.round(priceUsdc * 100) / 100;
+  const [task] = await prisma.$transaction([
+    prisma.task.create({
+      data: {
+        slug,
+        title,
+        brief,
+        category,
+        locationName,
+        lat,
+        lng,
+        radiusM,
+        priceUsdc: roundedPrice,
+        maxSubmissions,
+        status: "open",
+        depositNetwork,
+        depositTxHash,
+        expiresAt,
+        fundedAt: new Date(),
+        creatorKind: body.creatorKind,
+        creatorId: user.id,
+      },
+    }),
+    prisma.user.update({
+      where: { id: user.id },
+      data: { points: { increment: creatorPoints(roundedPrice) } },
+    }),
+  ]);
 
-  return NextResponse.json({ task: { id: task.id, slug: task.slug } });
+  return NextResponse.json({
+    task: { id: task.id, slug: task.slug },
+    pointsAwarded: creatorPoints(roundedPrice),
+  });
 }

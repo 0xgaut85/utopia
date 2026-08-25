@@ -278,7 +278,7 @@ export default function ProfilePage() {
                   <input
                     value={usernameDraft}
                     onChange={(event) =>
-                      setUsernameDraft(event.target.value.toLowerCase())
+                      setUsernameDraft(event.target.value)
                     }
                     maxLength={20}
                     autoFocus

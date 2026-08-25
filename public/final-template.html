@@ -1,0 +1,138 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>Utopia — final</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&family=Bricolage+Grotesque:opsz,wght@12..96,200..800&family=Instrument+Serif:ital@0;1&family=JetBrains+Mono:wght@300;400;500&display=swap"
+      rel="stylesheet"
+    />
+
+    <style>
+      /* ============================================================
+         EDIT THESE
+         ============================================================ */
+      :root {
+        --stage-image: url("final.png");
+
+        /* Ink colour for all overlay text and the logo mark. */
+        --ink: #151515;
+
+        /* Distance from the frame edges to the corner content. */
+        --pad: 24px;
+
+        /* Size of the logo mark. The wordmark scales relative to this. */
+        --logo-size: 126.5px;
+      }
+
+      /* Add class="stage dark" for light-on-dark imagery. */
+      .stage.dark {
+        --ink: #ffffff;
+      }
+
+      /* ============================================================
+         FRAME — locked to 1920x1080 (16:9)
+         ============================================================ */
+      * {
+        box-sizing: border-box;
+      }
+
+      html,
+      body {
+        margin: 0;
+        padding: 0;
+        overflow: hidden;
+        background: #0e0e0e;
+      }
+
+      .stage {
+        position: relative;
+        width: 1920px;
+        height: 1080px;
+        overflow: hidden;
+        background-color: #f6f6f4;
+        background-image: var(--stage-image);
+        background-position: center center;
+        background-size: cover;
+        background-repeat: no-repeat;
+        font-family: "Inter", ui-sans-serif, system-ui, sans-serif;
+        color: var(--ink);
+        -webkit-font-smoothing: antialiased;
+        text-rendering: optimizeLegibility;
+      }
+
+      /* ============================================================
+         TOP LEFT LOCKUP — logo mark + wordmark
+         ============================================================ */
+      .lockup {
+        position: absolute;
+        top: var(--pad);
+        left: var(--pad);
+        display: flex;
+        align-items: center;
+        gap: calc(var(--logo-size) * 0.19);
+      }
+
+      .lockup__mark {
+        height: var(--logo-size);
+        width: auto;
+        display: block;
+        flex: none;
+      }
+
+      /* The mark ships as dark ink; flip it to white for dark imagery. */
+      .stage.dark .lockup__mark {
+        filter: brightness(0) invert(1);
+      }
+
+      .lockup__word {
+        font-style: italic;
+        font-weight: 100;
+        font-size: calc(var(--logo-size) * 0.58);
+        letter-spacing: -0.025em;
+        line-height: 1;
+        /* Optical nudge so the wordmark sits level with the mark's waist. */
+        margin-top: calc(var(--logo-size) * 0.02);
+      }
+
+      /* ============================================================
+         COPYRIGHT — bottom right
+         ============================================================ */
+      .copyright {
+        position: absolute;
+        right: var(--pad);
+        bottom: 12px;
+        display: flex;
+        align-items: baseline;
+        gap: 0.28em;
+        font-family: "JetBrains Mono", ui-monospace, "SFMono-Regular", monospace;
+        font-size: 14px;
+        font-weight: 400;
+        letter-spacing: 0.04em;
+        line-height: 1;
+        opacity: 0.72;
+      }
+
+      .copyright__mark {
+        font-size: 1.85em;
+        line-height: 1;
+      }
+    </style>
+  </head>
+
+  <body>
+    <div class="stage">
+      <!-- TOP LEFT LOCKUP -->
+      <div class="lockup">
+        <img class="lockup__mark" src="logo-utopia-mark.png" alt="Utopia" />
+        <div class="lockup__word">utopia</div>
+      </div>
+
+      <!-- COPYRIGHT -->
+      <div class="copyright"><span class="copyright__mark">©</span> 2026</div>
+    </div>
+  </body>
+</html>

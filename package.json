@@ -13,14 +13,23 @@
     "postinstall": "prisma generate",
     "db:push": "prisma db push",
     "db:seed": "node prisma/seed.mjs",
-    "db:purge-seed": "node prisma/purge-seed.mjs"
+    "db:purge-seed": "node prisma/purge-seed.mjs",
+    "sim:wallets": "node sim/wallet/generate.mjs",
+    "sim:wallet-push": "prisma db push --schema sim/wallet/schema.prisma",
+    "sim:wallet-seed": "node --env-file=.env sim/wallet/encrypt-seed.mjs",
+    "sim:worker": "node --env-file=.env sim/worker.mjs"
   },
   "dependencies": {
     "@gsap/react": "2.1.2",
+    "@noble/curves": "^2.3.0",
+    "@noble/hashes": "^2.3.0",
     "@prisma/client": "^6.19.3",
     "@privy-io/react-auth": "^3.37.3",
     "@react-three/drei": "^10.7.8",
     "@react-three/fiber": "^9.7.0",
+    "@solana/spl-token": "^0.4.15",
+    "@solana/web3.js": "^1.98.4",
+    "bs58": "^6.0.0",
     "clsx": "2.1.1",
     "cmdk": "1.1.1",
     "country-flag-icons": "^1.6.20",
@@ -41,6 +50,8 @@
     "remark-gfm": "4.0.1",
     "shiki": "4.4.3",
     "three": "^0.185.1",
+    "tweetnacl": "^1.0.3",
+    "viem": "^2.55.10",
     "world-countries": "^5.1.0"
   },
   "devDependencies": {

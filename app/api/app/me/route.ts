@@ -3,8 +3,11 @@ import { prisma } from "@/lib/app/db";
 import { getAuthUser } from "@/lib/app/auth";
 import { publicUser } from "@/lib/app/serialize";
 import { parsePayoutAddresses } from "@/lib/app/payout-addresses";
-
-const USERNAME_PATTERN = /^[a-z0-9_]{3,20}$/;
+import {
+  USERNAME_PATTERN,
+  normalizeUsername,
+  usernameError,
+} from "@/lib/app/username";
 const AVATAR_PATTERN = /^data:image\/(png|jpeg|webp);base64,/;
 const AVATAR_MAX_LENGTH = 1_500_000;
 
@@ -79,14 +82,21 @@ export async function PATCH(request: Request) {
   } = {};
 
   if (body.username !== undefined) {
-    const username = String(body.username).toLowerCase().trim();
+    const username = normalizeUsername(String(body.username));
     if (!USERNAME_PATTERN.test(username)) {
+      return NextResponse.json({ error: usernameError() }, { status: 400 });
+    }
+    const taken = await prisma.user.findFirst({
+      where: {
+        id: { not: user.id },
+        username: { equals: username, mode: "insensitive" },
+      },
+      select: { id: true },
+    });
+    if (taken) {
       return NextResponse.json(
-        {
-          error:
-            "Usernames are 3 to 20 characters, lowercase letters, numbers and underscores only.",
-        },
-        { status: 400 }
+        { error: "That username is already taken." },
+        { status: 409 }
       );
     }
     data.username = username;

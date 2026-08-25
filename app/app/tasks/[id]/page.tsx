@@ -5,8 +5,8 @@ import { prisma } from "@/lib/app/db";
 import { SubmitPanel } from "@/components/app/submit-panel";
 import { ReviewPanel } from "@/components/app/review-panel";
 import { UsdcAmount } from "@/components/app/usdc-amount";
-import { Avatar } from "@/components/app/avatar";
 import { BountyProof } from "@/components/app/bounty-proof";
+import { creatorDisplay } from "@/lib/app/creator-kind";
 import { taskPoints } from "@/lib/app/points";
 import { isBountyOpen } from "@/lib/app/bounty";
 import { RemainingTime } from "@/components/app/remaining-time";
@@ -36,7 +36,7 @@ export default async function TaskPage({
     where: { id },
     include: {
       _count: { select: { submissions: true } },
-      creator: { select: { id: true, username: true, avatarUrl: true } },
+      creator: { select: { id: true, username: true } },
     },
   });
 
@@ -72,25 +72,16 @@ export default async function TaskPage({
             {task.title}
           </h1>
 
-          <p className="mt-4 max-w-xl text-sm leading-relaxed text-app-muted">
+          <p className="mt-4 max-w-xl whitespace-pre-wrap text-sm leading-relaxed text-app-muted">
             {task.brief}
           </p>
 
-          {task.creator ? (
-            <div className="mt-5 flex items-center gap-2.5">
-              <Avatar
-                username={task.creator.username}
-                avatarUrl={task.creator.avatarUrl}
-                size="sm"
-              />
-              <div className="min-w-0">
-                <p className="truncate text-sm text-app-text">
-                  {task.creator.username}
-                </p>
-                <p className="text-xs text-app-faint">Posted this bounty</p>
-              </div>
-            </div>
-          ) : null}
+          <div className="mt-5">
+            <p className="text-sm text-app-text">
+              {creatorDisplay(task.creatorKind, task.creator?.username)}
+            </p>
+            <p className="text-xs text-app-faint">Posted this bounty</p>
+          </div>
 
           <div className="panel mt-4 px-4 py-3">
             <p className="text-xs text-app-faint">Bounty funding</p>

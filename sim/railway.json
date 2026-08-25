@@ -1,0 +1,12 @@
+{
+  "$schema": "https://railway.com/railway.schema.json",
+  "build": {
+    "builder": "RAILPACK",
+    "buildCommand": "npx prisma generate && npx prisma generate --schema sim/wallet/schema.prisma"
+  },
+  "deploy": {
+    "startCommand": "node sim/worker.mjs",
+    "restartPolicyType": "ALWAYS",
+    "overlapSeconds": 0
+  }
+}
