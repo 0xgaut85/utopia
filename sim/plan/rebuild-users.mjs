@@ -31,16 +31,17 @@ if (errors.length) {
   process.exit(1);
 }
 
-const launchCount = users.filter((row) => row.launch).length;
-const laterSlots = Math.max(0, files.length - launchCount);
-const laterIndexes = [];
-for (let i = 0; i < laterSlots; i += 1) {
-  laterIndexes.push(launchCount + Math.floor((i * (users.length - launchCount)) / laterSlots));
+const withAvatar = new Set();
+for (let i = 0; i < files.length; i += 1) {
+  const index = Math.min(
+    users.length - 1,
+    Math.floor(((i + 1) * users.length) / files.length)
+  );
+  if (withAvatar.has(index)) {
+    throw new Error(`avatar slot collision at ${index}`);
+  }
+  withAvatar.add(index);
 }
-const withAvatar = new Set([
-  ...users.slice(0, Math.min(launchCount, files.length)).map((_, index) => index),
-  ...laterIndexes,
-]);
 
 let fileIndex = 0;
 const next = users.map((row, index) => {
@@ -64,6 +65,7 @@ console.log(
     {
       files: files.length,
       assigned: urls.length,
+      first31: next.slice(0, 31).filter((row) => row.avatar).length,
       launchWithAvatar: next.filter((row) => row.launch && row.avatar).length,
       laterWithAvatar: next.filter((row) => !row.launch && row.avatar).length,
       launch: next
