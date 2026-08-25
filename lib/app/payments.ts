@@ -100,3 +100,29 @@ export function bountyProof(task: {
     detail: shortTxHash(network.depositAddress),
   };
 }
+
+export function payoutProof(task: {
+  depositNetwork: string | null;
+  payoutTxHash: string | null;
+}) {
+  const network = networkById(task.depositNetwork) ?? DEPOSIT_NETWORKS[1];
+  const hash = task.payoutTxHash ? normalizeTxHash(task.payoutTxHash) : null;
+  if (!hash) return null;
+  return {
+    href: network.txUrl(hash),
+    label: "Payout tx",
+    detail: shortTxHash(hash),
+  };
+}
+
+export function payoutHashFromJob(hashes: unknown) {
+  if (!hashes || typeof hashes !== "object") return null;
+  const row = hashes as { payout?: unknown; payoutTx?: unknown };
+  const value =
+    typeof row.payout === "string"
+      ? row.payout
+      : typeof row.payoutTx === "string"
+        ? row.payoutTx
+        : null;
+  return value && isValidTxHash(value) ? normalizeTxHash(value) : null;
+}

@@ -4,6 +4,7 @@ import Image from "next/image";
 import { Plus } from "lucide-react";
 import { prisma } from "@/lib/app/db";
 import { BountyBrowser } from "@/components/app/bounty-browser";
+import { AppPageHeader } from "@/components/app/app-page-header";
 import { isBountyOpen } from "@/lib/app/bounty";
 
 export const metadata: Metadata = {
@@ -23,9 +24,9 @@ function formatUsdc(amount: number) {
 
 function Stat({ label, value }: { label: string; value: string }) {
   return (
-    <div className="panel min-w-0 px-3 py-2.5 sm:px-4 sm:py-3">
-      <p className="text-xs text-app-faint">{label}</p>
-      <p className="mt-1 text-lg tabular-nums text-app-text sm:text-xl">
+    <div className="panel min-w-0 px-3.5 py-3 sm:px-4 sm:py-3.5">
+      <p className="text-[11px] font-medium text-app-faint">{label}</p>
+      <p className="mt-1.5 text-lg tabular-nums tracking-tight text-app-text sm:text-xl">
         {value}
       </p>
     </div>
@@ -53,31 +54,26 @@ export default async function MarketplacePage() {
   const onOffer = open.reduce((total, task) => total + task.priceUsdc, 0);
 
   return (
-    <div className="px-4 py-6 sm:px-6 sm:py-10 lg:px-8">
-      <div className="flex flex-col gap-4 sm:gap-6 lg:flex-row lg:items-start lg:justify-between">
-        <div className="max-w-xl">
-          <h1 className="text-2xl font-semibold tracking-tight text-app-text sm:text-3xl">
-            Bounties
-          </h1>
-          <p className="mt-2 text-sm leading-relaxed text-app-muted">
-            Pick a bounty, record a short clip in the app and submit it. When
-            the buyer accepts your clip, the reward is yours.
-          </p>
-        </div>
+    <div className="app-page">
+      <AppPageHeader
+        eyebrow="Marketplace"
+        title="Bounties"
+        description="Pick a bounty, record a short clip in the app and submit it. When the buyer accepts your clip, the reward is yours."
+        action={
+          <Link
+            href="/app/tasks/new"
+            className="app-btn app-btn-primary w-full shrink-0 sm:w-auto"
+          >
+            <Plus className="h-4 w-4" strokeWidth={2} />
+            Post a bounty
+          </Link>
+        }
+      />
 
-        <Link
-          href="/app/tasks/new"
-          className="app-btn app-btn-primary w-full shrink-0 sm:w-auto sm:self-start"
-        >
-          <Plus className="h-4 w-4" strokeWidth={2} />
-          Post a bounty
-        </Link>
-      </div>
-
-      <div className="mt-5 grid grid-cols-2 gap-2 sm:mt-6 sm:grid-cols-4 sm:gap-3">
-        <div className="panel min-w-0 px-3 py-2.5 sm:px-4 sm:py-3">
-          <p className="text-xs text-app-faint">Available now</p>
-          <p className="mt-1 flex flex-wrap items-center gap-x-1.5 gap-y-0.5">
+      <div className="mt-6 grid grid-cols-2 gap-2.5 sm:mt-8 sm:grid-cols-4 sm:gap-3">
+        <div className="panel min-w-0 px-3.5 py-3 sm:px-4 sm:py-3.5">
+          <p className="text-[11px] font-medium text-app-faint">Available now</p>
+          <p className="mt-1.5 flex flex-wrap items-center gap-x-1.5 gap-y-0.5">
             <Image
               src="/usdc.svg"
               alt=""
@@ -85,7 +81,7 @@ export default async function MarketplacePage() {
               height={16}
               className="h-4 w-4 shrink-0"
             />
-            <span className="text-lg tabular-nums text-app-text sm:text-xl">
+            <span className="text-lg tabular-nums tracking-tight text-app-text sm:text-xl">
               {formatUsdc(onOffer)}
             </span>
             <span className="text-xs text-app-faint">USDC</span>

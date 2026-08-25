@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Image from "next/image";
 import { prisma } from "@/lib/app/db";
+import { AppPageHeader } from "@/components/app/app-page-header";
 import { isBountyOpen } from "@/lib/app/bounty";
 import { PLATFORM_FEE_RATE, platformFeeOn } from "@/lib/app/payments";
 
@@ -108,7 +109,7 @@ function UsdcValue({ amount }: { amount: number }) {
         height={24}
         className="h-6 w-6 shrink-0 translate-y-1"
       />
-      <span className="text-2xl tabular-nums text-app-text sm:text-4xl">
+      <span className="font-display text-2xl font-semibold tabular-nums tracking-tight text-app-text sm:text-4xl">
         {formatUsdc(amount)}
       </span>
       <span className="text-sm text-app-faint">USDC</span>
@@ -126,12 +127,14 @@ function StatCard({
   hint?: string;
 }) {
   return (
-    <div className="panel px-4 py-3 sm:px-5 sm:py-4">
-      <p className="text-xs text-app-faint">{label}</p>
-      <p className="mt-1.5 text-xl tabular-nums text-app-text sm:text-2xl">
+    <div className="panel px-5 py-4">
+      <p className="text-[11px] font-medium uppercase tracking-[0.12em] text-app-faint">
+        {label}
+      </p>
+      <p className="mt-2 font-display text-2xl font-semibold tabular-nums tracking-tight text-app-text">
         {value}
       </p>
-      {hint ? <p className="mt-1 text-xs text-app-faint">{hint}</p> : null}
+      {hint ? <p className="mt-1 text-xs text-app-muted">{hint}</p> : null}
     </div>
   );
 }
@@ -145,81 +148,87 @@ export default async function AnalyticsPage() {
   });
 
   return (
-    <div className="px-4 py-6 sm:px-6 sm:py-10 lg:px-8">
-      <h1 className="text-2xl font-semibold tracking-tight text-app-text sm:text-3xl">
-        Analytics
-      </h1>
-      <p className="mt-2 max-w-xl text-sm leading-relaxed text-app-muted">
-        Bounties, contributors and value moving through Utopia. Every figure is
-        read straight from the network.
-      </p>
+    <div className="flex flex-1 flex-col">
+      <div className="app-page">
+        <AppPageHeader
+          eyebrow="Network"
+          title="Analytics"
+          description="Bounties, contributors and value moving through Utopia. Every figure is read straight from the network."
+        />
 
-      <div className="mt-6 grid gap-3 sm:gap-4 lg:grid-cols-3">
-        <section className="panel p-4 sm:p-6">
-          <p className="text-xs text-app-faint">USDC on offer</p>
-          <div className="mt-3">
-            <UsdcValue amount={a.usdcOnOffer} />
-          </div>
-          <p className="mt-2 text-sm text-app-muted">
-            Across {n(a.openBounties)} open bounties right now
-          </p>
-        </section>
+        <div className="mt-8 grid gap-3 sm:gap-4 lg:grid-cols-3">
+          <section className="panel p-5 sm:p-6">
+            <p className="text-[11px] font-medium uppercase tracking-[0.12em] text-app-faint">
+              USDC on offer
+            </p>
+            <div className="mt-4">
+              <UsdcValue amount={a.usdcOnOffer} />
+            </div>
+            <p className="mt-3 text-sm text-app-muted">
+              Across {n(a.openBounties)} open bounties right now
+            </p>
+          </section>
 
-        <section className="panel p-4 sm:p-6">
-          <p className="text-xs text-app-faint">Total volume</p>
-          <div className="mt-3">
-            <UsdcValue amount={a.totalVolume} />
-          </div>
-          <p className="mt-2 text-sm text-app-muted">
-            Committed across {n(a.totalBounties)} bounties all time
-          </p>
-        </section>
+          <section className="panel p-5 sm:p-6">
+            <p className="text-[11px] font-medium uppercase tracking-[0.12em] text-app-faint">
+              Total volume
+            </p>
+            <div className="mt-4">
+              <UsdcValue amount={a.totalVolume} />
+            </div>
+            <p className="mt-3 text-sm text-app-muted">
+              Committed across {n(a.totalBounties)} bounties all time
+            </p>
+          </section>
 
-        <section className="panel p-4 sm:p-6">
-          <p className="text-xs text-app-faint">Fee</p>
-          <div className="mt-3">
-            <UsdcValue amount={a.platformFee} />
-          </div>
-          <p className="mt-2 text-sm text-app-muted">
-            {Math.round(PLATFORM_FEE_RATE * 100)}% of bounty rewards, kept as
-            revenue
-          </p>
-        </section>
-      </div>
+          <section className="panel p-5 sm:p-6">
+            <p className="text-[11px] font-medium uppercase tracking-[0.12em] text-app-faint">
+              Fee
+            </p>
+            <div className="mt-4">
+              <UsdcValue amount={a.platformFee} />
+            </div>
+            <p className="mt-3 text-sm text-app-muted">
+              {Math.round(PLATFORM_FEE_RATE * 100)}% of bounty rewards, kept as
+              revenue
+            </p>
+          </section>
+        </div>
 
-      <div className="mt-3 grid gap-3 sm:grid-cols-2 sm:gap-4 lg:grid-cols-4">
-        <StatCard label="Open bounties" value={n(a.openBounties)} />
-        <StatCard
-          label="Total bounties"
-          value={n(a.totalBounties)}
-          hint={`${n(a.settledBounties)} settled`}
-        />
-        <StatCard label="Contributors" value={n(a.contributors)} />
-        <StatCard label="Total users" value={n(a.totalUsers)} />
-        <StatCard
-          label="Clips submitted"
-          value={n(a.totalCaptures)}
-          hint={`${n(a.acceptedCaptures)} accepted`}
-        />
-        <StatCard
-          label="Acceptance rate"
-          value={
-            a.totalCaptures
-              ? `${Math.round((a.acceptedCaptures / a.totalCaptures) * 100)}%`
-              : "0%"
-          }
-          hint="of clips accepted"
-        />
-        <StatCard
-          label="Data collected"
-          value={`${gb} GB`}
-          hint="Footage stored on the network"
-        />
-        <StatCard
-          label="Points distributed"
-          value={n(a.pointsDistributed)}
-          hint="100 points per USDC"
-        />
+        <div className="mt-3 grid gap-3 sm:grid-cols-2 sm:gap-4 lg:grid-cols-4">
+          <StatCard label="Open bounties" value={n(a.openBounties)} />
+          <StatCard
+            label="Total bounties"
+            value={n(a.totalBounties)}
+            hint={`${n(a.settledBounties)} settled`}
+          />
+          <StatCard label="Contributors" value={n(a.contributors)} />
+          <StatCard label="Total users" value={n(a.totalUsers)} />
+          <StatCard
+            label="Clips submitted"
+            value={n(a.totalCaptures)}
+            hint={`${n(a.acceptedCaptures)} accepted`}
+          />
+          <StatCard
+            label="Acceptance rate"
+            value={
+              a.totalCaptures
+                ? `${Math.round((a.acceptedCaptures / a.totalCaptures) * 100)}%`
+                : "0%"
+            }
+            hint="of clips accepted"
+          />
+          <StatCard
+            label="Data collected"
+            value={`${gb} GB`}
+            hint="Footage stored on the network"
+          />
+          <StatCard
+            label="Points distributed"
+            value={n(a.pointsDistributed)}
+            hint="100 points per USDC"
+          />
+        </div>
       </div>
     </div>
   );

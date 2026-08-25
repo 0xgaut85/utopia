@@ -65,23 +65,22 @@ export function TaskCard({ task }: { task: TaskCardData }) {
     <article
       className={cn(
         "panel flex min-h-[22rem] flex-col overflow-hidden sm:aspect-[3/4] sm:min-h-0",
+        !closed &&
+          "hover:-translate-y-1 hover:border-app-line-hi hover:bg-app-surface-hi/40",
         closed && "opacity-50"
       )}
     >
       <Link
         href={`/app/tasks/${task.id}`}
-        className={cn(
-          "flex min-h-0 flex-1 flex-col p-3.5 transition-colors sm:p-4",
-          !closed && "hover:bg-app-surface-hi"
-        )}
+        className="flex min-h-0 flex-1 flex-col p-4 sm:p-4"
       >
         <div className="flex items-center justify-between gap-2">
-          <span className="flex items-center gap-1.5 text-xs capitalize text-app-muted">
+          <span className="inline-flex items-center gap-1.5 rounded-full bg-app-bg/80 px-2 py-0.5 text-[11px] capitalize text-app-muted">
             <Icon className="h-3.5 w-3.5 shrink-0" strokeWidth={1.8} />
             {task.category}
           </span>
           {closed ? (
-            <span className="rounded-md bg-app-bg px-1.5 py-0.5 text-[11px] text-app-faint">
+            <span className="rounded-full bg-app-bg px-2 py-0.5 text-[11px] text-app-faint">
               Closed
             </span>
           ) : (

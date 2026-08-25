@@ -241,8 +241,8 @@ export default function ProfilePage() {
   }
 
   return (
-    <div className="px-4 py-6 sm:px-6 sm:py-10 lg:px-8">
-      <h1 className="text-2xl font-semibold tracking-tight text-app-text sm:text-3xl">
+    <div className="app-page">
+      <h1 className="font-display text-[2.05rem] font-semibold leading-[1.08] tracking-[-0.035em] text-app-text sm:text-[2.55rem]">
         Profile
       </h1>
 

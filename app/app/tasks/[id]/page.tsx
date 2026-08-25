@@ -52,7 +52,7 @@ export default async function TaskPage({
   });
 
   return (
-    <div className="px-4 py-6 sm:px-6 sm:py-10 lg:px-8">
+    <div className="app-page">
       <Link
         href="/app"
         className="inline-flex items-center gap-1.5 text-sm text-app-muted transition-colors hover:text-app-text"

@@ -9,6 +9,12 @@ import { cn } from "@/lib/utils";
 import { useAppAuth } from "@/components/app/auth-context";
 import { Avatar } from "@/components/app/avatar";
 
+const brandLink = {
+  href: "/app/archive",
+  label: "Archive",
+  match: /archive/,
+};
+
 const navLinks = [
   {
     href: "/app",
@@ -52,21 +58,21 @@ function AuthControls() {
     <div className="flex items-center gap-2">
       <Link
         href="/app/profile"
-        className="flex items-center gap-2 rounded-lg px-2 py-1.5 transition-colors hover:bg-app-surface"
+        className="flex items-center gap-2 rounded-full px-1.5 py-1 transition-colors hover:bg-app-surface"
       >
         <Avatar
           username={profile?.username ?? "?"}
           avatarUrl={profile?.avatarUrl}
           size="sm"
         />
-        <span className="hidden max-w-28 truncate text-sm text-app-text sm:inline">
+        <span className="hidden max-w-28 truncate text-[13px] font-medium text-app-text sm:inline">
           {profile?.username ?? "syncing"}
         </span>
       </Link>
       <button
         type="button"
         onClick={() => logout()}
-        className="app-btn app-btn-ghost px-3 py-2 text-xs"
+        className="app-btn app-btn-ghost px-3 py-1.5 text-xs"
       >
         Sign out
       </button>
@@ -74,45 +80,81 @@ function AuthControls() {
   );
 }
 
+function NavLink({
+  href,
+  label,
+  active,
+  onClick,
+}: {
+  href: string;
+  label: string;
+  active: boolean;
+  onClick?: () => void;
+}) {
+  return (
+    <Link
+      href={href}
+      onClick={onClick}
+      className={cn(
+        "rounded-full px-3.5 py-1.5 text-[13px] font-medium transition-colors",
+        active
+          ? "bg-app-text text-app-bg shadow-sm"
+          : "text-app-muted hover:bg-app-surface hover:text-app-text"
+      )}
+    >
+      {label}
+    </Link>
+  );
+}
+
 export function AppHeader() {
   const pathname = usePathname() ?? "";
   const [menuOpen, setMenuOpen] = useState(false);
+  const archiveActive = brandLink.match.test(pathname);
+  const light = /analytics/.test(pathname);
 
   return (
-    <header className="sticky top-0 z-40 border-b border-app-line bg-app-bg/85 backdrop-blur-xl">
-      <div className="flex h-14 items-center justify-between gap-2 px-4 sm:h-16 sm:gap-4 sm:px-6 lg:px-8">
-        <Link href="/app" className="flex min-w-0 items-center gap-2.5">
-          <Image
-            src="/logo-utopia.png"
-            alt=""
-            width={24}
-            height={24}
-            priority
-            className="h-6 w-6 shrink-0 brightness-0 invert"
-          />
-          <span className="truncate text-base font-medium tracking-tight text-app-text">
-            Utopia
-          </span>
-        </Link>
+    <header className="sticky top-0 z-40 border-b border-app-line/70 bg-app-bg/70 backdrop-blur-2xl">
+      <div className="mx-auto flex h-14 max-w-[90rem] items-center justify-between gap-3 px-4 sm:h-[3.75rem] sm:px-6 lg:px-8">
+        <div className="flex min-w-0 items-center gap-1">
+          <Link href="/app" className="flex min-w-0 items-center gap-2.5 pr-1">
+            <Image
+              src="/logo-utopia.png"
+              alt=""
+              width={24}
+              height={24}
+              priority
+              className={cn(
+                "h-6 w-6 shrink-0 brightness-0",
+                !light && "invert"
+              )}
+            />
+            <span className="truncate font-display text-[17px] font-semibold tracking-tight text-app-text">
+              Utopia
+            </span>
+          </Link>
+          <Link
+            href={brandLink.href}
+            className={cn(
+              "rounded-full px-3 py-1.5 text-[13px] font-medium transition-colors",
+              archiveActive
+                ? "bg-app-surface text-app-text"
+                : "text-app-muted hover:bg-app-surface hover:text-app-text"
+            )}
+          >
+            Archive
+          </Link>
+        </div>
 
-        <nav className="hidden items-center gap-1 md:flex">
-          {navLinks.map((link) => {
-            const active = link.match.test(pathname);
-            return (
-              <Link
-                key={link.href}
-                href={link.href}
-                className={cn(
-                  "rounded-lg px-3.5 py-2 text-sm transition-colors",
-                  active
-                    ? "bg-app-surface text-app-text"
-                    : "text-app-muted hover:bg-app-surface/60 hover:text-app-text"
-                )}
-              >
-                {link.label}
-              </Link>
-            );
-          })}
+        <nav className="app-seg hidden items-center rounded-full p-1 md:flex">
+          {navLinks.map((link) => (
+            <NavLink
+              key={link.href}
+              href={link.href}
+              label={link.label}
+              active={link.match.test(pathname)}
+            />
+          ))}
         </nav>
 
         <div className="flex items-center gap-2">
@@ -122,7 +164,7 @@ export function AppHeader() {
             aria-label={menuOpen ? "Close menu" : "Open menu"}
             aria-expanded={menuOpen}
             onClick={() => setMenuOpen((open) => !open)}
-            className="inline-flex h-9 w-9 cursor-pointer items-center justify-center rounded-lg border border-app-line text-app-muted transition-colors hover:text-app-text md:hidden"
+            className="inline-flex h-9 w-9 cursor-pointer items-center justify-center rounded-full border border-app-line text-app-muted transition-colors hover:bg-app-surface hover:text-app-text md:hidden"
           >
             {menuOpen ? (
               <X className="h-4 w-4" strokeWidth={1.8} />
@@ -134,25 +176,24 @@ export function AppHeader() {
       </div>
 
       {menuOpen ? (
-        <nav className="border-t border-app-line px-3 py-2 md:hidden">
-          {navLinks.map((link) => {
-            const active = link.match.test(pathname);
-            return (
-              <Link
+        <nav className="border-t border-app-line px-3 py-2.5 md:hidden">
+          <div className="app-seg flex flex-col gap-1 rounded-[1.15rem] p-1.5">
+            <NavLink
+              href={brandLink.href}
+              label={brandLink.label}
+              active={archiveActive}
+              onClick={() => setMenuOpen(false)}
+            />
+            {navLinks.map((link) => (
+              <NavLink
                 key={link.href}
                 href={link.href}
+                label={link.label}
+                active={link.match.test(pathname)}
                 onClick={() => setMenuOpen(false)}
-                className={cn(
-                  "block rounded-lg px-3 py-2.5 text-sm",
-                  active
-                    ? "bg-app-surface text-app-text"
-                    : "text-app-muted hover:text-app-text"
-                )}
-              >
-                {link.label}
-              </Link>
-            );
-          })}
+              />
+            ))}
+          </div>
         </nav>
       ) : null}
     </header>

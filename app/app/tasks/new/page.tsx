@@ -138,7 +138,7 @@ export default function NewBountyPage() {
   }
 
   return (
-    <div className="px-4 py-6 sm:px-6 sm:py-10 lg:px-8">
+    <div className="app-page">
       <div className="mx-auto max-w-2xl">
         <div className="flex items-center justify-between gap-3">
           <Link

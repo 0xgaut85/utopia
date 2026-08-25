@@ -169,23 +169,24 @@ export function BountyBrowser({ tasks }: { tasks: BrowsableTask[] }) {
 
   return (
     <div>
-      <div className="panel relative z-20 mt-6 overflow-visible p-3 sm:mt-8 sm:p-4">
+      <div className="panel relative z-20 mt-6 overflow-visible p-3.5 sm:mt-8 sm:p-4">
         <SearchField
           value={query}
           onChange={setQuery}
           onClear={() => setQuery("")}
           placeholder="Search title, place or country"
+          className="rounded-full"
         />
 
         <div className="mt-3 flex flex-col gap-2 sm:flex-row sm:flex-wrap sm:items-center">
-          <div className="no-scrollbar flex w-full items-center gap-1 overflow-x-auto rounded-lg bg-app-bg p-1 sm:w-auto">
+          <div className="app-seg no-scrollbar flex w-full items-center gap-1 overflow-x-auto rounded-full p-1 sm:w-auto">
             {CATEGORIES.map((option) => (
               <button
                 key={option.id}
                 type="button"
                 onClick={() => setCategory(option.id)}
                 className={cn(
-                  "cursor-pointer whitespace-nowrap rounded-md px-3 py-1.5 text-sm transition-colors",
+                  "cursor-pointer whitespace-nowrap rounded-full px-3.5 py-1.5 text-[13px] transition-colors",
                   category === option.id
                     ? "bg-app-text text-app-bg"
                     : "text-app-muted hover:text-app-text"

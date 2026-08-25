@@ -200,15 +200,101 @@
   color: var(--color-app-text);
   /* Keeps scrollbars, form controls and overscroll dark instead of white. */
   color-scheme: dark;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.app-page {
+  width: 100%;
+  margin-inline: auto;
+  max-width: 80rem;
+  padding-inline: 1rem;
+  padding-block: 1.5rem;
+  animation: app-enter 0.55s var(--ease-experience) both;
+}
+
+@media (min-width: 640px) {
+  .app-page {
+    padding-inline: 1.5rem;
+    padding-block: 2.35rem;
+  }
+}
+
+@media (min-width: 1024px) {
+  .app-page {
+    padding-inline: 2rem;
+  }
+}
+
+@keyframes app-enter {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* Light sheet used on Analytics. Overrides the dark product tokens. */
+.app-light {
+  --color-app-bg: #ffffff;
+  --color-app-surface: #ffffff;
+  --color-app-surface-hi: #f4f4f5;
+  --color-app-line: #ebebeb;
+  --color-app-line-hi: #d4d4d8;
+  --color-app-text: #111111;
+  --color-app-muted: #52525b;
+  --color-app-faint: #8b8b93;
+  background: #ffffff;
+  color: var(--color-app-text);
+  color-scheme: light;
+}
+
+.app-light .panel {
+  box-shadow:
+    0 1px 0 rgb(255 255 255 / 0.9) inset,
+    0 14px 36px -24px rgb(17 17 17 / 0.22);
+}
+
+.app-light .panel::after {
+  opacity: 0.08;
+}
+
+.app-light .app-btn-primary {
+  background: var(--color-app-text);
+  color: white;
+  border-color: var(--color-app-text);
+}
+
+.app-light .app-btn-primary:hover:not(:disabled) {
+  background: #2a2a2a;
+  color: #ffffff;
+}
+
+.app-light .app-btn-ghost {
+  background: #f4f4f5;
+  border-color: var(--color-app-line);
+  color: var(--color-app-text);
+}
+
+.app-seg {
+  background: color-mix(in oklab, var(--color-app-text) 6%, var(--color-app-bg));
 }
 
 /* The single raised surface. Everything that groups content uses it. */
 .panel {
   position: relative;
   isolation: isolate;
-  border-radius: 0.75rem;
+  border-radius: 1.25rem;
   background: var(--color-app-surface);
   border: 1px solid var(--color-app-line);
+  box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.04);
+  transition:
+    transform 0.32s var(--ease-experience),
+    background-color 0.28s ease,
+    border-color 0.28s ease,
+    box-shadow 0.32s var(--ease-experience);
 }
 
 .panel.overflow-visible {
@@ -219,7 +305,7 @@
 .panel-invert {
   position: relative;
   isolation: isolate;
-  border-radius: 0.75rem;
+  border-radius: 1.25rem;
   background: var(--color-app-text);
   color: var(--color-app-bg);
 }
@@ -248,16 +334,21 @@
   align-items: center;
   justify-content: center;
   gap: 0.5rem;
-  border-radius: 0.625rem;
-  padding: 0.625rem 1rem;
+  border-radius: 999px;
+  padding: 0.625rem 1.05rem;
   font-size: 0.8125rem;
   line-height: 1.2;
   font-weight: 500;
   cursor: pointer;
   transition:
-    background-color 0.18s ease,
-    border-color 0.18s ease,
+    background-color 0.2s ease,
+    border-color 0.2s ease,
+    transform 0.2s var(--ease-experience),
     opacity 0.18s ease;
+}
+
+.app-btn:hover:not(:disabled) {
+  transform: translateY(-1px);
 }
 
 .app-btn:disabled {
@@ -293,16 +384,17 @@
 
 .app-input {
   width: 100%;
-  border-radius: 0.625rem;
-  background: var(--color-app-bg);
-  border: 1px solid var(--color-app-line);
-  padding: 0.625rem 0.75rem;
+  border-radius: 0.95rem;
+  background: color-mix(in oklab, var(--color-app-text) 4%, var(--color-app-bg));
+  border: 1px solid transparent;
+  padding: 0.7rem 0.9rem;
   font-size: 0.875rem;
   color: var(--color-app-text);
   outline: none;
   transition:
     border-color 0.18s ease,
-    background-color 0.18s ease;
+    background-color 0.18s ease,
+    box-shadow 0.18s ease;
 }
 
 .app-input::placeholder {
@@ -313,6 +405,7 @@
 .app-input:focus-within {
   border-color: var(--color-app-text);
   background: var(--color-app-surface);
+  box-shadow: 0 0 0 4px color-mix(in oklab, var(--color-app-text) 10%, transparent);
 }
 
 @utility text-balance {

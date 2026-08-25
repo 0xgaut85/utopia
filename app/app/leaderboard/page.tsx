@@ -3,6 +3,7 @@ import Link from "next/link";
 import { prisma } from "@/lib/app/db";
 import { cn } from "@/lib/utils";
 import { Avatar } from "@/components/app/avatar";
+import { AppPageHeader } from "@/components/app/app-page-header";
 import { SearchField } from "@/components/app/search-field";
 
 export const metadata: Metadata = {
@@ -57,39 +58,37 @@ export default async function LeaderboardPage({
   const n = (value: number) => value.toLocaleString("en-US");
 
   return (
-    <div className="px-4 py-6 sm:px-6 sm:py-10 lg:px-8">
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
-        <div>
-          <h1 className="text-2xl font-semibold tracking-tight text-app-text sm:text-3xl">
-            Leaderboard
-          </h1>
-          <p className="mt-2 max-w-xl text-sm leading-relaxed text-app-muted">
-            Every accepted clip earns points at 100 points per USDC. Here is
-            where the top 50 stand.
-          </p>
-        </div>
-
-        <form action="/app/leaderboard" className="flex items-center gap-2">
-          <SearchField
-            name="q"
-            defaultValue={query}
-            maxLength={30}
-            placeholder="Search a username"
-            className="w-56"
-          />
-          <button type="submit" className="app-btn app-btn-ghost px-3 py-2 text-xs">
-            Search
-          </button>
-          {searching ? (
-            <Link
-              href="/app/leaderboard"
-              className="text-xs text-app-faint underline underline-offset-4 hover:text-app-text"
+    <div className="app-page">
+      <AppPageHeader
+        eyebrow="Rank"
+        title="Leaderboard"
+        description="Every accepted clip earns points at 100 points per USDC. Here is where the top 50 stand."
+        action={
+          <form action="/app/leaderboard" className="flex items-center gap-2">
+            <SearchField
+              name="q"
+              defaultValue={query}
+              maxLength={30}
+              placeholder="Search a username"
+              className="w-56 rounded-full"
+            />
+            <button
+              type="submit"
+              className="app-btn app-btn-ghost px-3 py-2 text-xs"
             >
-              Clear
-            </Link>
-          ) : null}
-        </form>
-      </div>
+              Search
+            </button>
+            {searching ? (
+              <Link
+                href="/app/leaderboard"
+                className="text-xs text-app-faint underline underline-offset-4 hover:text-app-text"
+              >
+                Clear
+              </Link>
+            ) : null}
+          </form>
+        }
+      />
 
       {podium.length > 0 ? (
         <div className="mt-6 grid gap-3 sm:gap-4 lg:grid-cols-3">
