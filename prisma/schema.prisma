@@ -45,6 +45,8 @@ model Task {
   depositNetwork String?
   depositTxHash  String?
   fundedAt       DateTime?
+  payoutAddress  String?
+  payoutTxHash   String?
   creatorKind    String       @default("private")
   isSynthetic    Boolean      @default(false)
   creatorId      String?

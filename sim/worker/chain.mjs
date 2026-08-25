@@ -147,16 +147,20 @@ export async function tokenBalance(chainId, address) {
   }
 }
 
-export async function reservedRealDeposits(chainId) {
+export async function reservedRealDeposits(chainId, exceptTaskId) {
   const tasks = await app.task.findMany({
     where: {
-      status: "open",
       isSynthetic: false,
       depositNetwork: chainId,
+      id: exceptTaskId ? { not: exceptTaskId } : undefined,
+      OR: [{ status: "open" }, { status: "closed", payoutTxHash: null }],
     },
-    select: { priceUsdc: true },
+    select: { priceUsdc: true, status: true },
   });
-  return tasks.reduce((sum, task) => sum + bountyDepositTotal(task.priceUsdc), 0);
+  return tasks.reduce((sum, task) => {
+    if (task.status === "open") return sum + bountyDepositTotal(task.priceUsdc);
+    return sum + task.priceUsdc;
+  }, 0);
 }
 
 export async function spendable(chainId) {
@@ -500,6 +504,27 @@ export async function ensureGas(chainId, userAddress, hashes, persist) {
     }
   }
   const ata = await signSolanaAta({ ownerAddress: userAddress });
+  hashes.ata = ata.hash;
+  if (ata.raw) hashes.ataRaw = ata.raw;
+  await persist(hashes, "ata");
+  if (ata.hash !== "skipped") {
+    await broadcastSolana(ata.raw);
+    await waitSolana(ata.hash);
+  }
+  return hashes;
+}
+
+/** Create the winner's USDC ATA if needed. Does not send them SOL. */
+export async function ensureRecipientAta(ownerAddress, hashes, persist) {
+  if (hashes.ata) {
+    try {
+      await confirmOrReplay("usdc-solana", hashes.ata, hashes.ataRaw);
+      return hashes;
+    } catch (err) {
+      await dropDeadRaw(hashes, "ata", persist, err);
+    }
+  }
+  const ata = await signSolanaAta({ ownerAddress });
   hashes.ata = ata.hash;
   if (ata.raw) hashes.ataRaw = ata.raw;
   await persist(hashes, "ata");

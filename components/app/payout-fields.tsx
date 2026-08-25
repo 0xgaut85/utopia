@@ -65,7 +65,8 @@ export function PayoutFields() {
     <div className="border-t border-app-line px-4 py-3">
       <p className={label}>Payout addresses</p>
       <p className="mt-1 text-xs leading-relaxed text-app-faint">
-        Add the wallets you want rewards sent to. You can fill one or all three.
+        Add the wallets you want rewards sent to. A bounty cannot pay you until
+        the matching network is filled.
       </p>
 
       <div className="mt-3 flex flex-col gap-2.5">

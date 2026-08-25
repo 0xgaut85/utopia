@@ -7,7 +7,7 @@ import { isExpired } from "@/lib/app/bounty";
 /**
  * The buyer accepts the submission they prefer. The contributor is credited
  * priceUsdc x 100 points, every other pending submission is rejected and the
- * bounty closes. USDC payout is done separately from admin mode.
+ * bounty closes. Real bounties also queue an escrow payout of priceUsdc only.
  */
 export async function POST(
   request: Request,
@@ -51,5 +51,6 @@ export async function POST(
   return NextResponse.json({
     accepted: result.accepted,
     pointsAwarded: result.pointsAwarded,
+    payoutQueued: result.payoutQueued,
   });
 }

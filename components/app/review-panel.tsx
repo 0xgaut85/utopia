@@ -15,6 +15,7 @@ type ReviewSubmission = {
   lng: number | null;
   status: string;
   createdAt: string;
+  hasPayoutAddress: boolean;
   user: { username: string; avatarUrl: string | null };
 };
 
@@ -112,7 +113,8 @@ export function ReviewPanel({
           Submissions ({submissions.length})
         </h2>
         <span className="text-sm text-app-muted">
-          Accepting credits {points} points. USDC is sent from the payout desk.
+          Accepting pays the reward (not the 10% fee) and credits {points}{" "}
+          points. The winner must have a payout address for this network.
         </span>
       </div>
 
@@ -167,12 +169,16 @@ export function ReviewPanel({
                   <button
                     type="button"
                     onClick={() => accept(submission.id)}
-                    disabled={accepting !== null}
+                    disabled={
+                      accepting !== null || submission.hasPayoutAddress === false
+                    }
                     className="app-btn app-btn-primary w-full"
                   >
                     {accepting === submission.id
-                      ? "Accepting"
-                      : "Accept and pay"}
+                      ? "Paying"
+                      : submission.hasPayoutAddress === false
+                        ? "Needs payout address"
+                        : "Accept and pay"}
                   </button>
                 ) : (
                   <span

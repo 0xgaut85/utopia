@@ -251,8 +251,8 @@ export function AdminModeDesk() {
             Payout desk
           </h1>
           <p className="mt-1 text-sm text-app-muted">
-            Accept a clip, then send the reward yourself to the winner&apos;s
-            address.
+            Accepting pays the reward from escrow to the winner&apos;s saved
+            address. The 10% fee stays in escrow.
           </p>
         </div>
         <button

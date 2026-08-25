@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/app/db";
 import { getAuthUser } from "@/lib/app/auth";
+import { payoutAddressFor } from "@/lib/app/payout-addresses";
 
 /** Lists a task's submissions with photos, for its buyer or an admin. */
 export async function GET(
@@ -15,7 +16,7 @@ export async function GET(
   const { id } = await params;
   const task = await prisma.task.findUnique({
     where: { id },
-    select: { id: true, creatorId: true, status: true },
+    select: { id: true, creatorId: true, status: true, depositNetwork: true },
   });
 
   if (!task) {
@@ -36,15 +37,35 @@ export async function GET(
       lng: true,
       status: true,
       createdAt: true,
-      user: { select: { username: true, avatarUrl: true } },
+      user: {
+        select: {
+          username: true,
+          avatarUrl: true,
+          payoutSolanaUsdc: true,
+          payoutUsdcBase: true,
+          payoutUsdgRobinhood: true,
+        },
+      },
     },
   });
 
   return NextResponse.json({
     taskStatus: task.status,
-    submissions: submissions.map((submission) => ({
-      ...submission,
-      createdAt: submission.createdAt.toISOString(),
-    })),
+    submissions: submissions.map((submission) => {
+      const { payoutSolanaUsdc, payoutUsdcBase, payoutUsdgRobinhood, ...user } =
+        submission.user;
+      return {
+        ...submission,
+        createdAt: submission.createdAt.toISOString(),
+        user,
+        hasPayoutAddress: Boolean(
+          payoutAddressFor(task.depositNetwork, {
+            payoutSolanaUsdc,
+            payoutUsdcBase,
+            payoutUsdgRobinhood,
+          })
+        ),
+      };
+    }),
   });
 }

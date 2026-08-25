@@ -20,7 +20,10 @@ import {
   resumeJob,
   startCloseJob,
   startCreateJob,
+  canAcceptClip,
+  purgeIncoherentClips,
   writeClip,
+  writeDripClips,
 } from "./worker/jobs.mjs";
 
 const TICK_MS = 20_000;
@@ -36,11 +39,14 @@ async function heartbeat() {
   const job = await openJob();
   const users = await app.user.count({ where: { isSynthetic: true } });
   const tasks = await app.task.count({ where: { isSynthetic: true } });
+  const clips = await app.submission.count({
+    where: { user: { isSynthetic: true } },
+  });
   const ready = escrowKeysReady();
   await logEvent({
     kind: "heartbeat",
     message: ready
-      ? `t+${state?.startedAt ? Math.floor((Date.now() - state.startedAt.getTime()) / 60000) : "?"}m users=${users} tasks=${tasks}`
+      ? `t+${state?.startedAt ? Math.floor((Date.now() - state.startedAt.getTime()) / 60000) : "?"}m users=${users} tasks=${tasks} clips=${clips}`
       : "waiting for escrow keys",
     payload: {
       waitingForKeys: !ready,
@@ -49,6 +55,7 @@ async function heartbeat() {
       openJob: job?.id || null,
       users,
       tasks,
+      clips,
     },
   });
 }
@@ -76,7 +83,16 @@ async function writeLaunchClips() {
       const already = await app.submission.findUnique({
         where: { taskId_userId: { taskId: task.id, userId: user.id } },
       });
-      if (!already) candidates.push(user);
+      if (already) continue;
+      const prior = await app.submission.findMany({
+        where: { userId: user.id },
+        select: {
+          createdAt: true,
+          task: { select: { lat: true, lng: true, locationName: true } },
+        },
+        orderBy: { createdAt: "asc" },
+      });
+      if (canAcceptClip(user.username, task, prior)) candidates.push(user);
     }
     for (const user of candidates.slice(0, need)) {
       await writeClip(task, user);
@@ -122,8 +138,8 @@ async function tick() {
       await logEvent({
         kind: "tick",
         message: result.ok
-          ? `resumed ${job.kind} ${job.bountyKey}`
-          : `retry ${job.kind} ${job.bountyKey}: ${result.error}`,
+          ? `resumed ${job.kind} ${job.bountyKey || job.taskId}`
+          : `retry ${job.kind} ${job.bountyKey || job.taskId}: ${result.error}`,
         payload: { jobId: job.id, ok: result.ok },
       });
       return;
@@ -163,6 +179,13 @@ async function tick() {
     }
 
     await writeLaunchClips();
+    const dripped = await writeDripClips(1);
+    if (dripped) {
+      await logEvent({
+        kind: "tick",
+        message: `drip ${dripped} clips`,
+      });
+    }
 
     for (const bounty of BOUNTIES.filter((row) => row.plannedClose)) {
       const task = await findTaskByBounty(bounty.id);
@@ -207,6 +230,7 @@ async function main() {
   }
 
   await ensureState();
+  await purgeIncoherentClips();
   const leftover = await openJob();
   if (!leftover) {
     const state = await app.workerState.findUnique({

@@ -50,7 +50,7 @@ export default async function ArchivePage() {
   const jobs = closed.length
     ? await prisma.workerJob.findMany({
         where: {
-          kind: "bounty.close",
+          kind: { in: ["bounty.close", "real.payout"] },
           status: "done",
           taskId: { in: closed.map((task) => task.id) },
         },
@@ -61,6 +61,11 @@ export default async function ArchivePage() {
   const payoutByTask = new Map(
     jobs.map((job) => [job.taskId, payoutHashFromJob(job.hashes)])
   );
+  for (const task of closed) {
+    if (task.payoutTxHash && !payoutByTask.get(task.id)) {
+      payoutByTask.set(task.id, task.payoutTxHash);
+    }
+  }
 
   return (
     <div className="app-page">
