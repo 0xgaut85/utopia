@@ -267,7 +267,7 @@ export function BountyBrowser({ tasks }: { tasks: BrowsableTask[] }) {
           </button>
         </div>
       ) : (
-        <div className="mt-3 grid grid-cols-1 items-start gap-3 min-[480px]:grid-cols-2 sm:gap-4 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6">
+        <div className="mt-3 grid grid-cols-1 items-stretch gap-3 min-[480px]:grid-cols-2 sm:gap-4 md:grid-cols-3 xl:grid-cols-4">
           {results.map((entry) => (
             <TaskCard key={entry.task.id} task={entry.task} />
           ))}

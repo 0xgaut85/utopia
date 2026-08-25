@@ -50,7 +50,7 @@ function coordLine(task: TaskCardData) {
   ).toFixed(4)}\u00B0${ew}`;
 }
 
-/** Vertical 3:4 bounty preview. Reward and location only, no points. */
+/** Vertical bounty preview. Reward and location only, no points. */
 export function TaskCard({ task }: { task: TaskCardData }) {
   const Icon =
     categoryIcon[task.category as keyof typeof categoryIcon] ?? Crosshair;
@@ -64,7 +64,7 @@ export function TaskCard({ task }: { task: TaskCardData }) {
   return (
     <article
       className={cn(
-        "panel flex min-h-[22rem] flex-col overflow-hidden sm:aspect-[3/4] sm:min-h-0",
+        "panel flex h-full min-w-0 flex-col overflow-hidden",
         !closed &&
           "hover:-translate-y-1 hover:border-app-line-hi hover:bg-app-surface-hi/40",
         closed && "opacity-50"
@@ -72,34 +72,35 @@ export function TaskCard({ task }: { task: TaskCardData }) {
     >
       <Link
         href={`/app/tasks/${task.id}`}
-        className="flex min-h-0 flex-1 flex-col p-4 sm:p-4"
+        className="flex min-h-0 min-w-0 flex-1 flex-col gap-3 p-4"
       >
         <div className="flex items-center justify-between gap-2">
-          <span className="inline-flex items-center gap-1.5 rounded-full bg-app-bg/80 px-2 py-0.5 text-[11px] capitalize text-app-muted">
+          <span className="inline-flex min-w-0 items-center gap-1.5 rounded-full bg-app-bg/80 px-2 py-0.5 text-[11px] capitalize text-app-muted">
             <Icon className="h-3.5 w-3.5 shrink-0" strokeWidth={1.8} />
-            {task.category}
+            <span className="truncate">{task.category}</span>
           </span>
           {closed ? (
-            <span className="rounded-full bg-app-bg px-2 py-0.5 text-[11px] text-app-faint">
+            <span className="shrink-0 rounded-full bg-app-bg px-2 py-0.5 text-[11px] text-app-faint">
               Closed
             </span>
           ) : (
-            <span className="text-[11px] text-app-faint">
+            <span className="shrink-0 text-[11px] text-app-faint">
               <RemainingTime expiresAt={task.expiresAt} />
             </span>
           )}
         </div>
 
-        <h3 className="mt-3 text-[15px] font-medium leading-snug text-app-text">
-          {task.title}
-        </h3>
+        <div className="min-w-0">
+          <h3 className="line-clamp-2 text-[15px] font-medium leading-snug text-app-text">
+            {task.title}
+          </h3>
+          <p className="mt-2 line-clamp-3 break-words text-[13px] leading-relaxed text-app-muted">
+            {task.brief}
+          </p>
+        </div>
 
-        <p className="mt-2 line-clamp-3 text-[13px] leading-relaxed text-app-muted">
-          {task.brief}
-        </p>
-
-        <div className="mt-auto pt-4">
-          <p className="truncate text-[13px] text-app-text">
+        <div className="mt-auto min-w-0 shrink-0">
+          <p className="line-clamp-2 break-words text-[13px] leading-snug text-app-text">
             {task.locationName ?? "Any location"}
           </p>
           <p className="mt-0.5 truncate font-mono text-[11px] tabular-nums text-app-faint">
@@ -108,13 +109,13 @@ export function TaskCard({ task }: { task: TaskCardData }) {
         </div>
       </Link>
 
-      <div className="border-t border-app-line px-3.5 py-3 sm:px-4">
+      <div className="min-w-0 shrink-0 border-t border-app-line px-3.5 py-3 sm:px-4">
         <p className="truncate text-[13px] text-app-text">
           {creatorDisplay(task.creatorKind, task.creatorName)}
         </p>
 
         <div className="mt-2.5 flex items-end justify-between gap-2">
-          <span className="flex items-baseline gap-1.5">
+          <span className="flex min-w-0 items-baseline gap-1.5">
             <Image
               src="/usdc.svg"
               alt=""
