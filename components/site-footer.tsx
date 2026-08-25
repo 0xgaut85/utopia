@@ -1,6 +1,5 @@
 import Image from "next/image";
 import Link from "next/link";
-import { ComingSoonTrigger } from "@/components/coming-soon";
 
 const columns = [
   {
@@ -9,7 +8,7 @@ const columns = [
       { href: "/docs", label: "Documentation" },
       { href: "/docs/quickstart", label: "Quickstart" },
       { href: "/docs/pricing", label: "Pricing" },
-      { href: "https://app.utopiadata.net", label: "Launch app", comingSoon: true },
+      { href: "https://app.utopiadata.net", label: "Launch app" },
     ],
   },
   {
@@ -83,18 +82,12 @@ export function SiteFooter() {
                 <ul className="mt-4 space-y-2.5">
                   {column.links.map((link) => (
                     <li key={link.href}>
-                      {"comingSoon" in link && link.comingSoon ? (
-                        <ComingSoonTrigger className="text-sm text-ink-soft transition-colors hover:text-ink">
-                          {link.label}
-                        </ComingSoonTrigger>
-                      ) : (
-                        <Link
-                          href={link.href}
-                          className="text-sm text-ink-soft transition-colors hover:text-ink"
-                        >
-                          {link.label}
-                        </Link>
-                      )}
+                      <Link
+                        href={link.href}
+                        className="text-sm text-ink-soft transition-colors hover:text-ink"
+                      >
+                        {link.label}
+                      </Link>
                     </li>
                   ))}
                 </ul>

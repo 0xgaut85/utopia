@@ -80,7 +80,7 @@ export function ColumnRight() {
         </p>
         <LinkRow
           items={[
-            { label: "Open the app", href: "https://app.utopiadata.net", comingSoon: true },
+            { label: "Open the app", href: "https://app.utopiadata.net" },
             { label: "Talk to sales", href: "/docs/enterprise/overview" },
           ]}
         />
