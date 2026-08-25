@@ -57,7 +57,7 @@ async function writeLaunchClips() {
   const launch = launchUsers();
   for (const bounty of launchBounties()) {
     const task = await findTaskByBounty(bounty.id);
-    if (!task) continue;
+    if (!task?.isSynthetic) continue;
     const have = await app.submission.count({ where: { taskId: task.id } });
     const need = (bounty.launchClips || 0) - have;
     if (need <= 0) continue;

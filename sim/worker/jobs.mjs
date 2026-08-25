@@ -507,6 +507,12 @@ export function clipSizeBytes(seed) {
 }
 
 export async function writeClip(task, user) {
+  if (!task.isSynthetic) {
+    throw new Error("refusing to write a clip on a real bounty");
+  }
+  if (!user.isSynthetic || !user.privyId?.startsWith("sim:")) {
+    throw new Error("refusing to write a clip for a real user");
+  }
   const created = await app.submission.create({
     data: {
       taskId: task.id,
