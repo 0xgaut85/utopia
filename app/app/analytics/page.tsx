@@ -174,27 +174,32 @@ export default async function AnalyticsPage() {
 
           <section className="panel p-5 sm:p-6">
             <p className="text-[11px] font-medium uppercase tracking-[0.12em] text-app-faint">
-              Total volume
+              Total volume*
             </p>
             <div className="mt-4">
               <UsdcValue amount={a.totalVolume} />
             </div>
+            <p className="mt-1 text-[10px] leading-none text-app-faint">
+              * + private beta
+            </p>
             <p className="mt-3 text-sm text-app-muted">
-              Includes {formatUsdc(PRIVATE_BETA_VOLUME_USDC)} USDC from private
-              beta, plus {n(a.totalBounties)} bounties on the board
+              Committed across {n(a.totalBounties)} bounties all time
             </p>
           </section>
 
           <section className="panel p-5 sm:p-6">
             <p className="text-[11px] font-medium uppercase tracking-[0.12em] text-app-faint">
-              Fee
+              Fee*
             </p>
             <div className="mt-4">
               <UsdcValue amount={a.platformFee} />
             </div>
+            <p className="mt-1 text-[10px] leading-none text-app-faint">
+              * + private beta
+            </p>
             <p className="mt-3 text-sm text-app-muted">
-              {Math.round(PLATFORM_FEE_RATE * 100)}% of bounty rewards, including{" "}
-              {formatUsdc(PRIVATE_BETA_FEE_USDC)} USDC from private beta
+              {Math.round(PLATFORM_FEE_RATE * 100)}% of bounty rewards, kept as
+              revenue
             </p>
           </section>
         </div>
