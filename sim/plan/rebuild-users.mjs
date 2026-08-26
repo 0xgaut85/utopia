@@ -8,10 +8,48 @@ const root = join(here, "../..");
 const USERNAME = /^[a-zA-Z0-9_]{3,20}$/;
 const IMAGE = /\.(jpe?g|png|webp)$/i;
 
+/** 30 of the 50 leaderboard slots. Real signup accounts are left alone. */
+const LEADERBOARD_PFPS = [
+  "0xDaegon",
+  "jake_97",
+  "0xMiles",
+  "chris_b",
+  "jexu",
+  "Seltz",
+  "0xNash",
+  "lucy_02",
+  "fyro",
+  "Amelia_w",
+  "pexu",
+  "nortz",
+  "voxz",
+  "Tennzyk",
+  "orix_na",
+  "noah_nyc",
+  "OliviaM",
+  "mason1997",
+  "Harper_uk",
+  "ethan02",
+  "jack_88",
+  "CharlotteW",
+  "george_b",
+  "Megan91",
+  "ryan_uk",
+  "NathanJ",
+  "grace_02",
+  "tyler88",
+  "Connor97",
+  "katie_uk",
+];
+
 const files = readdirSync(join(root, "public/sim-avatars"))
   .filter((name) => IMAGE.test(name))
   .sort();
-if (files.length < 1) throw new Error("no files in public/sim-avatars");
+if (files.length < LEADERBOARD_PFPS.length) {
+  throw new Error(
+    `need ${LEADERBOARD_PFPS.length} avatars, have ${files.length}`
+  );
+}
 
 const users = JSON.parse(readFileSync(join(here, "users.json"), "utf8"));
 if (NAMES.length !== 300) throw new Error(`NAMES ${NAMES.length}`);
@@ -31,30 +69,31 @@ if (errors.length) {
   process.exit(1);
 }
 
-const withAvatar = new Set();
-for (let i = 0; i < files.length; i += 1) {
-  const index = Math.min(
-    users.length - 1,
-    Math.floor(((i + 1) * users.length) / files.length)
-  );
-  if (withAvatar.has(index)) {
-    throw new Error(`avatar slot collision at ${index}`);
-  }
-  withAvatar.add(index);
+const pfpAt = new Map(
+  LEADERBOARD_PFPS.map((name, index) => [name.toLowerCase(), files[index]])
+);
+const missing = LEADERBOARD_PFPS.filter(
+  (name) => !NAMES.some(([row]) => row.toLowerCase() === name.toLowerCase())
+);
+if (missing.length) {
+  throw new Error(`unknown leaderboard pfp users: ${missing.join(" ")}`);
 }
 
-let fileIndex = 0;
 const next = users.map((row, index) => {
   const [username, style] = NAMES[index];
   const { avatarKind, ...rest } = row;
-  const avatar = withAvatar.has(index) ? files[fileIndex++] : null;
-  return { ...rest, username, style, avatar };
+  return {
+    ...rest,
+    username,
+    style,
+    avatar: pfpAt.get(username.toLowerCase()) || null,
+  };
 });
-if (fileIndex !== files.length) {
-  throw new Error(`assigned ${fileIndex} of ${files.length} files`);
-}
 
 const urls = next.map((row) => row.avatar).filter(Boolean);
+if (urls.length !== LEADERBOARD_PFPS.length) {
+  throw new Error(`assigned ${urls.length} of ${LEADERBOARD_PFPS.length}`);
+}
 if (new Set(urls).size !== urls.length) {
   throw new Error("duplicate avatars");
 }
@@ -65,12 +104,11 @@ console.log(
     {
       files: files.length,
       assigned: urls.length,
-      first31: next.slice(0, 31).filter((row) => row.avatar).length,
-      launchWithAvatar: next.filter((row) => row.launch && row.avatar).length,
-      laterWithAvatar: next.filter((row) => !row.launch && row.avatar).length,
-      launch: next
-        .filter((row) => row.launch)
-        .map((row) => `${row.username}${row.avatar ? "*" : ""}`)
+      first50: next.slice(0, 50).filter((row) => row.avatar).length,
+      laterWithAvatar: next.slice(50).filter((row) => row.avatar).length,
+      withAvatar: next
+        .filter((row) => row.avatar)
+        .map((row) => row.username)
         .join(" "),
     },
     null,
