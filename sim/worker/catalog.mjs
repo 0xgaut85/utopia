@@ -25,6 +25,11 @@ export function bountyById(id) {
   return BOUNTIES.find((row) => row.id === id) || null;
 }
 
+export function bountyFromTaskSlug(slug) {
+  const match = /^sim-([a-z0-9]+)-/i.exec(String(slug || ""));
+  return match ? bountyById(match[1].toUpperCase()) : null;
+}
+
 export function planUserByUsername(username) {
   const key = username.toLowerCase();
   return USERS.find((row) => row.username.toLowerCase() === key) || null;

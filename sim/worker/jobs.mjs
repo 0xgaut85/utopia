@@ -340,35 +340,37 @@ async function acceptSubmission(taskId, submissionId) {
   return { accepted: submission.id, pointsAwarded: points };
 }
 
+/** Winner must already have a clip on this synthetic bounty. Never invents one. */
 export async function pickWinner(task) {
   if (!task.isSynthetic) return null;
-  const users = await app.user.findMany({
+  const clips = await app.submission.findMany({
     where: {
-      isSynthetic: true,
-      isSeed: false,
-      id: { not: task.creatorId },
-      privyId: { startsWith: "sim:" },
-    },
-    include: {
-      submissions: {
-        where: { status: "accepted" },
-        select: { id: true },
+      taskId: task.id,
+      user: {
+        isSynthetic: true,
+        isSeed: false,
+        privyId: { startsWith: "sim:" },
+        id: { not: task.creatorId },
       },
     },
-    orderBy: { createdAt: "asc" },
+    include: {
+      user: {
+        include: {
+          submissions: {
+            where: { status: "accepted" },
+            select: { id: true },
+          },
+        },
+      },
+    },
   });
-  const locatedByUser = await locatedClipsByUser(
-    users.map((user) => user.id)
-  );
   const ranked = [];
-  for (const user of users) {
+  for (const clip of clips) {
+    const user = clip.user;
     const plan = planUserByUsername(user.username);
     if (!plan) continue;
     const wallet = await loadSimWallet(plan.walletIndex);
     if (!wallet) continue;
-    const clips = locatedByUser.get(user.id) || [];
-    const already = clips.some((row) => row.taskId === task.id);
-    if (!already && !canAcceptClip(user.username, task, clips)) continue;
     ranked.push({ user, plan, wins: user.submissions.length });
   }
   ranked.sort((a, b) => a.wins - b.wins || a.plan.walletIndex - b.plan.walletIndex);
@@ -377,14 +379,13 @@ export async function pickWinner(task) {
 
 export async function runCloseJob(job) {
   const bounty = bountyById(job.bountyKey);
-  if (!bounty) throw new Error(`unknown bounty ${job.bountyKey}`);
   const task =
     (job.taskId &&
       (await app.task.findUnique({
         where: { id: job.taskId },
       }))) ||
-    (await findTaskByBounty(bounty.id));
-  if (!task) throw new Error(`task missing for ${bounty.id}`);
+    (bounty && (await findTaskByBounty(bounty.id)));
+  if (!task) throw new Error(`task missing for ${job.bountyKey}`);
   if (!task.isSynthetic) throw new Error("refusing to close a real task");
   if (task.status !== "open") {
     await app.workerJob.update({
@@ -430,7 +431,7 @@ export async function runCloseJob(job) {
   await logEvent({
     kind: "payout",
     message: `escrow → ${winner.username} ${amount} ${task.depositNetwork}`,
-    payload: { bounty: bounty.id },
+    payload: { bounty: bounty?.id || task.slug },
   });
 
   await persist(job, hashes, 3);
@@ -460,7 +461,7 @@ export async function runCloseJob(job) {
   await releaseLock();
   await logEvent({
     kind: "close",
-    message: `closed ${bounty.id} → ${winner.username} +${result.pointsAwarded}`,
+    message: `closed ${bounty?.id || task.slug} → ${winner.username} +${result.pointsAwarded}`,
     payload: { taskId: task.id, submissionId: clip.id },
   });
 }
@@ -651,10 +652,12 @@ export async function startCreateJob(bounty, funder) {
 }
 
 export async function startCloseJob(bounty, task, winner) {
+  if (!task.isSynthetic) throw new Error("refusing to close a real task");
+  const bountyKey = bounty?.id || task.slug;
   const existingJobs = await app.workerJob.findMany({
     where: {
       kind: "bounty.close",
-      bountyKey: bounty.id,
+      bountyKey,
       status: { in: ["open", "failed"] },
     },
     orderBy: { createdAt: "asc" },
@@ -669,7 +672,7 @@ export async function startCloseJob(bounty, task, winner) {
       kind: "bounty.close",
       status: "open",
       step: 0,
-      bountyKey: bounty.id,
+      bountyKey,
       taskId: task.id,
       userId: winner.id,
       chain: task.depositNetwork,
@@ -683,8 +686,10 @@ async function ensureWinnerClip(task, user) {
   const existing = await app.submission.findUnique({
     where: { taskId_userId: { taskId: task.id, userId: user.id } },
   });
-  if (existing) return existing;
-  return writeClip(task, user);
+  if (!existing) {
+    throw new Error("winner has no submission on this bounty");
+  }
+  return existing;
 }
 
 const PLACEHOLDER =

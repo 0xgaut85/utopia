@@ -9,6 +9,7 @@ import {
   findFunder,
   launchBounties,
   launchUsers,
+  bountyFromTaskSlug,
 } from "./worker/catalog.mjs";
 import {
   ensureState,
@@ -187,22 +188,24 @@ async function tick() {
       });
     }
 
-    for (const bounty of BOUNTIES.filter((row) => row.plannedClose)) {
-      const task = await findTaskByBounty(bounty.id);
-      if (!task || task.status !== "open") continue;
+    const closing = await app.task.findMany({
+      where: { isSynthetic: true, status: "open" },
+    });
+    for (const task of closing) {
       if (!isNearDeadline(task.expiresAt)) continue;
       const picked = await pickWinner(task);
       if (!picked) {
         await logEvent({
           kind: "error",
           level: "warn",
-          message: `no eligible winner for ${bounty.id}`,
+          message: `no submitter to pick for ${task.slug}`,
         });
         continue;
       }
+      const bounty = bountyFromTaskSlug(task.slug);
       await logEvent({
         kind: "tick",
-        message: `close ${bounty.id} → ${picked.user.username}`,
+        message: `close ${bounty?.id || task.slug} → ${picked.user.username}`,
       });
       await startCloseJob(bounty, task, picked.user);
       return;
