@@ -7,7 +7,7 @@ import { ReviewPanel } from "@/components/app/review-panel";
 import { UsdcAmount } from "@/components/app/usdc-amount";
 import { BountyProof } from "@/components/app/bounty-proof";
 import { creatorDisplay } from "@/lib/app/creator-kind";
-import { taskPoints } from "@/lib/app/points";
+import { submitPoints, taskPoints } from "@/lib/app/points";
 import { isBountyOpen } from "@/lib/app/bounty";
 import { RemainingTime } from "@/components/app/remaining-time";
 
@@ -101,7 +101,8 @@ export default async function TaskPage({
               <UsdcAmount amount={task.priceUsdc} />
               <span className="mt-0.5 block text-xs text-app-faint">
                 +{taskPoints(task.priceUsdc).toLocaleString("en-US")} pts if
-                accepted
+                accepted, {submitPoints(task.priceUsdc).toLocaleString("en-US")}{" "}
+                on a valid upload
               </span>
             </Fact>
             <Fact label="Submissions">
@@ -145,6 +146,9 @@ export default async function TaskPage({
           priceUsdc={task.priceUsdc}
           open={open}
           requiresLocation={task.lat !== null && task.lng !== null}
+          taskLat={task.lat}
+          taskLng={task.lng}
+          radiusM={task.radiusM}
         />
       </div>
 

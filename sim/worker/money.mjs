@@ -46,6 +46,11 @@ export function taskPoints(priceUsdc) {
   return Math.round(priceUsdc * 100);
 }
 
+/** Matches lib/app/points.ts. 5% of the win purse on a valid clip. */
+export function submitPoints(priceUsdc) {
+  return Math.round(taskPoints(priceUsdc) * 0.05);
+}
+
 /** Matches lib/app/points.ts. Worker bounties never use kind "user". */
 export function creatorPoints(priceUsdc, kind) {
   if (kind !== "user") return 0;

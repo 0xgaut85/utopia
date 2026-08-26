@@ -8,7 +8,7 @@ import { cn } from "@/lib/utils";
 import { useAppAuth } from "@/components/app/auth-context";
 import { Avatar } from "@/components/app/avatar";
 import { compressAvatar } from "@/lib/app/image";
-import { taskPoints } from "@/lib/app/points";
+import { submitPoints, taskPoints } from "@/lib/app/points";
 import { PayoutFields } from "@/components/app/payout-fields";
 
 const label = "text-xs text-app-faint";
@@ -382,9 +382,10 @@ export default function ProfilePage() {
                           : "bg-app-bg text-app-faint"
                       )}
                     >
-                      {taskPoints(submission.task.priceUsdc).toLocaleString(
-                        "en-US"
-                      )}{" "}
+                      {(submission.status === "accepted"
+                        ? taskPoints(submission.task.priceUsdc)
+                        : submitPoints(submission.task.priceUsdc)
+                      ).toLocaleString("en-US")}{" "}
                       pts
                     </span>
                   </li>

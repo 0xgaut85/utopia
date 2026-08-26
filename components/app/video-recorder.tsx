@@ -19,12 +19,14 @@ export type RecordedClip = {
   dataUrl: string;
   lat: number;
   lng: number;
+  durationSec: number;
 };
 
 type Coords = { lat: number; lng: number };
 type Place = { country?: string; region?: string; city?: string };
 type Phase = "init" | "ready" | "recording" | "recorded";
 
+const MIN_SECONDS = 10;
 const MAX_SECONDS = 20;
 const MAX_BYTES = 80 * 1024 * 1024;
 // The landing page fonts are loaded by next/font under hashed family names
@@ -164,6 +166,7 @@ export function VideoRecorder({
   const placeRef = useRef<Place | null>(null);
   const lastGeocodeRef = useRef<number>(0);
   const recordedUrlRef = useRef<string | null>(null);
+  const elapsedRef = useRef(0);
 
   const [facingMode, setFacingMode] = useState<"environment" | "user">(
     "environment"
@@ -409,7 +412,12 @@ export function VideoRecorder({
       reader.onload = () => {
         const fix = coordsRef.current;
         if (typeof reader.result === "string" && fix) {
-          onChange({ dataUrl: reader.result, lat: fix.lat, lng: fix.lng });
+          onChange({
+            dataUrl: reader.result,
+            lat: fix.lat,
+            lng: fix.lng,
+            durationSec: elapsedRef.current,
+          });
           setPhase("recorded");
         } else {
           setError("Could not process the clip. Try again.");
@@ -423,9 +431,11 @@ export function VideoRecorder({
     recorder.start();
     setPhase("recording");
     setElapsed(0);
+    elapsedRef.current = 0;
     timerRef.current = window.setInterval(() => {
       setElapsed((value) => {
         const next = value + 1;
+        elapsedRef.current = next;
         if (next >= MAX_SECONDS) stopRecording();
         return next;
       });
@@ -439,6 +449,7 @@ export function VideoRecorder({
     }
     setRecordedUrl(null);
     setElapsed(0);
+    elapsedRef.current = 0;
     onChange(null);
     setPhase("ready");
   }
@@ -547,10 +558,13 @@ export function VideoRecorder({
         <button
           type="button"
           onClick={stopRecording}
+          disabled={elapsed < MIN_SECONDS}
           className="app-btn app-btn-primary w-full"
         >
           <Square className="h-4 w-4" strokeWidth={1.8} />
-          Stop recording
+          {elapsed < MIN_SECONDS
+            ? `Keep recording (${MIN_SECONDS - elapsed}s)`
+            : "Stop recording"}
         </button>
       ) : (
         <button

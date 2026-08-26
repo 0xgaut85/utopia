@@ -114,7 +114,8 @@ export function ReviewPanel({
         </h2>
         <span className="text-sm text-app-muted">
           Accepting pays the reward (not the 10% fee) and credits {points}{" "}
-          points. The winner must have a payout address for this network.
+          points on top of the 5% they already earned for a valid upload. The
+          winner must have a payout address for this network.
         </span>
       </div>
 

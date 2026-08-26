@@ -183,8 +183,9 @@ export default function NewBountyPage() {
             </h1>
             <p className="mt-2 text-sm leading-relaxed text-app-muted">
               Describe the clip you need and set a price in USDC. Contributors
-              record footage in the app, you accept the one you prefer and the
-              reward releases to them at 100 points per USDC.
+              record footage in the app. A valid upload earns 5% of the points
+              purse; you accept one clip and that winner gets 100 points per
+              USDC plus the USDC reward.
             </p>
           </div>
 

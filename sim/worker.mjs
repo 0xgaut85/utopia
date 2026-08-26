@@ -25,6 +25,7 @@ import {
   purgeIncoherentClips,
   writeClip,
   writeDripClips,
+  backfillSubmitPoints,
 } from "./worker/jobs.mjs";
 
 const TICK_MS = 20_000;
@@ -234,6 +235,7 @@ async function main() {
 
   await ensureState();
   await purgeIncoherentClips();
+  await backfillSubmitPoints();
   const leftover = await openJob();
   if (!leftover) {
     const state = await app.workerState.findUnique({

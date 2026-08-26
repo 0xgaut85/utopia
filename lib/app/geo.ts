@@ -170,3 +170,65 @@ export function resolvePlace(place: {
     continent,
   };
 }
+
+const EARTH_M = 6_371_000;
+/** Phone GPS jitter. Added on top of the bounty radius. */
+export const GPS_SLACK_M = 80;
+/** When a pin exists but no radius was set. */
+export const DEFAULT_BOUNTY_RADIUS_M = 200;
+
+export function haversineMeters(
+  a: { lat: number; lng: number },
+  b: { lat: number; lng: number }
+) {
+  const toRad = (deg: number) => (deg * Math.PI) / 180;
+  const dLat = toRad(b.lat - a.lat);
+  const dLng = toRad(b.lng - a.lng);
+  const sinLat = Math.sin(dLat / 2);
+  const sinLng = Math.sin(dLng / 2);
+  const h =
+    sinLat * sinLat +
+    Math.cos(toRad(a.lat)) * Math.cos(toRad(b.lat)) * sinLng * sinLng;
+  return EARTH_M * 2 * Math.atan2(Math.sqrt(h), Math.sqrt(1 - h));
+}
+
+export function isLocatedTask(task: {
+  lat?: number | null;
+  lng?: number | null;
+}) {
+  return (
+    typeof task.lat === "number" &&
+    typeof task.lng === "number" &&
+    Number.isFinite(task.lat) &&
+    Number.isFinite(task.lng)
+  );
+}
+
+/** Kitchen / laundry / in-house bounties have no pin and skip the geofence. */
+export function clipNearTask(
+  task: { lat?: number | null; lng?: number | null; radiusM?: number | null },
+  clip: { lat?: number | null; lng?: number | null }
+) {
+  if (!isLocatedTask(task)) return true;
+  if (
+    typeof clip.lat !== "number" ||
+    typeof clip.lng !== "number" ||
+    !Number.isFinite(clip.lat) ||
+    !Number.isFinite(clip.lng) ||
+    Math.abs(clip.lat) > 90 ||
+    Math.abs(clip.lng) > 180
+  ) {
+    return false;
+  }
+  const radius =
+    typeof task.radiusM === "number" && task.radiusM > 0
+      ? task.radiusM
+      : DEFAULT_BOUNTY_RADIUS_M;
+  return (
+    haversineMeters(
+      { lat: task.lat as number, lng: task.lng as number },
+      { lat: clip.lat, lng: clip.lng }
+    ) <=
+    radius + GPS_SLACK_M
+  );
+}

@@ -3,6 +3,7 @@ import { logEvent, safeError } from "./log.mjs";
 import {
   assertBountyChain,
   bountyDepositTotal,
+  submitPoints,
   taskPoints,
 } from "./money.mjs";
 import {
@@ -905,6 +906,7 @@ export async function purgeIncoherentClips() {
 }
 
 export async function writeClip(task, user) {
+  // Placeholder clips skip the 10s video check. Real uploads still need it.
   if (!task.isSynthetic) {
     throw new Error("refusing to write a clip on a real bounty");
   }
@@ -926,21 +928,79 @@ export async function writeClip(task, user) {
         : "refusing clip: user would teleport or exceed located cap"
     );
   }
-  const created = await app.submission.create({
-    data: {
-      taskId: task.id,
-      userId: user.id,
-      photo: PLACEHOLDER,
-      sizeBytes: clipSizeBytes(`${task.id}:${user.id}`),
-      status: "pending",
-      lat: task.lat ?? undefined,
-      lng: task.lng ?? undefined,
-    },
+  const points = submitPoints(task.priceUsdc);
+  const created = await app.$transaction(async (tx) => {
+    const row = await tx.submission.create({
+      data: {
+        taskId: task.id,
+        userId: user.id,
+        photo: PLACEHOLDER,
+        sizeBytes: clipSizeBytes(`${task.id}:${user.id}`),
+        status: "pending",
+        lat: task.lat ?? undefined,
+        lng: task.lng ?? undefined,
+      },
+    });
+    if (points > 0) {
+      await tx.user.update({
+        where: { id: user.id },
+        data: { points: { increment: points } },
+      });
+    }
+    return row;
   });
   await logEvent({
     kind: "clip.submit",
     message: `${user.username} → ${task.slug}`,
-    payload: { taskId: task.id, submissionId: created.id },
+    payload: { taskId: task.id, submissionId: created.id, points },
   });
   return created;
+}
+
+/** One-shot: credit 5% submit points on clips written before writeClip awarded them. */
+export async function backfillSubmitPoints() {
+  const already = await app.workerEvent.findFirst({
+    where: { kind: "submit.points.backfill" },
+  });
+  if (already) return 0;
+
+  const clips = await app.submission.findMany({
+    where: {
+      user: { isSynthetic: true, privyId: { startsWith: "sim:" } },
+      task: { isSynthetic: true },
+    },
+    select: { userId: true, task: { select: { priceUsdc: true } } },
+  });
+  const byUser = new Map();
+  for (const row of clips) {
+    const pts = submitPoints(row.task.priceUsdc);
+    if (pts <= 0) continue;
+    byUser.set(row.userId, (byUser.get(row.userId) || 0) + pts);
+  }
+
+  await app.$transaction(async (tx) => {
+    const raced = await tx.workerEvent.findFirst({
+      where: { kind: "submit.points.backfill" },
+    });
+    if (raced) return;
+    for (const [userId, pts] of byUser) {
+      await tx.user.update({
+        where: { id: userId },
+        data: { points: { increment: pts } },
+      });
+    }
+    await tx.workerEvent.create({
+      data: {
+        level: "info",
+        kind: "submit.points.backfill",
+        message: `credited ${clips.length} sim clips`,
+        payload: { clips: clips.length, users: byUser.size },
+      },
+    });
+  });
+
+  console.log(
+    `[submit.points.backfill] credited ${clips.length} sim clips users=${byUser.size}`
+  );
+  return clips.length;
 }

@@ -4,29 +4,57 @@ import { useState } from "react";
 import { Check } from "lucide-react";
 import { useAppAuth } from "@/components/app/auth-context";
 import { VideoRecorder, type RecordedClip } from "@/components/app/video-recorder";
-import { taskPoints } from "@/lib/app/points";
+import { submitPoints, taskPoints } from "@/lib/app/points";
+import { clipNearTask } from "@/lib/app/geo";
+import { MIN_CLIP_SECONDS } from "@/lib/app/video-duration";
 
 type SubmitPanelProps = {
   taskId: string;
   priceUsdc: number;
   open: boolean;
   requiresLocation: boolean;
+  taskLat: number | null;
+  taskLng: number | null;
+  radiusM: number | null;
 };
 
 type Phase = "idle" | "submitting" | "done";
 
-export function SubmitPanel({ taskId, priceUsdc, open }: SubmitPanelProps) {
-  const points = taskPoints(priceUsdc).toLocaleString("en-US");
+export function SubmitPanel({
+  taskId,
+  priceUsdc,
+  open,
+  requiresLocation,
+  taskLat,
+  taskLng,
+  radiusM,
+}: SubmitPanelProps) {
+  const winPts = taskPoints(priceUsdc).toLocaleString("en-US");
+  const uploadPts = submitPoints(priceUsdc).toLocaleString("en-US");
   const { configured, ready, authenticated, login, getToken, refreshProfile } =
     useAppAuth();
   const [clip, setClip] = useState<RecordedClip | null>(null);
   const [note, setNote] = useState("");
   const [phase, setPhase] = useState<Phase>("idle");
   const [error, setError] = useState<string | null>(null);
+  const [awarded, setAwarded] = useState<number | null>(null);
 
   async function submit() {
     if (!clip) {
       setError("Record a clip first.");
+      return;
+    }
+    if (clip.durationSec < MIN_CLIP_SECONDS) {
+      setError(`Clip must be at least ${MIN_CLIP_SECONDS} seconds.`);
+      return;
+    }
+    if (
+      !clipNearTask(
+        { lat: taskLat, lng: taskLng, radiusM },
+        { lat: clip.lat, lng: clip.lng }
+      )
+    ) {
+      setError("You need to be at the bounty location to submit this clip.");
       return;
     }
     setError(null);
@@ -50,6 +78,7 @@ export function SubmitPanel({ taskId, priceUsdc, open }: SubmitPanelProps) {
         note: note || undefined,
         lat: clip.lat,
         lng: clip.lng,
+        durationSec: clip.durationSec,
       }),
     });
 
@@ -62,6 +91,10 @@ export function SubmitPanel({ taskId, priceUsdc, open }: SubmitPanelProps) {
       return;
     }
 
+    const data = (await response.json().catch(() => null)) as {
+      pointsAwarded?: number;
+    } | null;
+    setAwarded(data?.pointsAwarded ?? submitPoints(priceUsdc));
     setPhase("done");
     void refreshProfile();
   }
@@ -85,8 +118,10 @@ export function SubmitPanel({ taskId, priceUsdc, open }: SubmitPanelProps) {
           </span>
           <p className="text-lg font-medium text-app-text">Clip submitted</p>
           <p className="max-w-xs text-sm leading-relaxed text-app-muted">
-            The buyer is reviewing submissions. You earn {points} points if
-            yours is accepted.
+            {awarded
+              ? `${awarded.toLocaleString("en-US")} points are on your account.`
+              : `You earned ${uploadPts} points for the upload.`}{" "}
+            If the buyer accepts this clip you get another {winPts}.
           </p>
         </div>
       ) : !configured ? (
@@ -99,8 +134,8 @@ export function SubmitPanel({ taskId, priceUsdc, open }: SubmitPanelProps) {
       ) : !authenticated ? (
         <div className="flex flex-1 flex-col items-center justify-center gap-4 px-6 py-16 text-center">
           <p className="max-w-xs text-sm leading-relaxed text-app-muted">
-            Sign in to record a clip. You earn {points} points if the buyer
-            accepts it.
+            Sign in to record a clip. A valid upload earns {uploadPts} points.
+            The accepted clip earns {winPts}.
           </p>
           <button
             type="button"
@@ -114,8 +149,13 @@ export function SubmitPanel({ taskId, priceUsdc, open }: SubmitPanelProps) {
       ) : (
         <div className="flex flex-1 flex-col gap-4 p-4">
           <p className="text-sm leading-relaxed text-app-muted">
-            Record a live clip from your camera. A verified Utopia overlay with
-            your GPS, location and UTC time is burned into every frame.
+            Record at least {MIN_CLIP_SECONDS}s from your camera
+            {requiresLocation
+              ? " at the bounty location"
+              : " (kitchen and in-house clips can be filmed at home)"}
+            . A verified Utopia overlay with your GPS, location and UTC time is
+            burned into every frame. A valid upload earns {uploadPts} points
+            even if you are not picked. The winner earns {winPts}.
           </p>
 
           <VideoRecorder onChange={setClip} />
@@ -139,7 +179,7 @@ export function SubmitPanel({ taskId, priceUsdc, open }: SubmitPanelProps) {
           >
             {phase === "submitting"
               ? "Submitting"
-              : `Submit for review, ${points} pts`}
+              : `Submit for review, ${uploadPts} pts`}
           </button>
         </div>
       )}

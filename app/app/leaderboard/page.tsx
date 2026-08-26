@@ -62,7 +62,7 @@ export default async function LeaderboardPage({
       <AppPageHeader
         eyebrow="Rank"
         title="Leaderboard"
-        description="Every accepted clip earns points at 100 points per USDC. Here is where the top 50 stand."
+        description="A valid upload earns 5% of the bounty points. The accepted clip earns 100 points per USDC. Here is where the top 50 stand."
         action={
           <form action="/app/leaderboard" className="flex items-center gap-2">
             <SearchField

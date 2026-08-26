@@ -235,7 +235,7 @@ export default async function AnalyticsPage() {
           <StatCard
             label="Points distributed"
             value={n(a.pointsDistributed)}
-            hint="100 points per USDC"
+            hint="100 pts/USDC on accept, 5% on a valid upload"
           />
         </div>
       </div>
