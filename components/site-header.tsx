@@ -14,24 +14,9 @@ const links = [
   { href: "/docs", label: "Docs" },
 ];
 
-const UTOPIA_CA = "0x201ebd16f690025705e88d8bbd33b04955f49835";
-const UTOPIA_CA_SHORT = `${UTOPIA_CA.slice(0, 6)}…${UTOPIA_CA.slice(-4)}`;
-const UTOPIA_CA_EXPLORER = `https://basescan.org/token/${UTOPIA_CA}`;
-
 export function SiteHeader() {
   const pathname = usePathname();
   const [menuOpen, setMenuOpen] = useState(false);
-  const [copied, setCopied] = useState(false);
-
-  async function copyCa() {
-    try {
-      await navigator.clipboard.writeText(UTOPIA_CA);
-      setCopied(true);
-      window.setTimeout(() => setCopied(false), 1600);
-    } catch {
-      setCopied(false);
-    }
-  }
 
   useEffect(() => {
     if (!menuOpen) return;
@@ -52,32 +37,7 @@ export function SiteHeader() {
 
   return (
     <>
-      <header className="fixed inset-x-0 top-0 z-40">
-        <div className="border-b border-line/70 bg-mist/90 backdrop-blur-xl">
-          <div className="mx-auto flex max-w-5xl items-center justify-center gap-2 px-3 py-1.5 font-mono text-[11px] text-ink sm:gap-3 sm:px-6 sm:text-xs">
-            <span className="shrink-0 font-semibold tracking-tight">
-              $UTOPIA CA
-            </span>
-            <a
-              href={UTOPIA_CA_EXPLORER}
-              target="_blank"
-              rel="noreferrer"
-              className="min-w-0 truncate text-ink-soft underline-offset-2 hover:text-ink hover:underline"
-              title={UTOPIA_CA}
-            >
-              <span className="sm:hidden">{UTOPIA_CA_SHORT}</span>
-              <span className="hidden break-all sm:inline">{UTOPIA_CA}</span>
-            </a>
-            <button
-              type="button"
-              onClick={copyCa}
-              className="shrink-0 text-ink-soft underline-offset-2 hover:text-ink hover:underline"
-            >
-              {copied ? "Copied" : "Copy"}
-            </button>
-          </div>
-        </div>
-        <div className="flex justify-center px-3 pt-3 sm:px-6 sm:pt-4">
+      <header className="fixed inset-x-0 top-0 z-40 flex justify-center px-3 pt-3 sm:px-6 sm:pt-4">
         <motion.div
           initial={{ y: -24, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
@@ -135,7 +95,6 @@ export function SiteHeader() {
             </ComingSoonTrigger>
           </div>
         </motion.div>
-        </div>
       </header>
 
       <AnimatePresence>
@@ -160,7 +119,7 @@ export function SiteHeader() {
               animate={{ y: 0, opacity: 1, scale: 1 }}
               exit={{ y: -8, opacity: 0, scale: 0.98 }}
               transition={{ duration: 0.25, ease: [0.16, 1, 0.3, 1] }}
-              className="absolute left-3 right-3 top-[7.25rem] overflow-hidden rounded-glass border border-line/70 bg-mist shadow-[0_24px_60px_-24px_rgba(0,0,0,0.35)]"
+              className="absolute left-3 right-3 top-[4.25rem] overflow-hidden rounded-glass border border-line/70 bg-mist shadow-[0_24px_60px_-24px_rgba(0,0,0,0.35)]"
             >
               <div className="flex items-center justify-between border-b border-line/70 px-4 py-3">
                 <span className="text-xs font-semibold uppercase tracking-[0.14em] text-ink-soft">
